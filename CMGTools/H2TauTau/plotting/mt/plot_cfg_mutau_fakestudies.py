@@ -41,7 +41,8 @@ data_dir = analysis_dir
 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50_LO, WJetsToLNu, WWTo2L2Nu, ZZp8, WZp8, T_tWch, TBar_tWch, TToLeptons_tch_amcatnlo, TToLeptons_sch_amcatnlo, QCD_Mu15
 
-from samples import samples
+from CMGTools.H2TauTau.proto.plotter.Samples import samples
+#from samples import samples
 
 
 
@@ -49,7 +50,8 @@ from samples import samples
 variables = getVars(['l1_pt', 'l2_pt', 'l1_gen_pdgId', 'l2_gen_pdgId', 'l1_reliso05_04', 'l1_reliso05', 'l2_byCombinedIsolationDeltaBetaCorrRaw3Hits'])
 variables += [v for v in all_vars if 'dxy' in v.name or 'dz' in v.name]
 
-variables = getVars(['_norm_', 'l2_pt', 'l2_eta', 'mvis', 'mt', 'delta_r_l1_l2', 'l2_gen_pdgId', 'mt_leg2'])
+#variables = getVars(['_norm_', 'l2_pt', 'l2_eta', 'mvis', 'mt', 'delta_r_l1_l2', 'l2_gen_pdgId', 'mt_leg2'])
+variables = getVars(['_norm_', 'l2_pt', 'l2_eta', 'mvis', 'mt', 'l2_gen_pdgId'])
 # variables = all_vars
 
 for cut_name in cuts:

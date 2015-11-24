@@ -70,3 +70,20 @@ class HistogramCfg(object):
         self.norm_cfg = norm_cfg # Different histogram cfg for normalisation
         self.total_scale = total_scale
 
+
+class BasicHistogramCfg(object):
+    '''Configuration object for a sample contribution already stored in a histogram.
+    '''
+    def __init__(self, name='Default', histo_file_name='histo.root', histo_name='histo',
+        scale=1., xsec=1., sumweights=1., is_signal=False, is_data=False):
+        self.name = name
+        self.histo_file_name = histo_file_name
+        self.histo_name = histo_name
+        self.scale = scale # generic scale, e.g. scale signal by factor 5
+
+        self.xsec = xsec
+        self.sumweights = sumweights
+
+        self.is_signal = is_signal # To e.g. draw as separate curve (not stack)
+        self.is_data = is_data # Will be drawn as data
+

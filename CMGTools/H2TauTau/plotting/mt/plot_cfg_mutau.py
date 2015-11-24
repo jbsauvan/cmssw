@@ -6,7 +6,8 @@ from CMGTools.H2TauTau.proto.plotter.HistCreator import createHistogram
 from CMGTools.H2TauTau.proto.plotter.HistDrawer import HistDrawer
 from CMGTools.H2TauTau.proto.plotter.Variables import all_vars, getVars
 
-from samples import samples
+from CMGTools.H2TauTau.proto.plotter.Samples import samples
+#from samples import samples
 
 int_lumi = 1560.
 
