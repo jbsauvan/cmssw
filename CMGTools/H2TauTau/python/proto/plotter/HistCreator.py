@@ -45,11 +45,13 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False):
             hist.__class__ = TH1F
             hist.SetDirectory(0)
             hist.SetTitle("")
+            initHist(hist, vcfg)
             histo_file.Close()
             gROOT.cd()
             #
             stack = all_stack or (not cfg.is_data and not cfg.is_signal)
             #
+            if cfg.rebin>1: hist.Rebin(cfg.rebin)
             hist.Scale(cfg.scale)
             #
             if cfg.name in plot:

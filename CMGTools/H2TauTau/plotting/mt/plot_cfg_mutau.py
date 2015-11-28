@@ -33,7 +33,7 @@ for cut in cuts:
 qcd_from_same_sign = True
 
 # -> Command line
-analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/NewProd'
+analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/18112015'
 tree_prod_name = 'H2TauTauTreeProducerTauMu'
 data_dir = analysis_dir
 

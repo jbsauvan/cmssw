@@ -251,7 +251,8 @@ class DataMCPlot(object):
                 dataHist = hist
                 continue
             stackedHists.append(hist)
-        self._BuildStack(stackedHists, ytitle='Data/MC')
+        #self._BuildStack(stackedHists, ytitle='Data/MC')
+        self._BuildStack(stackedHists, ytitle='Actual/Est.')
         mcHist = self.stack.totalHist
         self.dataOverMCHist = copy.deepcopy(dataHist)
         # self.dataOverMCHist.Add(mcHist, -1)
@@ -259,7 +260,8 @@ class DataMCPlot(object):
         self.dataOverMCHist.Draw()
         yaxis = self.dataOverMCHist.GetYaxis()
         yaxis.SetRangeUser(ymin + 1., ymax + 1.)
-        yaxis.SetTitle('Data/MC')
+        #yaxis.SetTitle('Data/MC')
+        yaxis.SetTitle('Actual/Est.')
         yaxis.SetNdivisions(5)
         fraclines = 0.2
         if ymax <= 0.2 or ymin >= -0.2:
