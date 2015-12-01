@@ -6,7 +6,7 @@ from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_p
 
 from CMGTools.H2TauTau.proto.plotter.PlotConfigs import HistogramCfg, BasicHistogramCfg, VariableCfg
 from CMGTools.H2TauTau.proto.plotter.categories_TauMu import cat_Inc
-from CMGTools.H2TauTau.proto.plotter.HistCreator import createHistogram
+from CMGTools.H2TauTau.proto.plotter.HistCreator import createHistogram, setSumWeights
 #from CMGTools.H2TauTau.proto.plotter.HistDrawer import HistDrawer
 from HistDrawerFake import HistDrawer
 from CMGTools.H2TauTau.proto.plotter.Variables import all_vars, getVars
@@ -16,6 +16,7 @@ from Data import CompatibilityData
 #from CMGTools.H2TauTau.proto.plotter.Samples import samples
 
 int_lumi = 1560.
+analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/18112015/'
 
 ## templates for histogram and file names
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/'
@@ -25,19 +26,19 @@ histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}_vs_match5' ## '_vs_match5' is 
 
 # samples to be used
 Name = "Name"
+DirName = "DirName"
 XSection = "XSection"
 SumWeights = "SumWeights"
 samples = [
-    #{Name:'ZL'       , XSection:DYJetsToLL_M50_LO.xSection, SumWeights:DYJetsToLL_M50_LO.nGenEvents},
-    {Name:'ZJ'       , XSection:DYJetsToLL_M50_LO.xSection, SumWeights:DYJetsToLL_M50_LO.nGenEvents},
-    {Name:'W'        , XSection:WJetsToLNu_LO.xSection    , SumWeights:WJetsToLNu_LO.nGenEvents},
-    {Name:'TT'       , XSection:TT_pow.xSection           , SumWeights:TT_pow.nGenEvents},
-    {Name:'T_tWch'   , XSection:T_tWch.xSection           , SumWeights:T_tWch.nGenEvents},
-    {Name:'TBar_tWch', XSection:TBar_tWch.xSection        , SumWeights:TBar_tWch.nGenEvents},
-    {Name:'WW'       , XSection:WWTo2L2Nu.xSection        , SumWeights:WWTo2L2Nu.nGenEvents},
-    {Name:'WZ'       , XSection:WZp8.xSection             , SumWeights:WZp8.nGenEvents},
-    {Name:'ZZ'       , XSection:ZZp8.xSection             , SumWeights:ZZp8.nGenEvents},
-    {Name:'QCD'      , XSection:QCD_Mu15.xSection         , SumWeights:1.},
+    {Name:'ZJ'       , DirName:'DYJetsToLL_M50_LO', XSection:DYJetsToLL_M50_LO.xSection, SumWeights:DYJetsToLL_M50_LO.nGenEvents},
+    {Name:'W'        , DirName:'WJetsToLNu_LO'    , XSection:WJetsToLNu_LO.xSection    , SumWeights:WJetsToLNu_LO.nGenEvents},
+    {Name:'TT'       , DirName:'TT_pow'           , XSection:TT_pow.xSection           , SumWeights:TT_pow.nGenEvents},
+    {Name:'T_tWch'   , DirName:'T_tWch'           , XSection:T_tWch.xSection           , SumWeights:T_tWch.nGenEvents},
+    {Name:'TBar_tWch', DirName:'TBar_tWch'        , XSection:TBar_tWch.xSection        , SumWeights:TBar_tWch.nGenEvents},
+    {Name:'WW'       , DirName:'WWTo2L2Nu'        , XSection:WWTo2L2Nu.xSection        , SumWeights:WWTo2L2Nu.nGenEvents},
+    {Name:'WZ'       , DirName:'WZ'               , XSection:WZp8.xSection             , SumWeights:WZp8.nGenEvents},
+    {Name:'ZZ'       , DirName:'ZZp8'             , XSection:ZZp8.xSection             , SumWeights:ZZp8.nGenEvents},
+    {Name:'QCD'      , DirName:'QCD_Mu15'         , XSection:QCD_Mu15.xSection         , SumWeights:1.},
 ]
 sample_groups = [['ZJ'], ['W'], ['TT'], ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'], ['QCD'], [s[Name] for s in samples]]
 
@@ -76,12 +77,18 @@ for sample_group in sample_groups:
     for sample in samples:
         if not sample[Name] in sample_group: continue
         histo_configs.append(BasicHistogramCfg(name=sample[Name],
+                                               dir_name=sample[DirName],
+                                               ana_dir=analysis_dir,
                                                histo_file_name=histo_file_template_name.format(SAMPLE=sample[Name]),
                                                histo_name='',
                                                rebin=2,
                                                xsec=sample[XSection],
                                                sumweights=sample[SumWeights]
                                               ))
+        ## SumWeights seems to be not correctly filled
+        ## Filled them from SkimAnalyzerCount pickle file
+        setSumWeights(histo_configs[-1])
+
 
     histo_config_dict = {cfg.name:cfg for cfg in histo_configs}
 

@@ -74,9 +74,12 @@ class HistogramCfg(object):
 class BasicHistogramCfg(object):
     '''Configuration object for a sample contribution already stored in a histogram.
     '''
-    def __init__(self, name='Default', histo_file_name='histo.root', histo_name='histo', rebin=1,
+    def __init__(self, name='Default', dir_name=None, ana_dir='',
+        histo_file_name='histo.root', histo_name='histo', rebin=1,
         scale=1., xsec=1., sumweights=1., is_signal=False, is_data=False):
         self.name = name
+        self.dir_name = name if dir_name is None else dir_name
+        self.ana_dir = ana_dir
         self.histo_file_name = histo_file_name
         self.histo_name = histo_name
         self.scale = scale # generic scale, e.g. scale signal by factor 5
