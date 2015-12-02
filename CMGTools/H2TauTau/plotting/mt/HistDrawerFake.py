@@ -190,6 +190,9 @@ class HistDrawer:
         ensureDir(plot_dir)
         plotname += plot_name if plot_name else plot.name
         can.SaveAs(plotname + '.png')
+        can.SaveAs(plotname + '.eps')
+        can.SaveAs(plotname + '.pdf')
+        can.SaveAs(plotname + '.C')
         pad.SetLogy(0)
         return ratio
 

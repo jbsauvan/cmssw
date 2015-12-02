@@ -1,4 +1,5 @@
 import copy
+import shutil
 import shelve
 import ROOT
 
@@ -15,8 +16,13 @@ from Data import CompatibilityData
 
 #from CMGTools.H2TauTau.proto.plotter.Samples import samples
 
+## input samples
 int_lumi = 1560.
 analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/18112015/'
+
+## Publication on web
+publish_plots = True
+publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/"
 
 ## templates for histogram and file names
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/'
@@ -136,6 +142,9 @@ for sample_group in sample_groups:
             plot.histPref['ZJ']['legend'] = 'Z + Jets'
             if 'ZZ' in sample_group: plot.Group('VV', ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'])
             HistDrawer.draw(plot, plot_dir=plot_dir)
+            if publish_plots:
+                for ext in [".png",".eps",".pdf",".C"]:
+                    shutil.copy(plot_dir+"/"+plot.name+ext, publication_dir)
             plots.append(plot)
             ## Save sums in signal regions and background regions
             outFile.cd()
