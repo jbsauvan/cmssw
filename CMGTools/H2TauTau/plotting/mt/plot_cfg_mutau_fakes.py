@@ -1,3 +1,4 @@
+import os
 import copy
 import shutil
 import shelve
@@ -26,7 +27,7 @@ publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEst
 
 ## templates for histogram and file names
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/'
-histo_version = 'v_7_2015-12-02'
+histo_version = 'v_8_2015-12-06'
 histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}_vs_match5' ## '_vs_match5' is for gen_match=6
 
@@ -58,22 +59,84 @@ variables = [
 
 ## Define fake factors and selections
 fake_factors = [
-    "Weight_Inclusive",
-    "Weight_VsNVtx",
-    "Weight_VsPt",
-    "Weight_VsEta",
-    "Weight_VsDecay",
-    "Weight_VsPdgId",
-    "Weight_VsPtEta",
-    "Weight_VsPtDecay",
-    "Weight_VsPtPdgId",
+    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
+    "Weight_IsoRaw_1_5_Inclusive",
+    "Weight_IsoRaw_1_5_VsNVtx",
+    "Weight_IsoRaw_1_5_VsPt",
+    "Weight_IsoRaw_1_5_VsEta",
+    "Weight_IsoRaw_1_5_VsDecay",
+    "Weight_IsoRaw_1_5_VsPdgId",
+    "Weight_IsoRaw_1_5_VsPtEta",
+    "Weight_IsoRaw_1_5_VsPtDecay",
+    "Weight_IsoRaw_1_5_VsPtPdgId",
+    ## !IsoMedium -> IsoMedium 
+    "Weight_Iso_Medium_Inclusive",
+    "Weight_Iso_Medium_VsNVtx",
+    "Weight_Iso_Medium_VsPt",
+    "Weight_Iso_Medium_VsEta",
+    "Weight_Iso_Medium_VsDecay",
+    "Weight_Iso_Medium_VsPdgId",
+    "Weight_Iso_Medium_VsPtEta",
+    "Weight_Iso_Medium_VsPtDecay",
+    "Weight_Iso_Medium_VsPtPdgId",
 ]
-signal_selection = "StandardIso"
-inverted_selection = "InvertIso"
+
+signal_selections = {
+    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
+    "Weight_IsoRaw_1_5_Inclusive":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsNVtx":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPt":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsEta":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsDecay":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPdgId":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPtEta":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPtDecay":"IsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPtPdgId":"IsoRaw_1_5",
+    ## !IsoMedium -> IsoMedium 
+    "Weight_Iso_Medium_Inclusive":"Iso_Medium",
+    "Weight_Iso_Medium_VsNVtx":"Iso_Medium",
+    "Weight_Iso_Medium_VsPt":"Iso_Medium",
+    "Weight_Iso_Medium_VsEta":"Iso_Medium",
+    "Weight_Iso_Medium_VsDecay":"Iso_Medium",
+    "Weight_Iso_Medium_VsPdgId":"Iso_Medium",
+    "Weight_Iso_Medium_VsPtEta":"Iso_Medium",
+    "Weight_Iso_Medium_VsPtDecay":"Iso_Medium",
+    "Weight_Iso_Medium_VsPtPdgId":"Iso_Medium",
+}
+
+inverted_selections = {
+    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
+    "Weight_IsoRaw_1_5_Inclusive":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsNVtx":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPt":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsEta":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsDecay":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPdgId":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPtEta":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPtDecay":"InvertIsoRaw_1_5",
+    "Weight_IsoRaw_1_5_VsPtPdgId":"InvertIsoRaw_1_5",
+    ## !IsoMedium -> IsoMedium 
+    "Weight_Iso_Medium_Inclusive":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsNVtx":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsPt":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsEta":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsDecay":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsPdgId":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsPtEta":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsPtDecay":"InvertIso_Medium",
+    "Weight_Iso_Medium_VsPtPdgId":"InvertIso_Medium",
+}
+
 
 ## Output 
 plot_dir = "fakeplots/"
 outFile = ROOT.TFile("fakeplots/histos.root", "RECREATE")
+
+for fake_factor in fake_factors:
+    if publish_plots:
+       if not os.path.exists(publication_dir+"/"+fake_factor):
+           os.makedirs(publication_dir+"/"+fake_factor) 
+       shutil.copy(publication_dir+"/index.php.back", publication_dir+"/"+fake_factor+"/index.php")
 
 
 plots = []
@@ -124,13 +187,13 @@ for sample_group in sample_groups:
             configs_inverted = copy.deepcopy(histo_configs)
             # create signal region config
             for config in configs_signal:
-                config.histo_name = histo_template_name.format(DIR='',SEL=signal_selection,VAR=variable.name)
+                config.histo_name = histo_template_name.format(DIR='',SEL=signal_selections[fake_factor],VAR=variable.name)
                 config.name = "Data"
                 config.is_data = True ## treated as pseudo-data
                 config.scale  = int_lumi*config.xsec/config.sumweights ## have to scale each component by hand
             # create background region config
             for config in configs_inverted:
-                config.histo_name = histo_template_name.format(DIR=fake_factor+'/',SEL=inverted_selection,VAR=variable.name)
+                config.histo_name = histo_template_name.format(DIR=fake_factor+'/',SEL=inverted_selections[fake_factor],VAR=variable.name)
             # append both configs
             configs = configs_signal + configs_inverted
 
@@ -144,7 +207,7 @@ for sample_group in sample_groups:
             HistDrawer.draw(plot, plot_dir=plot_dir)
             if publish_plots:
                 for ext in [".png",".eps",".pdf",".C"]:
-                    shutil.copy(plot_dir+"/"+plot.name+ext, publication_dir)
+                    shutil.copy(plot_dir+"/"+plot.name+ext, publication_dir+"/"+fake_factor)
             plots.append(plot)
             ## Save sums in signal regions and background regions
             outFile.cd()
@@ -169,7 +232,9 @@ for dat,plot in zip(data,plots):
     for hist in plot._SortedHistograms():  # Have to retrieve signal region by hand (the non-stacked component)
         if hist.stack is False:
             actual_background = hist.obj
-    chi2Ondf = actual_background.Chi2Test(estimated_background, "WW CHI2/NDF P")
+    pvalue   = actual_background.Chi2Test(estimated_background, "WW P")
+    chi2Ondf = actual_background.Chi2Test(estimated_background, "WW CHI2/NDF")
+    dat.chi2.append(pvalue)
     dat.chi2.append(chi2Ondf)
     estimated_integralError = ROOT.Double(0.)
     estimated_integral = estimated_background.IntegralAndError(1, estimated_background.GetNbinsX()+1, estimated_integralError)
