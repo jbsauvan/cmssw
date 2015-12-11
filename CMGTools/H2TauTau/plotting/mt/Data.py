@@ -1,5 +1,6 @@
 class CompatibilityData:
     def __init__(self):
+        self.global_selection= ""
         self.weight_name= ""
         self.variable = ""
         self.binning = {'nbinsx':0, 'xmin':0., 'xmax': 0.}
@@ -20,6 +21,7 @@ class CompatibilityData:
 
     def toDict(self):
         dictionnary = {}
+        dictionnary["Global_selection"] = self.global_selection
         dictionnary["Weight_name"] = self.weight_name
         dictionnary["Variable"] = self.variable
         dictionnary["Binning"] = self.binning
@@ -28,6 +30,7 @@ class CompatibilityData:
         return dictionnary
 
     def fillFromDict(self, dictionnary):
+        self.global_selection = dictionnary["Global_selection"]
         self.weight_name = dictionnary["Weight_name"]
         self.variable = dictionnary["Variable"]
         self.binning = dictionnary["Binning"]

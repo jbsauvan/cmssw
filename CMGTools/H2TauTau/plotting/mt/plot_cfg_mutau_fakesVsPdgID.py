@@ -23,13 +23,13 @@ analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/18112015/'
 
 ## Publication on web
 publish_plots = True
-publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/"
+publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation_PdgIdSplit/"
 
 ## templates for histogram and file names
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/'
 histo_version = 'v_10_2015-12-09'
 histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.root'
-histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}_vs_match5' ## '_vs_match5' is for gen_match=6
+histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}_vs_pdgid{PDGID}' ## 
 
 # samples to be used
 Name = "Name"
@@ -47,9 +47,12 @@ samples = [
     {Name:'ZZ'       , DirName:'ZZp8'             , XSection:ZZp8.xSection             , SumWeights:ZZp8.nGenEvents},
     {Name:'QCD'      , DirName:'QCD_Mu15'         , XSection:QCD_Mu15.xSection         , SumWeights:1.},
 ]
-sample_groups = [['ZJ'], ['W'], ['TT'], ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'], ['QCD'], [s[Name] for s in samples]]
+#sample_groups = [['ZJ'], ['W'], ['TT'], ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'], ['QCD'], [s[Name] for s in samples]]
+sample_groups = [['TT'], ['QCD']]
 
-
+# pdgIds to plot
+pdgIds = [1,2,3,4,5,21]
+#pdgIds = [1,2]
 
 ## Variables to use
 variables = [
@@ -66,22 +69,16 @@ global_selections = [
 fake_factors = [
     ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
     "Weight_IsoRaw_1_5_Inclusive",
-    "Weight_IsoRaw_1_5_VsNVtx",
     "Weight_IsoRaw_1_5_VsPt",
-    "Weight_IsoRaw_1_5_VsEta",
     "Weight_IsoRaw_1_5_VsDecay",
     "Weight_IsoRaw_1_5_VsPdgId",
-    "Weight_IsoRaw_1_5_VsPtEta",
     "Weight_IsoRaw_1_5_VsPtDecay",
     "Weight_IsoRaw_1_5_VsPtPdgId",
     ## !IsoMedium -> IsoMedium 
     "Weight_Iso_Medium_Inclusive",
-    "Weight_Iso_Medium_VsNVtx",
     "Weight_Iso_Medium_VsPt",
-    "Weight_Iso_Medium_VsEta",
     "Weight_Iso_Medium_VsDecay",
     "Weight_Iso_Medium_VsPdgId",
-    "Weight_Iso_Medium_VsPtEta",
     "Weight_Iso_Medium_VsPtDecay",
     "Weight_Iso_Medium_VsPtPdgId",
 ]
@@ -90,22 +87,16 @@ fake_factors = [
 signal_selections = {
     ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
     "Weight_IsoRaw_1_5_Inclusive":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsNVtx":"IsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPt":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsEta":"IsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsDecay":"IsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPdgId":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtEta":"IsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPtDecay":"IsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPtPdgId":"IsoRaw_1_5",
     ## !IsoMedium -> IsoMedium 
     "Weight_Iso_Medium_Inclusive":"Iso_Medium",
-    "Weight_Iso_Medium_VsNVtx":"Iso_Medium",
     "Weight_Iso_Medium_VsPt":"Iso_Medium",
-    "Weight_Iso_Medium_VsEta":"Iso_Medium",
     "Weight_Iso_Medium_VsDecay":"Iso_Medium",
     "Weight_Iso_Medium_VsPdgId":"Iso_Medium",
-    "Weight_Iso_Medium_VsPtEta":"Iso_Medium",
     "Weight_Iso_Medium_VsPtDecay":"Iso_Medium",
     "Weight_Iso_Medium_VsPtPdgId":"Iso_Medium",
 }
@@ -113,9 +104,7 @@ signal_selections = {
 inverted_selections = {
     ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
     "Weight_IsoRaw_1_5_Inclusive":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsNVtx":"InvertIsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPt":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsEta":"InvertIsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsDecay":"InvertIsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPdgId":"InvertIsoRaw_1_5",
     "Weight_IsoRaw_1_5_VsPtEta":"InvertIsoRaw_1_5",
@@ -123,12 +112,9 @@ inverted_selections = {
     "Weight_IsoRaw_1_5_VsPtPdgId":"InvertIsoRaw_1_5",
     ## !IsoMedium -> IsoMedium 
     "Weight_Iso_Medium_Inclusive":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsNVtx":"InvertIso_Medium",
     "Weight_Iso_Medium_VsPt":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsEta":"InvertIso_Medium",
     "Weight_Iso_Medium_VsDecay":"InvertIso_Medium",
     "Weight_Iso_Medium_VsPdgId":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsPtEta":"InvertIso_Medium",
     "Weight_Iso_Medium_VsPtDecay":"InvertIso_Medium",
     "Weight_Iso_Medium_VsPtPdgId":"InvertIso_Medium",
 }
@@ -137,8 +123,8 @@ inverted_selections = {
 
 
 ## Output 
-plot_dir = "fakeplots/"
-outFile = ROOT.TFile("fakeplots/histos.root", "RECREATE")
+plot_dir = "fakeVsPdgIdPlots/"
+outFile = ROOT.TFile("fakeVsPdgIdPlots/histos.root", "RECREATE")
 
 for global_selection in global_selections:
     for fake_factor in fake_factors:
@@ -176,66 +162,69 @@ for sample_group in sample_groups:
 
 
     ## Create Data/MC plots
-    # Loop over global selections (e.g., with and without mT cut)
-    for global_selection in global_selections:
-        ## Loop over all the different types of fake factors (1D, 2D, etc.)
-        for fake_factor in fake_factors:
-            ## Loop over variables (currently only m_vis)
-            for variable in variables:
-                ## Store information about the plot
-                data.append(CompatibilityData())
-                data[-1].global_selection = global_selection
-                data[-1].weight_name = fake_factor
-                data[-1].variable = variable.name
-                data[-1].binning = variable.binning
-                for c in histo_configs:
-                    data[-1].backgrounds.append(c.name)
-                #
-                backgrounds = ""
-                for b in data[-1].backgrounds:
-                    backgrounds += b + "."
-                backgrounds = backgrounds[:-1]
-                #
-                ## Produce the plot
-                configs_signal   = copy.deepcopy(histo_configs)
-                configs_inverted = copy.deepcopy(histo_configs)
-                # create signal region config
-                for config in configs_signal:
-                    config.histo_name = histo_template_name.format(DIR='',SEL=global_selection+signal_selections[fake_factor],VAR=variable.name)
-                    config.name = "Data"
-                    config.is_data = True ## treated as pseudo-data
-                    config.scale  = int_lumi*config.xsec/config.sumweights ## have to scale each component by hand
-                # create background region config
-                for config in configs_inverted:
-                    config.histo_name = histo_template_name.format(DIR=fake_factor+'/',SEL=global_selection+inverted_selections[fake_factor],VAR=variable.name)
-                # append both configs
-                configs = configs_signal + configs_inverted
+    ## Loop over samples split by pdgID
+    for pdgId in pdgIds:
+        # Loop over global selections (e.g., with and without mT cut)
+        for global_selection in global_selections:
+            ## Loop over all the different types of fake factors (1D, 2D, etc.)
+            for fake_factor in fake_factors:
+                ## Loop over variables (currently only m_vis)
+                for variable in variables:
+                    ## Store information about the plot
+                    data.append(CompatibilityData())
+                    data[-1].global_selection = global_selection
+                    data[-1].weight_name = fake_factor
+                    data[-1].variable = variable.name
+                    data[-1].binning = variable.binning
+                    backgrounds = ""
+                    for c in histo_configs:
+                        backgrounds += c.name + "."
+                        data[-1].backgrounds.append(c.name+"_"+str(pdgId))
+                    #
+                    backgrounds = backgrounds[:-1]
+                    #
+                    ## Produce the plot
+                    configs_signal   = copy.deepcopy(histo_configs)
+                    configs_inverted = copy.deepcopy(histo_configs)
+                    # create signal region config
+                    for config in configs_signal:
+                        config.histo_name = histo_template_name.format(DIR='',SEL=global_selection+signal_selections[fake_factor],VAR=variable.name,PDGID=pdgId-1)
+                        config.name = "Data"
+                        config.is_data = True ## treated as pseudo-data
+                        config.scale  = int_lumi*config.xsec/config.sumweights ## have to scale each component by hand
+                    # create background region config
+                    for config in configs_inverted:
+                        config.histo_name = histo_template_name.format(DIR=fake_factor+'/',SEL=global_selection+inverted_selections[fake_factor],VAR=variable.name,PDGID=pdgId-1)
+                    # append both configs
+                    configs = configs_signal + configs_inverted
 
-                name = "{VAR}_{SEL}{WEIGHT}_{BACK}".format(SEL=global_selection,VAR=variable.name, WEIGHT=fake_factor, BACK=backgrounds)
-                cfg = HistogramCfg(name=name, var=variable, cfgs=configs, lumi=int_lumi)
-                plot = createHistogram(cfg, verbose=True)
-                plot.name = name
-                plot.histPref['Data']['legend'] = 'Actual background'
-                plot.histPref['ZJ']['legend'] = 'Z + Jets'
-                if 'ZZ' in sample_group: plot.Group('VV', ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'])
-                HistDrawer.draw(plot, plot_dir=plot_dir)
-                if publish_plots:
-                    for ext in [".png",".eps",".pdf",".C"]:
-                        shutil.copy(plot_dir+"/"+plot.name+ext, publication_dir+"/"+global_selection+"/"+fake_factor)
-                plots.append(plot)
-                ## Save sums in signal regions and background regions
-                outFile.cd()
+                    name = "{VAR}_{SEL}{WEIGHT}_{BACK}_{PDGID}".format(SEL=global_selection,VAR=variable.name, WEIGHT=fake_factor, BACK=backgrounds,PDGID=pdgId)
+                    cfg = HistogramCfg(name=name, var=variable, cfgs=configs, lumi=int_lumi)
+                    plot = createHistogram(cfg, verbose=True)
+                    plot.name = name
+                    plot.histPref['Data']['legend'] = 'Actual background'
+                    plot.histPref['ZJ']['legend'] = 'Z + Jets'
+                    #plot.histPref['TT']['legend'] = 't#bar{t}, pdg='+str(pdgId)
+                    #plot.histPref['QCD*']['legend'] = 'QCD, id={}'.format(pdgId)
+                    if 'ZZ' in sample_group: plot.Group('VV', ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'])
+                    HistDrawer.draw(plot, plot_dir=plot_dir)
+                    if publish_plots:
+                        for ext in [".png",".eps",".pdf",".C"]:
+                            shutil.copy(plot_dir+"/"+plot.name+ext, publication_dir+"/"+global_selection+"/"+fake_factor)
+                    plots.append(plot)
+                    ## Save sums in signal regions and background regions
+                    outFile.cd()
 
-                histo_estimated = plot.GetStack().totalHist.weighted.Clone("{VAR}_estimated_{BACK}_{WEIGHT}".format(VAR=variable.name,BACK=backgrounds,WEIGHT=fake_factor))
-                histo_estimated.__class__ = ROOT.TH1F
-                if not histo_estimated.GetName() in written_histos: histo_estimated.Write() # Background region
-                written_histos.append(histo_estimated.GetName())
-                for hist in plot._SortedHistograms():  # Have to retrieve signal region by hand (the non-stacked component)
-                    if hist.stack is False:
-                        histo_actual = hist.obj.Clone("{VAR}_actual_{BACK}".format(VAR=variable.name,BACK=backgrounds))
-                        histo_actual.__class__ = ROOT.TH1F
-                        if not histo_actual.GetName() in written_histos: histo_actual.Write()
-                        written_histos.append(histo_actual.GetName())
+                    histo_estimated = plot.GetStack().totalHist.weighted.Clone("{VAR}_estimated_{BACK}_{PDGID}_{WEIGHT}".format(VAR=variable.name,BACK=backgrounds,WEIGHT=fake_factor,PDGID=pdgId))
+                    histo_estimated.__class__ = ROOT.TH1F
+                    if not histo_estimated.GetName() in written_histos: histo_estimated.Write() # Background region
+                    written_histos.append(histo_estimated.GetName())
+                    for hist in plot._SortedHistograms():  # Have to retrieve signal region by hand (the non-stacked component)
+                        if hist.stack is False:
+                            histo_actual = hist.obj.Clone("{VAR}_actual_{BACK}_{PDGID}".format(VAR=variable.name,BACK=backgrounds,PDGID=pdgId))
+                            histo_actual.__class__ = ROOT.TH1F
+                            if not histo_actual.GetName() in written_histos: histo_actual.Write()
+                            written_histos.append(histo_actual.GetName())
 
 ## Make test compatibility between actual background in signal region
 ## and background estimated from background region
@@ -254,7 +243,8 @@ for dat,plot in zip(data,plots):
     estimated_integral = estimated_background.IntegralAndError(1, estimated_background.GetNbinsX()+1, estimated_integralError)
     actual_integralError = ROOT.Double(0.)
     actual_integral = actual_background.IntegralAndError(1, actual_background.GetNbinsX()+1, actual_integralError)
-    chi2Norm = (estimated_integral-actual_integral)**2/(estimated_integralError**2+actual_integralError**2)
+    chiNorm = 999.
+    if estimated_integralError+actual_integralError>0: chi2Norm = (estimated_integral-actual_integral)**2/(estimated_integralError**2+actual_integralError**2)
     dat.chi2.append(chi2Norm)
 
 
