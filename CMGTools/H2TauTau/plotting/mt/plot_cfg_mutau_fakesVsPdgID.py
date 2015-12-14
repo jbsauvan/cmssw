@@ -48,7 +48,7 @@ samples = [
     {Name:'QCD'      , DirName:'QCD_Mu15'         , XSection:QCD_Mu15.xSection         , SumWeights:1.},
 ]
 #sample_groups = [['ZJ'], ['W'], ['TT'], ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'], ['QCD'], [s[Name] for s in samples]]
-sample_groups = [['TT'], ['QCD']]
+sample_groups = [['TT'], ['QCD'], ['W']]
 
 # pdgIds to plot
 pdgIds = [1,2,3,4,5,21]
