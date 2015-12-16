@@ -27,7 +27,7 @@ publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/Polarization/Backgroun
 
 ## templates for histogram and file names
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/TauPolarization/Background/'
-histo_version = 'v_1_2015-12-15'
+histo_version = 'v_3_2015-12-16'
 histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/polarization_background_{SAMPLE}.root'
 histo_template_name = '{DIR}hPolarization_{SEL}_{VAR}_vs_match5' ## '_vs_match5' is for gen_match=6
 
@@ -66,6 +66,8 @@ fake_factors = [
     "Weight_IsoRaw_1_5_VsPtDecay",
     ## !IsoMedium -> IsoMedium 
     "Weight_Iso_Medium_VsPtDecay",
+    ## !IsoMedium (with the non-inverted strip pT cut) -> IsoMedium 
+    "Weight_Iso_Medium_InvertRawOnly_VsPtDecay",
 ]
 
 
@@ -74,6 +76,8 @@ signal_selections = {
     "Weight_IsoRaw_1_5_VsPtDecay":"IsoRaw_1_5",
     ## !IsoMedium -> IsoMedium 
     "Weight_Iso_Medium_VsPtDecay":"Iso_Medium",
+    ## !IsoMedium (with the non-inverted strip pT cut) -> IsoMedium 
+    "Weight_Iso_Medium_InvertRawOnly_VsPtDecay":"Iso_Medium",
 }
 
 inverted_selections = {
@@ -81,6 +85,8 @@ inverted_selections = {
     "Weight_IsoRaw_1_5_VsPtDecay":"InvertIsoRaw_1_5",
     ## !IsoMedium -> IsoMedium 
     "Weight_Iso_Medium_VsPtDecay":"InvertIso_Medium",
+    ## !IsoMedium (with the non-inverted strip pT cut) -> IsoMedium 
+    "Weight_Iso_Medium_InvertRawOnly_VsPtDecay":"InvertIso_Medium_RawOnly",
 }
 
 
@@ -168,6 +174,7 @@ for sample_group in sample_groups:
                 plot.histPref['Data']['legend'] = 'Actual background'
                 plot.histPref['ZJ']['legend'] = 'Z + Jets'
                 if 'ZZ' in sample_group: plot.Group('VV', ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'])
+                plot.legendBorders = 0.7,0.7,0.9,0.9
                 HistDrawer.draw(plot, plot_dir=plot_dir)
                 if publish_plots:
                     for ext in [".png",".eps",".pdf",".C"]:
