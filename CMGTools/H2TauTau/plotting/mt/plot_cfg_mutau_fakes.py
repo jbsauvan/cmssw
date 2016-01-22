@@ -3,6 +3,7 @@ import copy
 import shutil
 import shelve
 import ROOT
+from FakeFactors import fake_factors_regions, signal_selections, inverted_selections
 
 from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50_LO, WJetsToLNu_LO, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, T_tWch, TBar_tWch, TToLeptons_tch_amcatnlo, TToLeptons_sch_amcatnlo
 
@@ -17,17 +18,24 @@ from Data import CompatibilityData
 
 #from CMGTools.H2TauTau.proto.plotter.Samples import samples
 
+
+#fakeFactorsType = 'ZMuMu'
+#histo_version = 'v_12_2016-01-21'
+#
+fakeFactorsType = 'HighMT'
+histo_version = 'v_1_2016-01-21'
+
 ## input samples
 int_lumi = 1560.
 analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/18112015/'
 
-## Publication on web
+## Output
+plot_dir = "fakeplots/FakeFactorType_{FAKETYPE}/v160121/".format(FAKETYPE=fakeFactorsType)
 publish_plots = True
-publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/"
+publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/FakeFactorType_{FAKETYPE}/v160121/".format(FAKETYPE=fakeFactorsType)
 
 ## templates for histogram and file names
-histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/'
-histo_version = 'v_10_2015-12-09'
+histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FAKETYPE}'.format(FAKETYPE=fakeFactorsType)
 histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}_vs_match5' ## '_vs_match5' is for gen_match=6
 
@@ -54,7 +62,7 @@ sample_groups = [['ZJ'], ['W'], ['TT'], ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'
 ## Variables to use
 variables = [
     VariableCfg(name='mvis', binning={'nbinsx':60, 'xmin':0, 'xmax':300}, unit='GeV', xtitle='m_{vis}'),
-    #VariableCfg(name='mt'  , binning={'nbinsx':40, 'xmin':0, 'xmax':200}, unit='GeV', xtitle='m_{T}');
+    VariableCfg(name='mt'  , binning={'nbinsx':40, 'xmin':0, 'xmax':200}, unit='GeV', xtitle='m_{T}'),
 ]
 
 ## Define fake factors and selections
@@ -63,89 +71,20 @@ global_selections = [
     "MT40_"
 ]
 
-fake_factors = [
-    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
-    "Weight_IsoRaw_1_5_Inclusive",
-    "Weight_IsoRaw_1_5_VsNVtx",
-    "Weight_IsoRaw_1_5_VsPt",
-    "Weight_IsoRaw_1_5_VsEta",
-    "Weight_IsoRaw_1_5_VsDecay",
-    "Weight_IsoRaw_1_5_VsPdgId",
-    "Weight_IsoRaw_1_5_VsPtEta",
-    "Weight_IsoRaw_1_5_VsPtDecay",
-    "Weight_IsoRaw_1_5_VsPtPdgId",
-    ## !IsoMedium -> IsoMedium 
-    "Weight_Iso_Medium_Inclusive",
-    "Weight_Iso_Medium_VsNVtx",
-    "Weight_Iso_Medium_VsPt",
-    "Weight_Iso_Medium_VsEta",
-    "Weight_Iso_Medium_VsDecay",
-    "Weight_Iso_Medium_VsPdgId",
-    "Weight_Iso_Medium_VsPtEta",
-    "Weight_Iso_Medium_VsPtDecay",
-    "Weight_Iso_Medium_VsPtPdgId",
-]
-
-
-signal_selections = {
-    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
-    "Weight_IsoRaw_1_5_Inclusive":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsNVtx":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPt":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsEta":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsDecay":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPdgId":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtEta":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtDecay":"IsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtPdgId":"IsoRaw_1_5",
-    ## !IsoMedium -> IsoMedium 
-    "Weight_Iso_Medium_Inclusive":"Iso_Medium",
-    "Weight_Iso_Medium_VsNVtx":"Iso_Medium",
-    "Weight_Iso_Medium_VsPt":"Iso_Medium",
-    "Weight_Iso_Medium_VsEta":"Iso_Medium",
-    "Weight_Iso_Medium_VsDecay":"Iso_Medium",
-    "Weight_Iso_Medium_VsPdgId":"Iso_Medium",
-    "Weight_Iso_Medium_VsPtEta":"Iso_Medium",
-    "Weight_Iso_Medium_VsPtDecay":"Iso_Medium",
-    "Weight_Iso_Medium_VsPtPdgId":"Iso_Medium",
-}
-
-inverted_selections = {
-    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
-    "Weight_IsoRaw_1_5_Inclusive":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsNVtx":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPt":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsEta":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsDecay":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPdgId":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtEta":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtDecay":"InvertIsoRaw_1_5",
-    "Weight_IsoRaw_1_5_VsPtPdgId":"InvertIsoRaw_1_5",
-    ## !IsoMedium -> IsoMedium 
-    "Weight_Iso_Medium_Inclusive":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsNVtx":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsPt":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsEta":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsDecay":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsPdgId":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsPtEta":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsPtDecay":"InvertIso_Medium",
-    "Weight_Iso_Medium_VsPtPdgId":"InvertIso_Medium",
-}
-
-
+fake_factors = fake_factors_regions[fakeFactorsType]
 
 
 ## Output 
-plot_dir = "fakeplots/"
-outFile = ROOT.TFile("fakeplots/histos.root", "RECREATE")
+if not os.path.exists(plot_dir):
+    os.makedirs(plot_dir)
+outFile = ROOT.TFile(plot_dir+"/histos.root", "RECREATE")
 
 for global_selection in global_selections:
     for fake_factor in fake_factors:
         if publish_plots:
            if not os.path.exists(publication_dir+"/"+global_selection+"/"+fake_factor):
                os.makedirs(publication_dir+"/"+global_selection+"/"+fake_factor) 
-           shutil.copy(publication_dir+"/index.php.back", publication_dir+"/"+global_selection+"/"+fake_factor+"/index.php")
+           shutil.copy("/afs/cern.ch/user/j/jsauvan/www//index.php.back", publication_dir+"/"+global_selection+"/"+fake_factor+"/index.php")
 
 
 plots = []
