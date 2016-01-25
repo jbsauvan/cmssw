@@ -43,6 +43,16 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
                 'std::vector<pat::Tau>'
             )
 
+        self.handles['puppiMET'] = AutoHandle(
+            'slimmedMETsPuppi',
+            'std::vector<pat::MET>'
+        )
+
+        self.handles['pfMET'] = AutoHandle(
+            'slimmedMETs',
+            'std::vector<pat::MET>'
+        )
+
         self.mchandles['genParticles'] = AutoHandle(
             'prunedGenParticles',
             'std::vector<reco::GenParticle>'
@@ -138,6 +148,11 @@ class MuMuAnalyzer(DiLeptonAnalyzer):
 
         for tau in event.selectedTaus:
             tau.associatedVertex = event.goodVertices[0]
+
+        event.otherLeptons = event.selectedTaus[:]
+
+        event.pfmet = self.handles['pfMET'].product()[0]
+        event.puppimet = self.handles['puppiMET'].product()[0]
 
         return True
         

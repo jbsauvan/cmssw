@@ -74,9 +74,7 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False):
 
             file_name = '/'.join([cfg.ana_dir, cfg.dir_name, cfg.tree_prod_name, 'tree.root'])
 
-            ttree = plot.readTree(file_name, cfg.tree_name)
-            if verbose:
-                print 'read tree', ttree, 'from file', file_name
+            ttree = plot.readTree(file_name, cfg.tree_name, verbose=verbose)
 
             norm_cut = hist_cfg.cut
             shape_cut = hist_cfg.cut

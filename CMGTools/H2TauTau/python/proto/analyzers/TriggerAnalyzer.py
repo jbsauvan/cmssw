@@ -23,20 +23,41 @@ class TriggerAnalyzer(Analyzer):
     def declareHandles(self):
         super(TriggerAnalyzer, self).declareHandles()
 
-        self.handles['triggerResultsHLT'] = AutoHandle(
-            ('TriggerResults', '', 'HLT'),
-            'edm::TriggerResults'
-            )
+        if hasattr(self.cfg_ana, 'triggerResultsHandle'):
+            myhandle = self.cfg_ana.triggerResultsHandle
+            self.handles['triggerResultsHLT'] = AutoHandle(
+                (myhandle[0], myhandle[1], myhandle[2]),
+                'edm::TriggerResults'
+                )
+        else:    
+            self.handles['triggerResultsHLT'] = AutoHandle(
+                ('TriggerResults', '', 'HLT'),
+                'edm::TriggerResults'
+                )
 
-        self.handles['triggerObjects'] =  AutoHandle(
-            'selectedPatTrigger',
-            'std::vector<pat::TriggerObjectStandAlone>'
-            )
+        if hasattr(self.cfg_ana, 'triggerObjectsHandle'):
+            myhandle = self.cfg_ana.triggerObjectsHandle
+            self.handles['triggerObjects'] = AutoHandle(
+                (myhandle[0], myhandle[1], myhandle[2]),
+                'std::vector<pat::TriggerObjectStandAlone>'
+                )
+        else:    
+            self.handles['triggerObjects'] =  AutoHandle(
+                'selectedPatTrigger',
+                'std::vector<pat::TriggerObjectStandAlone>'
+                )
  
-        self.handles['triggerPrescales'] =  AutoHandle(
-            'patTrigger',
-            'pat::PackedTriggerPrescales'
-            )
+        if hasattr(self.cfg_ana, 'triggerPrescalesHandle'):
+            myhandle = self.cfg_ana.triggerPrescalesHandle
+            self.handles['triggerPrescales'] = AutoHandle(
+                (myhandle[0], myhandle[1], myhandle[2]),
+                'pat::PackedTriggerPrescales'
+                )
+        else:    
+            self.handles['triggerPrescales'] =  AutoHandle(
+                'patTrigger',
+                'pat::PackedTriggerPrescales'
+                )
  
     def beginLoop(self, setup):
         super(TriggerAnalyzer,self).beginLoop(setup)
@@ -45,12 +66,15 @@ class TriggerAnalyzer(Analyzer):
         self.triggerObjects = []
         if hasattr(self.cfg_comp, 'triggerobjects'):
             self.triggerObjects = self.cfg_comp.triggerobjects
+        if hasattr(self.cfg_ana, 'extraTrig'):
+            self.extraTrig = self.cfg_ana.extraTrig
+        else:
+            self.extraTrig = []
 
         self.vetoTriggerList = None
 
         if hasattr(self.cfg_comp, 'vetoTriggers'):
             self.vetoTriggerList = self.cfg_comp.vetoTriggers
-           
             
         self.counters.addCounter('Trigger')
         self.counters.counter('Trigger').register('All events')
@@ -78,7 +102,9 @@ class TriggerAnalyzer(Analyzer):
         trigger_passed = False
 
         trigger_infos = []
-        for trigger_name in self.triggerList:
+        triggers_fired = []
+        
+        for trigger_name in self.triggerList + self.extraTrig:
             index = names.triggerIndex(trigger_name)
             if index == len(triggerBits):
                 continue
@@ -87,9 +113,14 @@ class TriggerAnalyzer(Analyzer):
 
             trigger_infos.append(TriggerInfo(trigger_name, index, fired, prescale))
 
+            #print trigger_name, fired, prescale
+            #if fired:
+            #    import pdb ; pdb.set_trace()
             if fired and (prescale == 1 or self.cfg_ana.usePrescaled):
-                trigger_passed = True
-                self.counters.counter('Trigger').inc(trigger_name)            
+                if trigger_name in self.triggerList:
+                    trigger_passed = True
+                    self.counters.counter('Trigger').inc(trigger_name)            
+                triggers_fired.append(trigger_name)
             elif fired:
                 print 'WARNING: Trigger not passing because of prescale', trigger_name
                 self.counters.counter('Trigger').inc(trigger_name + 'prescaled')
@@ -114,7 +145,22 @@ class TriggerAnalyzer(Analyzer):
 
         event.trigger_infos = trigger_infos
 
-            
+
+        if self.cfg_ana.verbose:
+            print 'run %d, lumi %d,event %d' %(event.run, event.lumi, event.eventId) , 'Triggers_fired: ', triggers_fired  
+        if hasattr(self.cfg_ana, 'saveFlag'):
+            if self.cfg_ana.saveFlag:
+                setattr(event, 'tag', False)    
+                setattr(event, 'probe', False)
+                for trig in self.triggerList:
+                    if trig in triggers_fired:
+                        setattr(event, 'tag', True)    
+                        break
+                for trig in self.extraTrig:
+                    if trig in triggers_fired:
+                        setattr(event, 'probe', True)
+                        break
+
         self.counters.counter('Trigger').inc('HLT')
         return True
 

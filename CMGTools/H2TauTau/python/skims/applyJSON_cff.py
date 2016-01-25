@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-import FWCore.ParameterSet.Config as cms
-
-
 def lumiList( json ):
     import FWCore.PythonUtilities.LumiList as LumiList
     myLumis = LumiList.LumiList(filename = json ).getCMSSWString().split(',')

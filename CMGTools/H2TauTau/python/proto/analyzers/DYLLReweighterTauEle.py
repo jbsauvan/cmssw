@@ -1,6 +1,6 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 
-class DYLLReweighterTauEle( Analyzer ):
+class DYLLReweighterTauEle(Analyzer):
     '''Apply the reweighting calculated by Jose on the basis of the data/mc agreement
        in the inclusive sample, see here:
        https://indico.cern.ch/getFile.py/access?contribId=38&resId=0&materialId=slides&confId=212612
@@ -13,7 +13,7 @@ class DYLLReweighterTauEle( Analyzer ):
             return True
 
         # Only apply corrections for leptons giving rise to fake hadronic taus
-        if event.geninfo_fakeid not in [1, 3] or self.cfg_comp.name.find('DY') == -1 :
+        if event.leg1.gen_match not in [1, 3] or self.cfg_comp.name.find('DY') == -1 :
             return True
 
         tau = event.diLepton.leg2()

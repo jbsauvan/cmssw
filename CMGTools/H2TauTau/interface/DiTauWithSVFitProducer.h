@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,6 +38,9 @@ private:
   unsigned warningNumbers_;
   bool verbose_;
   int SVFitVersion_;
+  std::string p4TransferFunctionFile_;
+  bool integrateOverP4_;
+
   std::string fitAlgo_;
 };
 
@@ -47,6 +51,8 @@ DiTauWithSVFitProducer<T, U>::DiTauWithSVFitProducer(const edm::ParameterSet& iC
   warningNumbers_(0),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
   SVFitVersion_(iConfig.getParameter<int>("SVFitVersion")),
+  p4TransferFunctionFile_(iConfig.getUntrackedParameter<std::string>("p4TransferFunctionFile", "TauAnalysis/SVfitStandalone/data/svFitVisMassAndPtResolutionPDF.root")),
+  integrateOverP4_(iConfig.getUntrackedParameter<bool>("integrateOverP4", false)),
   fitAlgo_(iConfig.getParameter<std::string>("fitAlgo")) {
 
   // will produce a collection containing a copy of each di-object in input,
@@ -170,7 +176,13 @@ void DiTauWithSVFitProducer<T, U>::produce(edm::Event& iEvent, const edm::EventS
         measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(leg1type, diTau.daughter(0)->pt(), diTau.daughter(0)->eta(), diTau.daughter(0)->phi(), leg1Mass, leg1DecayMode));
         SVfitStandaloneAlgorithm algo(measuredTauLeptons, met.px(), met.py(), tmsig, 0);
         algo.addLogM(false);
-
+        
+        // RIC
+        edm::FileInPath inputFileName_visPtResolution(p4TransferFunctionFile_);
+        //TH1::AddDirectory(false);  
+        TFile* inputFile_visPtResolution = new TFile(inputFileName_visPtResolution.fullPath().data());
+        algo.shiftVisPt(integrateOverP4_, inputFile_visPtResolution);
+        
         if (fitAlgo_ == "VEGAS")
           algo.integrateVEGAS();
         else if (fitAlgo_ == "MC")

@@ -27,6 +27,7 @@ vars['weight_vertex'] = {'std': 'weight_vertex', 'sync': 'puweight'}
 vars['geninfo_nup'] = {'geninfo_nup': 'NUP', 'sync': 'NUP'}
 vars['n_vertices'] = {'std': 'n_vertices', 'sync': 'npv'}
 vars['npu'] = {'std': 'npu', 'sync': 'npu'}
+vars['nPU'] = {'std': 'nPU', 'sync': 'npu'}
 vars['rho'] = {'std': 'rho', 'sync': 'rho'}
 
 # Lepton vetoes
@@ -44,6 +45,7 @@ vars['l1_charge'] = {'std': 'l1_charge', 'sync': 'q_1'}
 vars['l1_dxy'] = {'std': 'l1_dxy', 'sync': 'd0_1'}
 vars['l1_dz'] = {'std': 'l1_dz', 'sync': 'dZ_1'}
 vars['mt_leg1'] = {'std': 'mt_leg1', 'sync': 'mt_1'}
+vars['puppimet_mt1'] = {'std': 'puppimet_mt1', 'sync': 'puppimt_1'}
 vars['l1_reliso05'] = {'std': 'l1_reliso05', 'sync': 'iso_1'}
 vars['l1_muonid_loose'] = {'std': 'l1_muonid_loose', 'sync': 'id_m_loose_1'}
 vars['l1_muonid_medium'] = {'std': 'l1_muonid_medium', 'sync': 'id_m_medium_1'}
@@ -85,6 +87,7 @@ vars['l2_charge'] = {'std': 'l2_charge', 'sync': 'q_2'}
 vars['l2_dxy'] = {'std': 'l2_dxy', 'sync': 'd0_2'}
 vars['l2_dz'] = {'std': 'l2_dz', 'sync': 'dZ_2'}
 vars['mt_leg2'] = {'std': 'mt_leg2', 'sync': 'mt_2'}
+vars['puppimet_mt2'] = {'std': 'puppimet_mt2', 'sync': 'puppimt_2'}
 vars['l2_reliso05'] = {'std': 'l2_reliso05', 'sync': 'iso_2'}
 vars['l2_muonid_loose'] = {'std': 'l2_muonid_loose', 'sync': 'id_m_loose_2'}
 vars['l2_muonid_medium'] = {'std': 'l2_muonid_medium', 'sync': 'id_m_medium_2'}
@@ -131,6 +134,8 @@ vars['pfmet_pt'] = {'std': 'pfmet_pt', 'sync': 'met'}
 vars['pfmet_phi'] = {'std': 'pfmet_phi', 'sync': 'metphi'}
 vars['met_pt'] = {'std': 'met_pt', 'sync': 'mvamet'}
 vars['met_phi'] = {'std': 'met_phi', 'sync': 'mvametphi'}
+vars['puppimet_pt'] = {'std': 'puppimet_pt', 'sync': 'puppimet'}
+vars['puppimet_phi'] = {'std': 'puppimet_phi', 'sync': 'puppimetphi'}
 vars['pzeta_vis'] = {'std': 'pzeta_vis', 'sync': 'pzetavis'}
 vars['pzeta_met'] = {'std': 'pzeta_met', 'sync': 'pzetamiss'}
 

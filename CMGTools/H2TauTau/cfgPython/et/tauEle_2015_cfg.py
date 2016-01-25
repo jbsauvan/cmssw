@@ -17,9 +17,9 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJets
 
 # 'Nom', 'Up', 'Down', or None
 shift = None
-syncntuple = True
+syncntuple = False
 computeSVfit = False
-production = False  # production = True run on batch, production = False run locally
+production = True  # production = True run on batch, production = False run locally
 #production = True  # production = True run on batch, production = False run locally
 
 # When ready, include weights from CMGTools.H2TauTau.proto.weights.weighttable
@@ -133,28 +133,16 @@ svfitProducer = cfg.Analyzer(
 # my_connect.connect()
 # MC_list = my_connect.MC_list
 
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCDPtEMEnriched, WWTo2L2Nu, ZZp8, WZp8, SingleTop, QCDPtbcToE
-from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleElectron_Run2015D_05Oct, SingleElectron_Run2015B_05Oct, SingleElectron_Run2015D_Promptv4
-from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
+from CMGTools.H2TauTau.proto.samples.spring15.htt_common import backgrounds_ele, sm_signals, mssm_signals, data_single_electron, sync_list
 
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauEle import mc_triggers, mc_triggerfilters
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_tauEle import data_triggers, data_triggerfilters
-
-# from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF125, HiggsTTH125
 
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 
 # Get all heppy options; set via "-o production" or "-o production=True"
 
-
-
-
-samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf]
-
-samples = [TT_pow, DYJetsToLL_M50, WJetsToLNu, WWTo2L2Nu, ZZp8, WZp8]
-
-# samples += [HiggsGGH125, HiggsVBF125, HiggsTTH125]
-samples += SingleTop  + QCDPtEMEnriched + QCDPtbcToE + [ggh160]
+samples = backgrounds_ele + sm_signals + mssm_signals + sync_list
 
 split_factor = 1e5
 
@@ -163,14 +151,14 @@ for sample in samples:
     sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
 
-data_list = [SingleElectron_Run2015D_05Oct, SingleElectron_Run2015B_05Oct, SingleElectron_Run2015D_Promptv4]
+data_list = data_single_electron
 
 for sample in data_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
-    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt'
-    sample.lumi = 40.03
+    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+    sample.lumi = 2260.
 
 
 ###################################################
@@ -183,12 +171,7 @@ for mc in samples:
 ###################################################
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
-selectedComponents = samples
-selectedComponents = [SingleElectron_Run2015D_Promptv4]
-selectedComponents = [ggh160]
-# selectedComponents = data_list
-# selectedComponents = mc_dict['HiggsGGH125']
-# for c in selectedComponents : c.splitFactor *= 5
+selectedComponents = samples + data_list
 
 ###################################################
 ###                  SEQUENCE                   ###
@@ -218,10 +201,9 @@ if syncntuple:
 if not production:
     cache = True
     # comp = my_connect.mc_dict['HiggsGGH125']
-    # comp = ggh160
-    comp = selectedComponents[0]
+    comp = sync_list[0]
     selectedComponents = [comp]
-    comp.splitFactor = 4
+    comp.splitFactor = 1
     comp.fineSplitFactor = 1
 #    comp.files = comp.files[:1]
 

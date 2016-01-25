@@ -10,6 +10,7 @@ from PhysicsTools.Heppy.analyzers.core.PileUpAnalyzer import PileUpAnalyzer
 from PhysicsTools.Heppy.analyzers.gen.GeneratorAnalyzer import GeneratorAnalyzer
 
 # Tau-tau analyzers
+from CMGTools.H2TauTau.proto.analyzers.MCWeighter import MCWeighter
 from CMGTools.H2TauTau.proto.analyzers.TriggerAnalyzer import TriggerAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.JetAnalyzer import JetAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.EmbedWeighter import EmbedWeighter
@@ -18,8 +19,9 @@ from CMGTools.H2TauTau.proto.analyzers.NJetsAnalyzer import NJetsAnalyzer
 from CMGTools.H2TauTau.proto.analyzers.HiggsPtWeighter import HiggsPtWeighter
 from CMGTools.H2TauTau.proto.analyzers.VBFAnalyzer import VBFAnalyzer
 
-puFileMC = None
-puFileData = None
+puFileMC = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/MC_Spring15_PU25_Startup.root'
+puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/data_pu_11-19-2015_69mb_600.root'
+puFileData = '$CMSSW_BASE/src/CMGTools/H2TauTau/data/data_pu_11-11-2015_69mb_600_2015D.root'
 
 eventSelector = cfg.Analyzer(
     EventSelector,
@@ -37,6 +39,10 @@ skimAna = cfg.Analyzer(
     name='SkimAnalyzerCount'
 )
 
+mcWeighter = cfg.Analyzer(
+    MCWeighter,
+    name='MCWeighter'
+)
 
 triggerAna = cfg.Analyzer(
     TriggerAnalyzer,
@@ -118,6 +124,7 @@ higgsWeighter = cfg.Analyzer(
 commonSequence = cfg.Sequence([
     jsonAna,
     skimAna,
+    mcWeighter,
     triggerAna,
     vertexAna,
     genAna,

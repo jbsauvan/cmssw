@@ -1,6 +1,8 @@
 import operator
 
+from itertools import product
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Lepton
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaR2
 
@@ -206,6 +208,18 @@ class DiLeptonAnalyzer(Analyzer):
 
     def declareHandles(self):
         super(DiLeptonAnalyzer, self).declareHandles()
+        if hasattr(self.cfg_ana, 'triggerObjectsHandle'):
+            myhandle = self.cfg_ana.triggerObjectsHandle
+            self.handles['triggerObjects'] = AutoHandle(
+                (myhandle[0], myhandle[1], myhandle[2]),
+                'std::vector<pat::TriggerObjectStandAlone>'
+                )
+        else:    
+            self.handles['triggerObjects'] =  AutoHandle(
+                'selectedPatTrigger',
+                'std::vector<pat::TriggerObjectStandAlone>'
+                )
+
 
     def leptonAccept(self, *args, **kwargs):
         '''Should implement a default version running on event.leptons.'''
@@ -285,6 +299,23 @@ class DiLeptonAnalyzer(Analyzer):
 
         sameFlavour = (abs(legs[0].pdgId()) == abs(legs[1].pdgId()))
 
+        if hasattr(self.cfg_ana, 'filtersToMatch'):
+            filtersToMatch = self.cfg_ana.filtersToMatch[0]
+            leg = legs[self.cfg_ana.filtersToMatch[1] - 1]
+            triggerObjects = self.handles['triggerObjects'].product()
+
+            for item in product(triggerObjects, filtersToMatch):
+                to     = item[0]
+                filter = item[1]
+                print to.filterLabels()[-1], to.filterLabels()[-1] != filter
+                if to.filterLabels()[-1] != filter:
+                    continue
+#                 import pdb ; pdb.set_trace()
+                if self.trigObjMatched(to, [leg]):
+                    setattr(leg, filter, to)
+                    
+        
+
         for info in event.trigger_infos:
             
             if not info.fired:
@@ -335,6 +366,5 @@ class DiLeptonAnalyzer(Analyzer):
                             leg.triggerobjects.append(to)
                     else:
                         leg.triggerobjects = [to]
-
 
         return to.matched

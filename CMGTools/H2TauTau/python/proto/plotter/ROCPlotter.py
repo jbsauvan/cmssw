@@ -4,6 +4,7 @@ from CMGTools.H2TauTau.proto.plotter.officialStyle import setTDRStyle
 setTDRStyle()
 
 colours = [1, 2, 3, 4, 6, 7, 8, 9, 47, 46, 44, 43, 42, 41, 40]
+markers = [20, 21, 22, 23, 24, 25, 26, 27]
 
 def histsToRoc(hsig, hbg):
     '''Produce ROC curve from 2 input histograms.
@@ -66,13 +67,21 @@ def makeLegend(rocs, textSize=0.035):
 def makeROCPlot(rocs, set_name, ymin=0., ymax=1., xmin=0., xmax=1., logy=False):
 
     allrocs = ROOT.TMultiGraph(set_name, '')
+    point_graphs = []
+    i_marker = 0
     for i_col, (name, graph) in enumerate(zip([r.name for r in rocs], rocs)):
         col = colours[i_col]
         graph.SetLineColor(col)
         graph.SetMarkerColor(col)
         graph.SetLineWidth(3)
         graph.SetMarkerStyle(0)
-        allrocs.Add(graph)
+        if graph.GetN() > 10:
+            allrocs.Add(graph)
+        else:
+            graph.SetMarkerStyle(markers[i_marker])
+            i_marker += 1
+            graph.SetMarkerSize(1)
+            point_graphs.append(graph)
 
     c = ROOT.TCanvas()
 
@@ -88,7 +97,13 @@ def makeROCPlot(rocs, set_name, ymin=0., ymax=1., xmin=0., xmax=1., logy=False):
         c.SetLogy()
 
     allrocs.Draw('APL')
+
+    for graph in point_graphs:
+        graph.Draw('P')
+
     allrocs.leg = makeLegend(zip([r.title for r in rocs], rocs))
+
+    import pdb; pdb.set_trace()
 
     c.Print(set_name+'.pdf')
 

@@ -7,10 +7,10 @@ from CMGTools.H2TauTau.proto.analyzers.H2TauTauTreeProducerMuMu import H2TauTauT
 from CMGTools.H2TauTau.proto.analyzers.LeptonWeighter import LeptonWeighter
 from CMGTools.H2TauTau.proto.analyzers.SVfitProducer import SVfitProducer
 
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50, WJetsToLNu, WJetsToLNu_HT100to200, WJetsToLNu_HT200to400, WJetsToLNu_HT400to600, WJetsToLNu_HT600toInf, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, WJetsToLNu_LO, QCD_Mu5, DYJetsToLL_M50_LO, TBar_tWch, T_tWch
-from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import SingleMuon_Run2015D_05Oct, SingleMuon_Run2015B_05Oct, SingleMuon_Run2015D_Promptv4
-from CMGTools.H2TauTau.proto.samples.spring15.higgs import HiggsGGH125, HiggsVBF125, HiggsTTH125
-from CMGTools.H2TauTau.proto.samples.spring15.higgs_susy import HiggsSUSYGG160 as ggh160
+from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
+from CMGTools.H2TauTau.proto.analyzers.FileCleaner import FileCleaner
+
+from CMGTools.H2TauTau.proto.samples.spring15.htt_common import backgrounds_mu, sm_signals, mssm_signals, data_single_muon, sync_list
 
 from CMGTools.RootTools.utils.splitFactor import splitFactor
 from CMGTools.H2TauTau.proto.samples.spring15.triggers_muMu import mc_triggers, mc_triggerfilters
@@ -25,21 +25,16 @@ from CMGTools.H2TauTau.htt_ntuple_base_cff import commonSequence, genAna, dyJets
 syncntuple = False
 pick_events = False
 computeSVfit = False
-production = False
+production = True
+cmssw = False
 
 # When ready, include weights from CMGTools.H2TauTau.proto.weights.weighttable
-
-# mc_tauEffWeight_mc = 'effTau_muTau_MC_2012ABCDSummer13'
-# mc_muEffWeight_mc = 'effMu_muTau_MC_2012ABCD'
-# mc_tauEffWeight = 'effTau_muTau_Data_2012ABCDSummer13'
-# mc_muEffWeight = 'effMu_muTau_Data_2012ABCDSummer13'
-
 mc_tauEffWeight_mc = None
 mc_muEffWeight_mc = None
 mc_tauEffWeight = None
 mc_muEffWeight = None
 
-dyJetsFakeAna.channel = 'mt'
+dyJetsFakeAna.channel = 'mm'
 
 # Define mu-tau specific modules
 
@@ -59,6 +54,9 @@ MuMuAna = cfg.Analyzer(
     from_single_objects=True,
     verbose=True
 )
+
+if cmssw:
+    MuMuAna.from_single_objects = False
 
 muonWeighter1 = cfg.Analyzer(
     LeptonWeighter,
@@ -103,31 +101,32 @@ svfitProducer = cfg.Analyzer(
     l2type='muon'
 )
 
+fileCleaner = cfg.Analyzer(
+    FileCleaner,
+    name='FileCleaner'
+)
 
 # Minimal list of samples
-samples = [TT_pow, HiggsGGH125, ggh160]
-samples += [WJetsToLNu_LO, DYJetsToLL_M50_LO]
-samples += [ZZp8, WZp8]
-samples += [QCD_Mu15, HiggsGGH125, HiggsVBF125, HiggsTTH125]
-samples += [TBar_tWch, T_tWch, WWTo2L2Nu]
+samples = backgrounds_mu + sm_signals + mssm_signals + sync_list
 
 # Additional samples
 
-split_factor = 1e5
+# split_factor = 3e4
+split_factor = 2e5
 
 for sample in samples:
     sample.triggers = mc_triggers
     sample.triggerobjects = mc_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
 
-data_list = [SingleMuon_Run2015D_05Oct, SingleMuon_Run2015D_Promptv4, SingleMuon_Run2015B_05Oct]
+data_list = data_single_muon
 
 for sample in data_list:
     sample.triggers = data_triggers
     sample.triggerobjects = data_triggerfilters
     sample.splitFactor = splitFactor(sample, split_factor)
-    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
-    sample.lumi = 40.03
+    sample.json = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+    sample.lumi = 2260.
 
 ###################################################
 ###              ASSIGN PU to MC                ###
@@ -139,7 +138,10 @@ for mc in samples:
 ###################################################
 ###             SET COMPONENTS BY HAND          ###
 ###################################################
-selectedComponents = [ggh160]
+selectedComponents = samples
+selectedComponents = data_list
+selectedComponents = samples + data_list
+# selectedComponents = [ggh160]
 # for c in selectedComponents : c.splitFactor *= 5
 
 ###################################################
@@ -162,14 +164,25 @@ if pick_events:
     eventSelector.toSelect = []
     sequence.insert(0, eventSelector)
 
+if not cmssw:
+    module = [s for s in sequence if s.name == 'MCWeighter'][0]
+    sequence.remove(module)
+
 ###################################################
 ###            SET BATCH OR LOCAL               ###
 ###################################################
 if not production:
-    comp = DYJetsToLL_M50_LO
+    # comp = DYJetsToLL_M50_LO
+    # comp = sync_list[0]
+    comp = [b for b in backgrounds_mu if b.name == 'DYJetsToLL_M50_LO'][0]
     selectedComponents = [comp]
     comp.splitFactor = 1
 
+
+preprocessor = None
+if cmssw:
+    sequence.append(fileCleaner)
+    preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/H2TauTau/prod/h2TauTauMiniAOD_mumu_cfg.py", addOrigAsSecondary=False)
 
 # the following is declared in case this cfg is used in input to the
 # heppy.py script
@@ -177,6 +190,7 @@ from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config(components=selectedComponents,
                     sequence=sequence,
                     services=[],
+                    preprocessor=preprocessor,
                     events_class=Events
                     )
 

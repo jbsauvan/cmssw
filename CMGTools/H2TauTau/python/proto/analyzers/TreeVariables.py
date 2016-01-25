@@ -16,6 +16,8 @@ event_vars = [
     Variable('run', type=int),
     Variable('lumi', type=int),
     Variable('event', lambda ev : ev.eventId, type=int),
+    Variable('bx', lambda ev : (ev.input.eventAuxiliary().bunchCrossing() * ev.input.eventAuxiliary().isRealData()), type=int),
+    Variable('orbit_number', lambda ev : (ev.input.eventAuxiliary().orbitNumber() * ev.input.eventAuxiliary().isRealData()), type=int),
     Variable('nPU', lambda ev : ev.nPU if hasattr(ev, 'nPU') else -1, type=int),
     Variable('pass_leptons', lambda ev : ev.isSignal, type=int),
     Variable('veto_dilepton', lambda ev : not ev.leptonAccept, type=int),
@@ -69,8 +71,8 @@ ditau_vars = [
     Variable('delta_phi_l1_l2', lambda dil : deltaPhi(dil.leg1().phi(), dil.leg2().phi())),
     Variable('delta_eta_l1_l2', lambda dil : abs(dil.leg1().eta() - dil.leg2().eta())),
     Variable('delta_r_l1_l2', lambda dil : deltaR(dil.leg1().eta(), dil.leg1().phi(), dil.leg2().eta(), dil.leg2().phi())),
-    Variable('delta_phi_l1_met', lambda dil : deltaPhi(dil.leg2().phi(), dil.met().phi())),
-    Variable('delta_phi_l2_met', lambda dil : deltaPhi(dil.leg1().phi(), dil.met().phi())),
+    Variable('delta_phi_l1_met', lambda dil : deltaPhi(dil.leg1().phi(), dil.met().phi())),
+    Variable('delta_phi_l2_met', lambda dil : deltaPhi(dil.leg2().phi(), dil.met().phi())),
 ]
 
 # generic particle

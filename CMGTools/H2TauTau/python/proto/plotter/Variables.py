@@ -90,7 +90,7 @@ taumu_vars = generic_vars + muon_l1_vars + tau_l2_vars + tau_mu_special_vars
 
 mumu_vars = generic_vars + muon_l1_vars + muon_l2_vars + additional_tau_vars
 
-all_vars = generic_vars + muon_l1_vars + tau_l2_vars + additional_tau_vars
+all_vars = generic_vars + muon_l1_vars + tau_l2_vars + additional_tau_vars + tau_mu_special_vars
 
 dict_all_vars = {}
 for v in all_vars:

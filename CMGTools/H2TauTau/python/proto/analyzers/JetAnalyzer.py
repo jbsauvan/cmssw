@@ -128,6 +128,10 @@ class JetAnalyzer(Analyzer):
                                                         masks=leptons,
                                                         deltaRMin=0.5)
 
+        # Attach matched jets to selected + other leptons
+        if hasattr(event, 'otherLeptons'):
+            leptons += event.otherLeptons
+
         pairs = matchObjectCollection(leptons, allJets, 0.5 * 0.5)
         # associating a jet to each lepton
         for lepton in leptons:

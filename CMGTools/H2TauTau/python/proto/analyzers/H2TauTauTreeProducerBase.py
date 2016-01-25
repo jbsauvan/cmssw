@@ -3,6 +3,8 @@ from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNump
 from CMGTools.H2TauTau.proto.analyzers.varsDictionary import vars as var_dict
 from CMGTools.H2TauTau.proto.analyzers.TreeVariables import event_vars, ditau_vars, particle_vars, lepton_vars, electron_vars, muon_vars, tau_vars, jet_vars, geninfo_vars, vbf_vars
 
+from CMGTools.H2TauTau.proto.physicsobjects.DiObject import DiTau
+
 class H2TauTauTreeProducerBase(TreeAnalyzerNumpy):
 
     '''
@@ -171,6 +173,31 @@ class H2TauTauTreeProducerBase(TreeAnalyzerNumpy):
 
     def fillGenInfo(self, tree, event):
         self.fillGeneric(tree, geninfo_vars, event)
+
+
+    # additional METs
+    def bookExtraMetInfo(self, tree):
+        self.var(tree, 'puppimet_pt')
+        self.var(tree, 'puppimet_phi')
+        self.var(tree, 'puppimet_mt1')
+        self.var(tree, 'puppimet_mt2')
+
+        self.var(tree, 'pfmet_pt')
+        self.var(tree, 'pfmet_phi')
+        self.var(tree, 'pfmet_mt1')
+        self.var(tree, 'pfmet_mt2')
+
+    def fillExtraMetInfo(self, tree, event):
+        self.fill(tree, 'puppimet_pt', event.puppimet.pt())
+        self.fill(tree, 'puppimet_phi', event.puppimet.phi())
+        self.fill(tree, 'puppimet_mt1', DiTau.calcMT(event.puppimet, event.leg1))
+        self.fill(tree, 'puppimet_mt2', DiTau.calcMT(event.puppimet, event.leg2))
+
+        self.fill(tree, 'pfmet_pt', event.pfmet.pt())
+        self.fill(tree, 'pfmet_phi', event.pfmet.phi())
+        self.fill(tree, 'pfmet_mt1', DiTau.calcMT(event.pfmet, event.leg1))
+        self.fill(tree, 'pfmet_mt2', DiTau.calcMT(event.pfmet, event.leg2))
+
 
     # quark and gluons
     def bookQG(self, tree, maxNGenJets=2):

@@ -122,7 +122,13 @@ class DiTau(DiObject):
         pt = cand1.pt() + cand2.pt()
         px = cand1.px() + cand2.px()
         py = cand1.py() + cand2.py()
-        return math.sqrt(pt*pt - px*px - py*py)
+        try:
+            return math.sqrt(pt*pt - px*px - py*py)
+        except ValueError:
+            print 'Funny rounding issue', pt, px, py
+            print cand1.px(), cand1.py(), cand1.pt()
+            print cand2.px(), cand2.py(), cand2.pt()
+            return 0.
 
     def match(self, genParticles):
         # TODO review matching algorithm
@@ -215,6 +221,12 @@ class DiMuon(DiTau):
         super(DiMuon, self).__init__(diobject)
         self.mu1 = Muon(super(DiMuon, self).leg1())
         self.mu2 = Muon(super(DiMuon, self).leg2())
+
+    def leg2(self):
+        return self.mu2
+
+    def leg1(self):
+        return self.mu1
 
     def __str__(self):
         header = 'DiMuon: mvis=%3.2f, sumpT=%3.2f' \

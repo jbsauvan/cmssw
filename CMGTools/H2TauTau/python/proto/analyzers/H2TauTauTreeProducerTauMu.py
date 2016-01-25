@@ -43,6 +43,20 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
             self.var(self.tree, 'l1_mini_iso')
             self.var(self.tree, 'l1_mini_reliso')
 
+        if hasattr(self.cfg_ana, 'addTnPInfo') and self.cfg_ana.addTnPInfo:
+            self.var(self.tree, 'tag')
+            self.var(self.tree, 'probe')
+            self.bookParticle(self.tree, 'l1_trig_obj')
+            self.bookParticle(self.tree, 'l2_trig_obj')
+            self.bookParticle(self.tree, 'l1_L1')
+            self.bookParticle(self.tree, 'l2_L1')
+            self.var(self.tree, 'l1_L1_type')
+            self.var(self.tree, 'l2_L1_type')
+            # RM add further branches related to the HLT filter matching by hand.
+            #    I cannot find a better solution for the moment 14/10/2015
+            self.bookParticle(self.tree, 'l2_hltL2Tau30eta2p2')
+
+
     def process(self, event):
 
         super(H2TauTauTreeProducerTauMu, self).process(event)
@@ -50,6 +64,8 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
         tau = event.diLepton.leg2()
         muon = event.diLepton.leg1()
 
+#         import pdb ; pdb.set_trace()
+        
         self.fillTau(self.tree, 'l2', tau)
         self.fillMuon(self.tree, 'l1', muon)
 
@@ -111,5 +127,23 @@ class H2TauTauTreeProducerTauMu(H2TauTauTreeProducer):
             self.fill(self.tree, 'l2_puppi_iso03_pt', tau.puppi_iso03_pt)
             self.fill(self.tree, 'l1_mini_iso', muon.miniAbsIso)
             self.fill(self.tree, 'l1_mini_reliso', muon.miniRelIso)
+
+        if hasattr(self.cfg_ana, 'addTnPInfo') and self.cfg_ana.addTnPInfo:
+            self.fill(self.tree, 'tag', event.tag)
+            self.fill(self.tree, 'probe', event.probe)
+            if hasattr(muon, 'to'):
+                self.fillParticle(self.tree, 'l1_trig_obj', muon.to)
+            if hasattr(tau, 'to'):            
+                self.fillParticle(self.tree, 'l2_trig_obj', tau.to)
+            if hasattr(muon, 'L1'):
+                self.fillParticle(self.tree, 'l1_L1', muon.L1)
+                self.fill(self.tree, 'l1_L1_type', muon.L1flavour)
+            if hasattr(tau, 'L1'):
+                self.fillParticle(self.tree, 'l2_L1', tau.L1)
+                self.fill(self.tree, 'l2_L1_type', tau.L1flavour)
+            # RM add further branches related to the HLT filter matching by hand.
+            #    I cannot find a better solution for the moment 14/10/2015
+            if hasattr(tau, 'hltL2Tau30eta2p2'):
+                self.fillParticle(self.tree, 'l2_hltL2Tau30eta2p2', tau.hltL2Tau30eta2p2)
 
         self.fillTree(event)

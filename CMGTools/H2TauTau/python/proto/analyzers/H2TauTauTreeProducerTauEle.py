@@ -54,7 +54,7 @@ class H2TauTauTreeProducerTauEle(H2TauTauTreeProducer):
                 self.fillParticle(self.tree, 'l1_triggerobject2', ele.triggerobjects[1])
         
         # save the p4 of the visible tau products at the generator level
-        if tau.genJet() and hasattr(tau, 'genp') and abs(tau.genp.pdgId()) == 15:
+        if tau.genJet() and hasattr(tau, 'genp') and tau.genp and abs(tau.genp.pdgId()) == 15:
             self.fillParticle(self.tree, 'l2_gen_vis', tau.physObj.genJet())
 
         self.fill(self.tree, 'l2_weight_fakerate', event.tauFakeRateWeightUp)

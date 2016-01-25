@@ -18,8 +18,6 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <map>
-#include <TH1D.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
@@ -47,12 +45,16 @@ class GenEvtWeightCounter : public edm::one::EDProducer<edm::EndRunProducer>{
                 
         bool verbose_;
         std::vector<double> weights_;
+        double sumWeights_;
+        double sumUnityWeights_;
 };
 
 GenEvtWeightCounter::GenEvtWeightCounter(const edm::ParameterSet& iConfig):
-    verbose_  (iConfig.getUntrackedParameter<bool>("verbose", false))
+    verbose_  (iConfig.getUntrackedParameter<bool>("verbose", false)), sumWeights_(0.), sumUnityWeights_(0.)
 {
-   produces<std::vector<double>, edm::InRun>("genWeight");
+   // produces<std::vector<double>, edm::InRun>("genWeight");
+    produces<double, edm::InRun>();
+    produces<double, edm::InRun>("sumUnityGenWeights");
 }
 
 
@@ -80,6 +82,12 @@ GenEvtWeightCounter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   << std::endl;
     }
     
+    sumWeights_ += genInfo->weight();
+    if (genInfo->weight() > 0.)
+        sumUnityWeights_ += 1.;
+    else if (genInfo->weight() < 0.)
+        sumUnityWeights_ += -1.;
+
     int i = 0;
     
     for (std::vector<double>::const_iterator iweight  = weights.begin(); 
@@ -109,8 +117,15 @@ GenEvtWeightCounter::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 void
 GenEvtWeightCounter::endRunProduce(edm::Run& iRun, edm::EventSetup const& iSetup)
 {
-    std::auto_ptr<std::vector<double> > pweights( new std::vector<double>(weights_) ); 
-    iRun.put(pweights, "genWeight");
+    // std::auto_ptr<std::vector<double> > pweights( new std::vector<double>(weights_) ); 
+    // iRun.put(pweights, "genWeight");
+
+    std::auto_ptr<double> sumW(new double(sumWeights_));
+    std::auto_ptr<double> sumUW(new double(sumUnityWeights_));
+
+    iRun.put(sumW);
+    iRun.put(sumUW, "sumUnityGenWeights");
+    sumW.reset();
     return;
 }
 

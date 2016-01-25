@@ -27,15 +27,13 @@ mvaMETMuEle.srcLeptons = cms.VInputTag(
   )
 mvaMETMuEle.permuteLeptons = cms.bool(True)
 
-
-
-# Correct tau pt (after MVA MET according to current baseline)
-cmgMuEleCor = cmgMuEleCor.clone()
+# # Correct tau pt (after MVA MET according to current baseline)
+# cmgMuEleCor = cmgMuEleCor.clone()
 
 # This selector goes after the tau pt correction
 cmgMuEleTauPtSel = cms.EDFilter(
     "PATCompositeCandidateSelector",
-    src = cms.InputTag("cmgMuEleCor"),
+    src = cms.InputTag("cmgMuEle"),
     cut = cms.string("daughter(0).pt()>18.")
     )
 
@@ -62,7 +60,7 @@ muEleSequence = cms.Sequence( #
     electronPreSelectionMuEle +   
     muEleMVAMetSequence +
     cmgMuEle +
-    cmgMuEleCor+
+    # cmgMuEleCor+ # Correction only applies to taus, not needed for mu-ele
     cmgMuEleTauPtSel +
     cmgMuEleCorSVFitPreSel +
     cmgMuEleCorSVFitFullSel

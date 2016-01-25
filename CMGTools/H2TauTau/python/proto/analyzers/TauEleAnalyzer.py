@@ -45,6 +45,16 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
         self.mchandles['genParticles'] = AutoHandle('prunedGenParticles',
                                                     'std::vector<reco::GenParticle>')
 
+        self.handles['puppiMET'] = AutoHandle(
+            'slimmedMETsPuppi',
+            'std::vector<pat::MET>'
+        )
+
+        self.handles['pfMET'] = AutoHandle(
+            'slimmedMETs',
+            'std::vector<pat::MET>'
+        )
+
     def buildDiLeptons(self, cmgDiLeptons, event):
         '''Build di-leptons, associate best vertex to both legs,
         select di-leptons with a tight ID electron.
@@ -141,6 +151,9 @@ class TauEleAnalyzer(DiLeptonAnalyzer):
             return False
 
         event.isSignal = event.isSignal and event.leptonAccept and event.thirdLeptonVeto
+
+        event.pfmet = self.handles['met'].product()[0]
+        event.puppimet = self.handles['puppiMET'].product()[0]
 
         return True
 

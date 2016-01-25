@@ -1,4 +1,3 @@
-import FWCore.ParameterSet.Config as cms
 import copy
 
 common = [
@@ -11,7 +10,7 @@ common = [
     'keep patMETs_slimmedMETs_*_*',
     'keep patMuons_slimmedMuons_*_*',
     # 'keep patPacked*_*_*_*',
-    'keep patPackedCandidate*_*packedPFCandidates*_*_*PAT', # RIC: agreed to keep it to: 1. tau vtx 2. possibly compute isolations at analysis level
+    'keep patPackedCandidate*_*packedPFCandidates*_*_*', # RIC: agreed to keep it to: 1. tau vtx 2. possibly compute isolations at analysis level
     'keep patTaus_slimmedTaus_*_*',
     'keep patTrigger*_*_*_*',
     'keep recoVertexs_*_*_*',
@@ -20,15 +19,14 @@ common = [
     'keep patJets_patJetsAK4PF_*_*',
     'keep PileupSummaryInfos_*_*_*',
     'keep recoGenParticles_prunedGenParticles_*_*',
-    'keep patPackedGenParticles_packedGenParticles__PAT', # these are status 1
+    'keep patPackedGenParticles_packedGenParticles__*', # these are status 1
     'keep recoGsfElectronCores_*_*_*', # needed?
     'keep recoSuperClusters_*_*_*', # for electron MVA ID
     'keep recoGenJets_slimmedGenJets_*_*',
     'keep *_slimmedSecondaryVertices_*_*',
-    'keep patPackedCandidates_packedPFCandidates__PAT',
+    'keep patPackedCandidates_packedPFCandidates__*',
     'keep *_puppi_*_*',
-    'keep *_particleFlowNoMuonPUPPI_*_*',
-    'keep *_pfMetPuppi_*_*',
+    'keep *_slimmedMETsPuppi_*_*',
     'keep *_generator_*_*',
     'keep *_genEvtWeightsCounter_*_*',
     'keep *_offlineBeamSpot_*_*',

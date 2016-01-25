@@ -18,11 +18,14 @@ debugEventContent = False
 
 # choose from 'tau-mu' 'di-tau' 'tau-ele' 'mu-ele' 'all-separate', 'all'
 # channel = 'all'
-channel = 'tau-mu'
+channel = 'di-mu'
 
 # runSVFit enables the svfit mass reconstruction used for the H->tau tau analysis.
 # if false, no mass calculation is carried out
 runSVFit = True
+# decide whether tau energy resolution has to enter SVfit integration
+p4TransferFunctionFile = 'TauAnalysis/SVfitStandalone/data/svFitVisMassAndPtResolutionPDF.root' # Christians's default. If not touched, it would default to this anyways
+integrateOverP4 = False # Default False
 
 # increase to 1000 before running on the batch, to reduce size of log files
 # on your account
@@ -262,6 +265,18 @@ else:
     process.cmgTauEleCorSVFitPreSel.SVFitVersion = 0
     process.cmgDiTauCorSVFitPreSel.SVFitVersion = 0
     process.cmgMuEleCorSVFitPreSel.SVFitVersion = 0
+
+if integrateOverP4:
+    process.cmgTauMuCorSVFitPreSel.integrateOverP4  = integrateOverP4
+    process.cmgTauEleCorSVFitPreSel.integrateOverP4 = integrateOverP4
+    process.cmgDiTauCorSVFitPreSel.integrateOverP4  = integrateOverP4
+    process.cmgMuEleCorSVFitPreSel.integrateOverP4  = integrateOverP4
+
+if p4TransferFunctionFile:
+    process.cmgTauMuCorSVFitPreSel.p4TransferFunctionFile  = p4TransferFunctionFile
+    process.cmgTauEleCorSVFitPreSel.p4TransferFunctionFile = p4TransferFunctionFile
+    process.cmgDiTauCorSVFitPreSel.p4TransferFunctionFile  = p4TransferFunctionFile
+    process.cmgMuEleCorSVFitPreSel.p4TransferFunctionFile  = p4TransferFunctionFile
 
 print sep_line
 print 'INPUT:'

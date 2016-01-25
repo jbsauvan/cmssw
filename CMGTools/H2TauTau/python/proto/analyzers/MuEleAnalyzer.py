@@ -44,6 +44,16 @@ class MuEleAnalyzer(DiLeptonAnalyzer):
             'std::vector<reco::GenParticle>'
         )
 
+        self.handles['puppiMET'] = AutoHandle(
+            'slimmedMETsPuppi',
+            'std::vector<pat::MET>'
+        )
+
+        self.handles['pfMET'] = AutoHandle(
+            'slimmedMETs',
+            'std::vector<pat::MET>'
+        )
+
     def buildDiLeptons(self, cmgDiLeptons, event):
         '''Build di-leptons, associate best vertex to both legs,
         select di-leptons with a tight ID muon.
@@ -134,6 +144,9 @@ class MuEleAnalyzer(DiLeptonAnalyzer):
         else:
             event.isSignal = True
 
+        event.pfmet = self.handles['met'].product()[0]
+        event.puppimet = self.handles['puppiMET'].product()[0]
+
         return True
 
     def testLeg2ID(self, muon):
@@ -171,6 +184,8 @@ class MuEleAnalyzer(DiLeptonAnalyzer):
         vOtherLeptons = [electron for electron in leptons if
                          self.testLegKine(electron, ptcut=10, etacut=2.5) and
                          self.testVertex(electron) and
+                         electron.passConversionVeto() and 
+                         electron.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS) <= 1 and
                          electron.mvaIDRun2('NonTrigSpring15', 'POG90') and
                          electron.relIsoR(R=0.3, dBetaFactor=0.5, allCharged=0) < 0.3]
 
@@ -288,15 +303,15 @@ class MuEleAnalyzer(DiLeptonAnalyzer):
                     matched = True
                     event.matchedPaths.add(info.name)
 
-        Mu23_flag = any([mp.find('Mu23') != -1 for mp in event.matchedPaths])
-        Ele23_flag = any([mp.find('Ele23') != -1 for mp in event.matchedPaths])
+        Mu17_flag = any([mp.find('Mu17') != -1 for mp in event.matchedPaths])
+        Ele17_flag = any([mp.find('Ele17') != -1 for mp in event.matchedPaths])
 
-        if all([Mu23_flag, Ele23_flag]):
-            return matched and (diL.leg1().pt() > 24 or diL.leg2().pt() > 24)
-        elif Ele23_flag and not Mu23_flag:
-            return matched and diL.leg1().pt() > 24
-        elif Mu23_flag and not Ele23_flag:
-            return matched and diL.leg2().pt() > 24
+        if all([Mu17_flag, Ele17_flag]):
+            return matched and (diL.leg1().pt() > 18 or diL.leg2().pt() > 18)
+        elif Ele17_flag and not Mu17_flag:
+            return matched and diL.leg1().pt() > 18
+        elif Mu17_flag and not Ele17_flag:
+            return matched and diL.leg2().pt() > 18
         else:
             print 'Found no trigger match'
             return matched

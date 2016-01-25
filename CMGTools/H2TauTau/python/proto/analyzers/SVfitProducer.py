@@ -1,11 +1,13 @@
+import os
 import array
 
-from ROOT import TMatrixD, std
+from ROOT import TMatrixD, std, TFile, TH1
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from TauAnalysis.SVfitStandalone.SVfitStandaloneAlgorithm import SVfitAlgo
 from TauAnalysis.SVfitStandalone.MeasuredTauLepton import measuredTauLepton
 
+TH1.AddDirectory(False)
 
 class SVfitProducer(Analyzer):
 
@@ -14,6 +16,15 @@ class SVfitProducer(Analyzer):
     def __init__(self, *args):
         super(SVfitProducer, self).__init__(*args)
         self.legType = {'undef': 0, 'tau': 1, 'ele': 2, 'muon': 3, 'prompt': 4}
+
+        if hasattr(self.cfg_ana, 'visPtResponseFile'):
+            file_name = self.cfg_ana.visPtResponseFile
+        else:
+            file_name = '/'.join([os.environ['CMSSW_BASE'], 'src','TauAnalysis', 
+                                  'SVfitStandalone', 'data',
+                                  'svFitVisMassAndPtResolutionPDF.root'])
+                                  
+        self.inputFile_visPtResolution = TFile(file_name)
 
     def process(self, event):
 
@@ -68,6 +79,16 @@ class SVfitProducer(Analyzer):
 
         svfit = SVfitAlgo(measuredLeptons, mex, mey, metcov, 2*self.cfg_ana.verbose)
 
+
+        if hasattr(self.cfg_ana, 'integrateOverVisPtResponse') and \
+            self.cfg_ana.integrateOverVisPtResponse:
+            
+            shift = not((self.cfg_ana.l1type == 'tau' and     \
+                         leg1.decayMode() not in [0, 1, 10]) or \
+                        (self.cfg_ana.l2type == 'tau' and     \
+                         leg2.decayMode() not in [0, 1, 10]))
+            svfit.shiftVisPt(shift, self.inputFile_visPtResolution)
+        
         # add an additional logM(tau,tau) term to the nll
         # to suppress tails on M(tau,tau) (default is false)
         # svfit.addLogM(False)
