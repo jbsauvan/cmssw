@@ -6,12 +6,18 @@ from CMGTools.H2TauTau.proto.plotter.HistCreator import createHistogram, setSumW
 from CMGTools.H2TauTau.proto.plotter.HistDrawer import HistDrawer
 from CMGTools.H2TauTau.proto.plotter.Variables import all_vars, getVars
 from CMGTools.H2TauTau.proto.plotter.cut import Cut
+from CMGTools.H2TauTau.proto.plotter.helper_methods import getPUWeight
 
 #from CMGTools.H2TauTau.proto.plotter.Samples import samples
 from CMGTools.H2TauTau.proto.plotter.Samples import createSampleLists
 #from samples import samples
 
-int_lumi = 2100.
+int_lumi = 2094.2 # from Alexei's email
+
+total_weight = 'weight'
+#total_weight = 'weight * ' + getPUWeight()
+
+print total_weight
 
 cuts = {}
 
@@ -21,7 +27,7 @@ inc_sig_mu1 &= Cut('l1_pt>19')
 #
 inc_sig_mu2 = Cut('l2_reliso05<0.1')
 inc_sig_mu2 &= Cut('l2_muonid_medium>0.5')
-inc_sig_mu2 &= Cut('l2_pt>19')
+inc_sig_mu2 &= Cut('l2_pt>10')
 #
 inc_sig_dimu = Cut('l1_charge*l2_charge<0')
 #
@@ -32,7 +38,7 @@ inc_sig_tau &= Cut('tau1_decayModeFinding')
 
 inc_sig = inc_sig_mu1 & inc_sig_mu2 & inc_sig_dimu & inc_sig_tau
 
-cuts['ZmumuX'] = inc_sig
+cuts['Zjet_Tree'] = inc_sig
 
 
 # -> Command line
@@ -58,7 +64,7 @@ variables = [
 ]
 
 for name,cut in cuts.items():
-    cfg_example = HistogramCfg(name='example', var=None, cfgs=all_samples, cut=str(cut), lumi=int_lumi)
+    cfg_example = HistogramCfg(name='example', var=None, cfgs=all_samples, cut=str(cut), lumi=int_lumi, weight=total_weight)
 
     for variable in variables:
         cfg_example.var = variable
