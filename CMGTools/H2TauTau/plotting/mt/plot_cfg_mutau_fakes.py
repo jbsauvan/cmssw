@@ -5,7 +5,8 @@ import shelve
 import ROOT
 from FakeFactors import fake_factors_regions, signal_selections, inverted_selections
 
-from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50_LO, WJetsToLNu_LO, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, T_tWch, TBar_tWch, TToLeptons_tch_amcatnlo, TToLeptons_sch_amcatnlo
+#from CMGTools.RootTools.samples.samples_13TeV_RunIISpring15MiniAODv2 import TT_pow, DYJetsToLL_M50_LO, WJetsToLNu_LO, QCD_Mu15, WWTo2L2Nu, ZZp8, WZp8, T_tWch, TBar_tWch, TToLeptons_tch_amcatnlo, TToLeptons_sch_amcatnlo
+from CMGTools.H2TauTau.proto.plotter.Samples import createSampleLists
 
 from CMGTools.H2TauTau.proto.plotter.PlotConfigs import HistogramCfg, BasicHistogramCfg, VariableCfg
 from CMGTools.H2TauTau.proto.plotter.categories_TauMu import cat_Inc
@@ -23,16 +24,19 @@ from Data import CompatibilityData
 #histo_version = 'v_12_2016-01-21'
 #
 fakeFactorsType = 'HighMT'
-histo_version = 'v_1_2016-01-21'
+histo_version = 'v_2_2016-01-28'
 
 ## input samples
-int_lumi = 1560.
-analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/18112015/'
+int_lumi = 2094.2 # from Alexei's email
+analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/151215/'
+tree_prod_name = 'H2TauTauTreeProducerTauMu'
+samples_mc, samples_data, samples_tmp, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir, tree_prod_name=tree_prod_name)
 
 ## Output
-plot_dir = "fakeplots/FakeFactorType_{FAKETYPE}/v160121/".format(FAKETYPE=fakeFactorsType)
+version  = 'v160128'
+plot_dir = "fakeplots/FakeFactorType_{FAKETYPE}/{VERSION}/".format(FAKETYPE=fakeFactorsType,VERSION=version)
 publish_plots = True
-publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/FakeFactorType_{FAKETYPE}/v160121/".format(FAKETYPE=fakeFactorsType)
+publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/".format(FAKETYPE=fakeFactorsType,VERSION=version)
 
 ## templates for histogram and file names
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FAKETYPE}'.format(FAKETYPE=fakeFactorsType)
@@ -45,17 +49,22 @@ DirName = "DirName"
 XSection = "XSection"
 SumWeights = "SumWeights"
 samples = [
-    {Name:'ZJ'       , DirName:'DYJetsToLL_M50_LO', XSection:DYJetsToLL_M50_LO.xSection, SumWeights:DYJetsToLL_M50_LO.nGenEvents},
-    {Name:'W'        , DirName:'WJetsToLNu_LO'    , XSection:WJetsToLNu_LO.xSection    , SumWeights:WJetsToLNu_LO.nGenEvents},
-    {Name:'TT'       , DirName:'TT_pow'           , XSection:TT_pow.xSection           , SumWeights:TT_pow.nGenEvents},
-    {Name:'T_tWch'   , DirName:'T_tWch'           , XSection:T_tWch.xSection           , SumWeights:T_tWch.nGenEvents},
-    {Name:'TBar_tWch', DirName:'TBar_tWch'        , XSection:TBar_tWch.xSection        , SumWeights:TBar_tWch.nGenEvents},
-    {Name:'WW'       , DirName:'WWTo2L2Nu'        , XSection:WWTo2L2Nu.xSection        , SumWeights:WWTo2L2Nu.nGenEvents},
-    {Name:'WZ'       , DirName:'WZ'               , XSection:WZp8.xSection             , SumWeights:WZp8.nGenEvents},
-    {Name:'ZZ'       , DirName:'ZZp8'             , XSection:ZZp8.xSection             , SumWeights:ZZp8.nGenEvents},
-    {Name:'QCD'      , DirName:'QCD_Mu15'         , XSection:QCD_Mu15.xSection         , SumWeights:1.},
+    {Name:'ZJ'          , DirName:'DYJetsToLL_M50_LO', XSection:sampleDict['ZJ'].xsec          , SumWeights:sampleDict['ZJ'].sumweights          },
+    {Name:'W'           , DirName:'WJetsToLNu_LO'    , XSection:sampleDict['W'].xsec           , SumWeights:sampleDict['W'].sumweights           },
+    {Name:'TT'          , DirName:'TT_pow'           , XSection:sampleDict['TT'].xsec          , SumWeights:sampleDict['TT'].sumweights          },
+    {Name:'T_tWch'      , DirName:'T_tWch'           , XSection:sampleDict['T_tWch'].xsec      , SumWeights:sampleDict['T_tWch'].sumweights      },
+    {Name:'TBar_tWch'   , DirName:'TBar_tWch'        , XSection:sampleDict['TBar_tWch'].xsec   , SumWeights:sampleDict['TBar_tWch'].sumweights   },
+    {Name:'QCD'         , DirName:'QCD_Mu15'         , XSection:sampleDict['QCD'].xsec         , SumWeights:sampleDict['QCD'].sumweights         },
+    {Name:'ZZTo2L2Q'    , DirName:'ZZTo2L2Q'         , XSection:sampleDict['ZZTo2L2Q'].xsec    , SumWeights:sampleDict['ZZTo2L2Q'].sumweights    },
+    {Name:'WZTo3L'      , DirName:'WZTo3L'           , XSection:sampleDict['WZTo3L'].xsec      , SumWeights:sampleDict['WZTo3L'].sumweights      },
+    {Name:'WZTo2L2Q'    , DirName:'WZTo2L2Q'         , XSection:sampleDict['WZTo2L2Q'].xsec    , SumWeights:sampleDict['WZTo2L2Q'].sumweights    },
+    {Name:'WZTo1L3Nu'   , DirName:'WZTo1L3Nu'        , XSection:sampleDict['WZTo1L3Nu'].xsec   , SumWeights:sampleDict['WZTo1L3Nu'].sumweights   },
+    {Name:'WZTo1L1Nu2Q' , DirName:'WZTo1L1Nu2Q'      , XSection:sampleDict['WZTo1L1Nu2Q'].xsec , SumWeights:sampleDict['WZTo1L1Nu2Q'].sumweights },
+    {Name:'VVTo2L2Nu'   , DirName:'VVTo2L2Nu'        , XSection:sampleDict['VVTo2L2Nu'].xsec   , SumWeights:sampleDict['VVTo2L2Nu'].sumweights   },
+    {Name:'WWTo1L1Nu2Q' , DirName:'WWTo1L1Nu2Q'      , XSection:sampleDict['WWTo1L1Nu2Q'].xsec , SumWeights:sampleDict['WWTo1L1Nu2Q'].sumweights },
+    #{Name:'ZZTo4L'      , DirName:'ZZTo4L'           , XSection:sampleDict['ZZTo4L'].xsec      , SumWeights:sampleDict['ZZTo4L'].sumweights      }   ,
 ]
-sample_groups = [['ZJ'], ['W'], ['TT'], ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'], ['QCD'], [s[Name] for s in samples]]
+sample_groups = [['ZJ'], ['W'], ['TT'], ['WWTo1L1Nu2Q', 'VVTo2L2Nu', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'WZTo3L', 'ZZTo2L2Q', 'T_tWch', 'TBar_tWch'], ['QCD'], [s[Name] for s in samples]]
 
 
 
@@ -156,7 +165,7 @@ for sample_group in sample_groups:
                 plot.name = name
                 plot.histPref['Data']['legend'] = 'Actual background'
                 plot.histPref['ZJ']['legend'] = 'Z + Jets'
-                if 'ZZ' in sample_group: plot.Group('VV', ['ZZ', 'WZ', 'WW', 'T_tWch', 'TBar_tWch'])
+                if 'VVTo2L2Nu' in sample_group: plot.Group('VV', ['WWTo1L1Nu2Q', 'VVTo2L2Nu', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'WZTo3L', 'ZZTo2L2Q', 'T_tWch', 'TBar_tWch'])
                 HistDrawer.draw(plot, plot_dir=plot_dir)
                 if publish_plots:
                     for ext in [".png",".eps",".pdf",".C"]:

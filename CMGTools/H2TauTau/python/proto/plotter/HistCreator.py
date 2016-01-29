@@ -116,11 +116,11 @@ def createHistogram(hist_cfg, all_stack=False, verbose=False):
     plot._ApplyPrefs()
     return plot
 
-def setSumWeights(sample):
+def setSumWeights(sample, directory='SkimAnalyzerCount'):
     if isinstance(sample, HistogramCfg) or sample.is_data:
         return
 
-    pckfile = '/'.join([sample.ana_dir, sample.dir_name, 'SkimAnalyzerCount', 'SkimReport.pck'])
+    pckfile = '/'.join([sample.ana_dir, sample.dir_name, directory, 'SkimReport.pck'])
     try:
         pckobj  = pickle.load(open(pckfile,'r'))
         counters = dict(pckobj)

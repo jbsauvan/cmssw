@@ -15,22 +15,22 @@ from CMGTools.H2TauTau.proto.plotter.SamplesFromHisto import createSampleListsFr
 int_lumi = 2094.2 # from Alexei's email
 
 ## Output
-version = 'v160126'
-plot_dir = "controlregions/ZJet/{VERSION}/".format(VERSION=version)
+version = 'v160128'
+plot_dir = "controlregions/QCDSS/{VERSION}/".format(VERSION=version)
 publish_plots = False
-publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/ControlRegions/ZJet/{VERSION}/".format(VERSION=version)
+publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/ControlRegions/QCDSS/{VERSION}/".format(VERSION=version)
 
 ## templates for histogram and file names
 histo_version = 'v_2_2016-01-28'
-histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuMu/'
-histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_ZMuMu_{SAMPLE}.root'
+histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau_FakeRate_QCDSS/'
+histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_QCDSS_{SAMPLE}.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}' 
 
 
 
 # -> Command line
-analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mm/190116/'
-tree_prod_name = 'H2TauTauTreeProducerMuMu'
+analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/151215/'
+tree_prod_name = 'H2TauTauTreeProducerTauMu'
 data_dir = analysis_dir
 samples_mc, samples_data, samples, all_samples, sampleDict = createSampleListsFromHisto(analysis_dir=analysis_dir, tree_prod_name=tree_prod_name)
 
@@ -39,20 +39,21 @@ selections = []
 selections.append('NoIso')
 
 
-#for sample in all_samples:
+for sample in all_samples:
     ### SumWeights seems to be not correctly filled
     ### Filled them from SkimAnalyzerCount pickle file
-    #setSumWeights(sample)
+    setSumWeights(sample, directory='MCWeighter')
 
 # Taken from Variables.py, can get subset with e.g. getVars(['mt', 'mvis'])
 variables = [
-    VariableCfg(name='l1l2_mass', binning={'nbinsx':70, 'xmin':50., 'xmax':120.}, unit='GeV', xtitle='m_{#mu#mu}'),
-    VariableCfg(name='l1l2_pt', binning={'nbinsx':20, 'xmin':0., 'xmax':200.}, unit='GeV', xtitle='m_{#mu#mu}'),
+    VariableCfg(name='mvis', binning={'nbinsx':60, 'xmin':0., 'xmax':300.}, unit='GeV', xtitle='m_{vis}'),
+    VariableCfg(name='mt', binning={'nbinsx':40, 'xmin':0., 'xmax':200.}, unit='GeV', xtitle='m_{T}'),
     VariableCfg(name='nvertices', binning={'nbinsx':12, 'xmin':0., 'xmax':40.}, unit='', xtitle='N_{PV}'),
     VariableCfg(name='tau_pt', binning={'nbinsx':14, 'xmin':20., 'xmax':200.}, unit='GeV', xtitle='p_{T}^{#tau}'),
     VariableCfg(name='tau_pt_fixedbin', binning={'nbinsx':40, 'xmin':0., 'xmax':100.}, unit='GeV', xtitle='p_{T}^{#tau}'),
     VariableCfg(name='tau_iso', binning={'nbinsx':200, 'xmin':0., 'xmax':20.}, unit='GeV', xtitle='iso^{#tau}'),
     VariableCfg(name='tau_decayMode', binning={'nbinsx':15, 'xmin':-0.5, 'xmax':14.5}, unit='', xtitle='decay mode'),
+    VariableCfg(name='l1_reliso05', binning={'nbinsx':150, 'xmin':0., 'xmax':0.3}, unit='', xtitle='iso^{#mu}'),
 ]
 
 sampleHistoNames = {
@@ -81,8 +82,8 @@ for selection in selections:
         for sample in samples_copy:
             sampleName = sampleHistoNames[sample.dir_name]
             sample.histo_file_name = histo_file_template_name.format(SAMPLE=sampleName) 
-            sample.histo_name = histo_template_name.format(DIR='NoPUReweight/',SEL=selection,VAR=variable.name)
-            #sample.histo_name = histo_template_name.format(DIR='',SEL=selection,VAR=variable.name)
+            #sample.histo_name = histo_template_name.format(DIR='NoPUReweight/',SEL=selection,VAR=variable.name)
+            sample.histo_name = histo_template_name.format(DIR='',SEL=selection,VAR=variable.name)
         cfg = HistogramCfg(name='{SEL}_{VAR}'.format(SEL=selection,VAR=variable), var=variable, cfgs=samples_copy, lumi=int_lumi)
         plot = createHistogram(cfg, verbose=True)
         #plot.Group('VV', ['ZZTo4L','ZZTo2L2Q','WZTo3L','WZTo2L2Q','WZTo1L3Nu','WZTo1L1Nu2Q','VVTo2L2Nu','WWTo1L1Nu2Q', 'T_tWch', 'TBar_tWch'])
