@@ -1,64 +1,47 @@
+import copy
 
 
 fake_factors_regions = {}
 
-fake_factors_regions['ZMuMu'] = [
+fake_factors_regions['generic'] = [
     ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
-    "Weight_IsoRaw_1_5_Inclusive",
-    #"Weight_IsoRaw_1_5_VsNVtx",
-    "Weight_IsoRaw_1_5_VsPt",
-    #"Weight_IsoRaw_1_5_VsEta",
-    "Weight_IsoRaw_1_5_VsDecay",
-    "Weight_IsoRaw_1_5_VsPdgId",
-    "Weight_IsoRaw_1_5_VsJetPt",
-    #"Weight_IsoRaw_1_5_VsPtEta",
-    "Weight_IsoRaw_1_5_VsPtDecay",
-    "Weight_IsoRaw_1_5_VsPtPdgId",
-    "Weight_IsoRaw_1_5_VsJetPtDecay",
-    "Weight_IsoRaw_1_5_VsJetPtPt",
+    "{TAG}_IsoRaw_1_5_Inclusive",
+    #"{TAG}_IsoRaw_1_5_VsNVtx",
+    "{TAG}_IsoRaw_1_5_VsPt",
+    #"{TAG}_IsoRaw_1_5_VsEta",
+    "{TAG}_IsoRaw_1_5_VsDecay",
+    "{TAG}_IsoRaw_1_5_VsPdgId",
+    "{TAG}_IsoRaw_1_5_VsJetPt",
+    #"{TAG}_IsoRaw_1_5_VsPtEta",
+    "{TAG}_IsoRaw_1_5_VsPtDecay",
+    "{TAG}_IsoRaw_1_5_VsPtPdgId",
+    "{TAG}_IsoRaw_1_5_VsJetPtDecay",
+    "{TAG}_IsoRaw_1_5_VsJetPtPt",
     ## !IsoMedium -> IsoMedium 
-    "Weight_Iso_Medium_Inclusive",
-    #"Weight_Iso_Medium_VsNVtx",
-    "Weight_Iso_Medium_VsPt",
-    #"Weight_Iso_Medium_VsEta",
-    "Weight_Iso_Medium_VsDecay",
-    "Weight_Iso_Medium_VsPdgId",
-    "Weight_Iso_Medium_VsJetPt",
-    #"Weight_Iso_Medium_VsPtEta",
-    "Weight_Iso_Medium_VsPtDecay",
-    "Weight_Iso_Medium_VsPtPdgId",
-    "Weight_Iso_Medium_VsJetPtDecay",
-    "Weight_Iso_Medium_VsJetPtPt",
+    "{TAG}_Iso_Medium_Inclusive",
+    #"{TAG}_Iso_Medium_VsNVtx",
+    "{TAG}_Iso_Medium_VsPt",
+    #"{TAG}_Iso_Medium_VsEta",
+    "{TAG}_Iso_Medium_VsDecay",
+    "{TAG}_Iso_Medium_VsPdgId",
+    "{TAG}_Iso_Medium_VsJetPt",
+    #"{TAG}_Iso_Medium_VsPtEta",
+    "{TAG}_Iso_Medium_VsPtDecay",
+    "{TAG}_Iso_Medium_VsPtPdgId",
+    "{TAG}_Iso_Medium_VsJetPtDecay",
+    "{TAG}_Iso_Medium_VsJetPtPt",
 ]
 
-fake_factors_regions['HighMT'] = [
-    ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
-    "Weight_HighMT_IsoRaw_1_5_Inclusive",
-    #"Weight_HighMT_IsoRaw_1_5_VsNVtx",
-    "Weight_HighMT_IsoRaw_1_5_VsPt",
-    #"Weight_HighMT_IsoRaw_1_5_VsEta",
-    "Weight_HighMT_IsoRaw_1_5_VsDecay",
-    "Weight_HighMT_IsoRaw_1_5_VsPdgId",
-    "Weight_HighMT_IsoRaw_1_5_VsJetPt",
-    #"Weight_HighMT_IsoRaw_1_5_VsPtEta",
-    "Weight_HighMT_IsoRaw_1_5_VsPtDecay",
-    "Weight_HighMT_IsoRaw_1_5_VsPtPdgId",
-    "Weight_HighMT_IsoRaw_1_5_VsJetPtDecay",
-    "Weight_HighMT_IsoRaw_1_5_VsJetPtPt",
-    ## !IsoMedium -> IsoMedium 
-    "Weight_HighMT_Iso_Medium_Inclusive",
-    #"Weight_HighMT_Iso_Medium_VsNVtx",
-    "Weight_HighMT_Iso_Medium_VsPt",
-    #"Weight_HighMT_Iso_Medium_VsEta",
-    "Weight_HighMT_Iso_Medium_VsDecay",
-    "Weight_HighMT_Iso_Medium_VsPdgId",
-    "Weight_HighMT_Iso_Medium_VsJetPt",
-    #"Weight_HighMT_Iso_Medium_VsPtEta",
-    "Weight_HighMT_Iso_Medium_VsPtDecay",
-    "Weight_HighMT_Iso_Medium_VsPtPdgId",
-    "Weight_HighMT_Iso_Medium_VsJetPtDecay",
-    "Weight_HighMT_Iso_Medium_VsJetPtPt",
-]
+fake_factors_regions['ZMuMu'] = []
+fake_factors_regions['HighMT'] = []
+fake_factors_regions['QCDSS'] = []
+fake_factors_regions['Combined'] = []
+for fakefactor in fake_factors_regions['generic']:
+    fake_factors_regions['ZMuMu'].append(fakefactor.format(TAG='Weight'))
+    fake_factors_regions['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
+    fake_factors_regions['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
+    fake_factors_regions['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
+
 
 signal_selections = {}
 inverted_selections ={}
@@ -72,4 +55,13 @@ for region,fake_factors in fake_factors_regions.items():
             inverted_selections[fake_factor] = 'InvertIso_Medium'
         else:
             raise StandardError('No signal and inverted selections associated with fake factor '+fake_factor)
+
+signal_selections_list = []
+inverted_selections_list = []
+for selection in signal_selections.values():
+    if not selection in signal_selections_list:
+        signal_selections_list.append(selection)
+for selection in inverted_selections.values():
+    if not selection in inverted_selections_list:
+        inverted_selections_list.append(selection)
 

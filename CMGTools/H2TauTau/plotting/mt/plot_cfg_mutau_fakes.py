@@ -14,6 +14,7 @@ from CMGTools.H2TauTau.proto.plotter.HistCreator import createHistogram, setSumW
 #from CMGTools.H2TauTau.proto.plotter.HistDrawer import HistDrawer
 from HistDrawerFake import HistDrawer
 from CMGTools.H2TauTau.proto.plotter.Variables import all_vars, getVars
+from CMGTools.H2TauTau.proto.plotter.binning import binning_svfitMass_finer
 
 from Data import CompatibilityData
 
@@ -21,19 +22,25 @@ from Data import CompatibilityData
 
 
 #fakeFactorsType = 'ZMuMu'
-#histo_version = 'v_12_2016-01-21'
+#histo_version = 'v_1_2016-02-02'
 #
-fakeFactorsType = 'HighMT'
-histo_version = 'v_2_2016-01-28'
+#fakeFactorsType = 'HighMT'
+#histo_version = 'v_4_2016-02-02'
+#
+#fakeFactorsType = 'QCDSS'
+#histo_version = 'v_1_2016-02-02'
+#
+fakeFactorsType = 'Combined'
+histo_version = 'v_1_2016-02-03'
 
 ## input samples
 int_lumi = 2094.2 # from Alexei's email
-analysis_dir = '/afs/cern.ch/user/s/steggema/work/public/mt/151215/'
+analysis_dir = '/afs/cern.ch/work/j/jsauvan/public/HTauTau/Trees/mt/151215/'
 tree_prod_name = 'H2TauTauTreeProducerTauMu'
 samples_mc, samples_data, samples_tmp, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir, tree_prod_name=tree_prod_name)
 
 ## Output
-version  = 'v160128'
+version  = 'v160202'
 plot_dir = "fakeplots/FakeFactorType_{FAKETYPE}/{VERSION}/".format(FAKETYPE=fakeFactorsType,VERSION=version)
 publish_plots = True
 publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/BackgroundEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/".format(FAKETYPE=fakeFactorsType,VERSION=version)
@@ -70,8 +77,9 @@ sample_groups = [['ZJ'], ['W'], ['TT'], ['WWTo1L1Nu2Q', 'VVTo2L2Nu', 'WZTo1L1Nu2
 
 ## Variables to use
 variables = [
-    VariableCfg(name='mvis', binning={'nbinsx':60, 'xmin':0, 'xmax':300}, unit='GeV', xtitle='m_{vis}'),
-    VariableCfg(name='mt'  , binning={'nbinsx':40, 'xmin':0, 'xmax':200}, unit='GeV', xtitle='m_{T}'),
+    #VariableCfg(name='mvis', binning={'nbinsx':60, 'xmin':0, 'xmax':300}, unit='GeV', xtitle='m_{vis}'),
+    VariableCfg(name='mvis_stdbins', binning=binning_svfitMass_finer, unit='GeV', xtitle='m_{vis}'),
+    #VariableCfg(name='mt'  , binning={'nbinsx':40, 'xmin':0, 'xmax':200}, unit='GeV', xtitle='m_{T}'),
 ]
 
 ## Define fake factors and selections
@@ -110,13 +118,13 @@ for sample_group in sample_groups:
                                                ana_dir=analysis_dir,
                                                histo_file_name=histo_file_template_name.format(SAMPLE=sample[Name]),
                                                histo_name='',
-                                               rebin=2,
+                                               rebin=1,
                                                xsec=sample[XSection],
                                                sumweights=sample[SumWeights]
                                               ))
         ## SumWeights seems to be not correctly filled
         ## Filled them from SkimAnalyzerCount pickle file
-        setSumWeights(histo_configs[-1])
+        setSumWeights(histo_configs[-1], directory='MCWeighter')
 
 
     histo_config_dict = {cfg.name:cfg for cfg in histo_configs}
@@ -137,6 +145,8 @@ for sample_group in sample_groups:
                 data[-1].variable = variable.name
                 data[-1].binning = variable.binning
                 for c in histo_configs:
+                    if variable.name=='mvis': c.rebin=2
+                    else: c.rebin = 1
                     data[-1].backgrounds.append(c.name)
                 #
                 backgrounds = ""

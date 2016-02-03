@@ -21,7 +21,7 @@ publish_plots = False
 publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/ControlRegions/HighMT_OS/{VERSION}/".format(VERSION=version)
 
 ## templates for histogram and file names
-histo_version = 'v_2_2016-01-28'
+histo_version = 'v_3_2016-01-29'
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau_FakeRateWJetsHighMT/'
 histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_WJetsHighMT_{SAMPLE}.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}' 
