@@ -1,7 +1,7 @@
 import ROOT
 import os
 import datetime
-from FakeFactors import fake_factors_regions, signal_selections_list, inverted_selections_list
+from FakeFactors import fake_factors_regions, fake_factors_minimal, signal_selections_minimal_list, inverted_selections_minimal_list
 
 
 
@@ -39,27 +39,27 @@ fakeFactors = {}
 ## ZMuMu
 fakeFactors['ZMuMu'] = FakeFactor()
 fakeFactors['ZMuMu'].name = 'ZMuMu'
-fakeFactors['ZMuMu'].version = 'v_1_2016-02-02'
+fakeFactors['ZMuMu'].version = 'v_2_2016-02-04'
 fakeFactors['ZMuMu'].root_file = '/afs/cern.ch/user/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FACTORS}/{SAMPLE}/{VERSION}/fakerates_MuTau_{SAMPLE}.root'
 fakeFactors['ZMuMu'].directory_tag = 'Weight'
 fakeFactors['ZMuMu'].background_fraction = ['VV','TT','ZJ']
 ## HighMT
 fakeFactors['HighMT'] = FakeFactor()
 fakeFactors['HighMT'].name = 'HighMT'
-fakeFactors['HighMT'].version = 'v_4_2016-02-02'
+fakeFactors['HighMT'].version = 'v_5_2016-02-04'
 fakeFactors['HighMT'].root_file = '/afs/cern.ch/user/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FACTORS}/{SAMPLE}/{VERSION}/fakerates_MuTau_{SAMPLE}.root'
 fakeFactors['HighMT'].directory_tag = 'Weight_HighMT'
 fakeFactors['HighMT'].background_fraction = ['W']
 ## QCDSS
 fakeFactors['QCDSS'] = FakeFactor()
 fakeFactors['QCDSS'].name = 'QCDSS'
-fakeFactors['QCDSS'].version = 'v_1_2016-02-02'
+fakeFactors['QCDSS'].version = 'v_2_2016-02-04'
 fakeFactors['QCDSS'].root_file = '/afs/cern.ch/user/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FACTORS}/{SAMPLE}/{VERSION}/fakerates_MuTau_{SAMPLE}.root'
 fakeFactors['QCDSS'].directory_tag = 'Weight_QCDSS'
 fakeFactors['QCDSS'].background_fraction = ['QCD']
 
 
-selections = signal_selections_list + inverted_selections_list
+selections = signal_selections_minimal_list + inverted_selections_minimal_list
 selectionsMT40 = ['MT40_'+sel for sel in selections]
 selections.extend(selectionsMT40)
 
@@ -67,7 +67,7 @@ selections.extend(selectionsMT40)
 
 def weightBackgrounds(
     factors=fakeFactors,
-    histo_templates=['hFakeRate_{SEL}_mvis_stdbins_vs_match5'],
+    histo_templates=['hFakeRate_{SEL}_mvis_stdbins_vs_match5', 'hFakeRate_{SEL}_mvis_stdbins'],
     out_dir='/afs/cern.ch/user/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/Combined/{SAMPLE}/{VERSION}'
     ):
     #
@@ -86,6 +86,19 @@ def weightBackgrounds(
                'WZTo2L2Q',
                'ZJ',
                'ZZTo2L2Q',
+               'TT_L',
+               'VVTo2L2Nu_L',
+               'WZTo1L3Nu_L',
+               'WZTo3L_L',
+               'TBar_tWch_L',
+               'T_tWch_L',
+               #'W_L',
+               'WWTo1L1Nu2Q_L',
+               'WZTo1L1Nu2Q_L',
+               'WZTo2L2Q_L',
+               'ZTT',
+               'ZL',
+               'ZZTo2L2Q_L',
               ]
     # Combine trees in each sample
     for sample in samples:
@@ -134,7 +147,7 @@ def weightBackgrounds(
         ## FIXME: need to be changed according to variable
         background_fractions = getBackgroundFractions()
         # Loop over each fake factor directory 
-        for directory in fake_factors_regions['generic']:
+        for directory in fake_factors_minimal['generic']:
             # Create directory in output file
             fileOut_dir = fileOut.mkdir(directory.format(TAG='Weight_Combined'))
             # weight and sum histos from the different types of fake factors
