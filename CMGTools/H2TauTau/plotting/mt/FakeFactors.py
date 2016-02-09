@@ -41,20 +41,24 @@ fake_factors_minimal['generic'] = [
 
 fake_factors_regions['ZMuMu'] = []
 fake_factors_regions['HighMT'] = []
+fake_factors_regions['HighMTRaw'] = []
 fake_factors_regions['QCDSS'] = []
 fake_factors_regions['Combined'] = []
 for fakefactor in fake_factors_regions['generic']:
     fake_factors_regions['ZMuMu'].append(fakefactor.format(TAG='Weight'))
+    fake_factors_regions['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
     fake_factors_regions['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
     fake_factors_regions['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
     fake_factors_regions['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
 
 fake_factors_minimal['ZMuMu'] = []
 fake_factors_minimal['HighMT'] = []
+fake_factors_minimal['HighMTRaw'] = []
 fake_factors_minimal['QCDSS'] = []
 fake_factors_minimal['Combined'] = []
 for fakefactor in fake_factors_minimal['generic']:
     fake_factors_minimal['ZMuMu'].append(fakefactor.format(TAG='Weight'))
+    fake_factors_minimal['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
     fake_factors_minimal['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
     fake_factors_minimal['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
     fake_factors_minimal['Combined'].append(fakefactor.format(TAG='Weight_Combined'))

@@ -23,8 +23,8 @@ for sample in all_samples:
     setSumWeights(sample, directory='MCWeighter')
 
 ## Output
-version  = 'v160208'
-plot_dir = "signalRegion/StandardBackground/{VERSION}/"
+version  = 'v160209'
+plot_dir = "signalRegion/StandardBackgroundFakeOnly/{VERSION}/"
 
 ## templates for histogram and file names
 histo_version = 'v_1_2016-02-08'
@@ -70,6 +70,7 @@ histo_samples = [
     #{Name:'ZZTo4L'      , DirName:'ZZTo4L'           , XSection:sampleDict['ZZTo4L'].xsec      , SumWeights:sampleDict['ZZTo4L'].sumweights      }   ,
 ]
 
+non_fakes = ['ZTT', 'ZL', 'W_L', 'TT_L', 'T_tWch_L', 'TBar_tWch_L', 'ZZTo2L2Q_L', 'WZTo3L_L', 'WZTo2L2Q_L', 'WZTo1L3Nu_L', 'WZTo1L1Nu2Q_L', 'VVTo2L2Nu_L', 'WWTo1L1Nu2Q_L']
 
 
 ## Variables to use
@@ -119,12 +120,13 @@ for variable in variables:
             if sample[Name]=='data_obs': config_qcd.scale = 1.06
             else: config_qcd.scale = -1.06
             qcd.append(config_qcd)
-            samples_tmp.append(config)
+            ## Discard non fake MC
+            if not sample[HistoDir] in non_fakes: samples_tmp.append(config)
         # Add QCD component
         samples_tmp.append( HistogramCfg(name='QCD', var=variable, cfgs=qcd, lumi=int_lumi) )
         config = HistogramCfg(name='config', var=variable, cfgs=samples_tmp, lumi=int_lumi)
         plot = createHistogram(config, verbose=True)
         plot.Group('VV', ['WWTo1L1Nu2Q', 'VVTo2L2Nu', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'WZTo3L', 'ZZTo2L2Q', 'T_tWch', 'TBar_tWch'])
         HistDrawer.draw(plot, plot_dir=plot_dir.format(VERSION=version)+'/'+global_selection.format(SIGN=''), SetLogy=False)
-        plot.WriteDataCard(filename=plot_dir.format(VERSION=version)+'/datacard_mutau_standardBackground.root', mode=outputMode, dir='{SEL}_{VAR}'.format(SEL=global_selection.format(SIGN=''), VAR=variable.name))
+        plot.WriteDataCard(filename=plot_dir.format(VERSION=version)+'/datacard_mutau_standardBackgroundFakeOnly.root', mode=outputMode, dir='{SEL}_{VAR}'.format(SEL=global_selection.format(SIGN=''), VAR=variable.name))
         outputMode = 'UPDATE'
