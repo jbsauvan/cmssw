@@ -37,7 +37,7 @@ for sample in all_samples:
     setSumWeights(sample, directory='MCWeighter')
 
 ## Output
-version  = 'v160209'
+version  = 'v160214'
 plot_dir = "signalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/"
 #publish_plots = True
 #publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/SignalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/".format(VERSION=version)
@@ -58,8 +58,6 @@ IsData = 'IsData'
 histo_samples = [
     {Name:'data_obs'    , DirName:'SingleMuon_Run2015D_v4'   , HistoDir:'Data_Run15D_v4', IsData:True},
     {Name:'data_obs'    , DirName:'SingleMuon_Run2015D_05Oct', HistoDir:'Data_Run15D_05Oct', IsData:True},
-    {Name:'fakes_data'  , DirName:'SingleMuon_Run2015D_v4'   , HistoDir:'Data_Run15D_v4', IsData:True},
-    {Name:'fakes_data'  , DirName:'SingleMuon_Run2015D_05Oct', HistoDir:'Data_Run15D_05Oct', IsData:True},
     {Name:'ZTT'         , DirName:'DYJetsToLL_M50_LO'  , HistoDir:'ZTT'          , XSection:sampleDict['ZJ'].xsec          , SumWeights:sampleDict['ZJ'].sumweights          },
     {Name:'ZL'          , DirName:'DYJetsToLL_M50_LO'  , HistoDir:'ZL'           , XSection:sampleDict['ZJ'].xsec          , SumWeights:sampleDict['ZJ'].sumweights          },
     #{Name:'W'           , DirName:'WJetsToLNu_LO'      , HistoDir:'W_L', XSection:sampleDict['W'].xsec           , SumWeights:sampleDict['W'].sumweights           },
@@ -116,11 +114,19 @@ for fakeFactorsType in fakeFactorsTypes:
                                              sumweights=sample.get(SumWeights,1)
                                              )
                     # Take fakes from the fake-factor directory, inverted isolation
-                    if 'fakes' in config.name: 
-                        config.histo_name = histo_template_name.format(DIR=fake_factor+'/',SEL=global_selection+inverted_selection(fake_factor),VAR=variable.name) 
-                        fakes.append(copy.deepcopy(config))
-                    else:
-                        samples_tmp.append(copy.deepcopy(config))
+                    config_fake = BasicHistogramCfg(name=sample[Name],
+                                             dir_name=sample[DirName],
+                                             ana_dir=analysis_dir,
+                                             histo_file_name=histo_file_template_name.format(SAMPLE=sample[HistoDir]),
+                                             histo_name=histo_template_name.format(DIR=fake_factor+'/',SEL=global_selection+inverted_selection(fake_factor),VAR=variable.name),
+                                             is_data=sample.get(IsData, False),
+                                             xsec=sample.get(XSection, 1),
+                                             sumweights=sample.get(SumWeights,1)
+                                             )
+                    # Remove non-fake contamination from fake backgrounds
+                    if config_fake.name!='data_obs': config_fake.scale = -1
+                    fakes.append(copy.deepcopy(config_fake))
+                    samples_tmp.append(copy.deepcopy(config))
                 # Add fakes component
                 samples_tmp.append( HistogramCfg(name='fakes_data', var=variable, cfgs=fakes, lumi=int_lumi) )
                 config = HistogramCfg(name='config', var=variable, cfgs=samples_tmp, lumi=int_lumi)
