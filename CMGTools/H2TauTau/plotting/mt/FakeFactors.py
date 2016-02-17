@@ -3,6 +3,7 @@ import copy
 
 fake_factors_regions = {}
 fake_factors_minimal = {}
+fake_factors_veryminimal = {}
 
 fake_factors_regions['generic'] = [
     ## IsoRaw > 1.5 GeV -> IsoRaw < 1.5 GeV 
@@ -38,6 +39,9 @@ fake_factors_minimal['generic'] = [
     "{TAG}_Iso_Medium_VsDecay",
     "{TAG}_Iso_Medium_VsPtDecay",
 ]
+fake_factors_veryminimal['generic'] = [
+    "{TAG}_Iso_Medium_VsPtDecay",
+]
 
 fake_factors_regions['ZMuMu'] = []
 fake_factors_regions['HighMT'] = []
@@ -62,6 +66,18 @@ for fakefactor in fake_factors_minimal['generic']:
     fake_factors_minimal['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
     fake_factors_minimal['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
     fake_factors_minimal['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
+
+fake_factors_veryminimal['ZMuMu'] = []
+fake_factors_veryminimal['HighMT'] = []
+fake_factors_veryminimal['HighMTRaw'] = []
+fake_factors_veryminimal['QCDSS'] = []
+fake_factors_veryminimal['Combined'] = []
+for fakefactor in fake_factors_veryminimal['generic']:
+    fake_factors_veryminimal['ZMuMu'].append(fakefactor.format(TAG='Weight'))
+    fake_factors_veryminimal['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
+    fake_factors_veryminimal['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
+    fake_factors_veryminimal['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
+    fake_factors_veryminimal['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
 
 
 def signal_selection(fake_factor):
@@ -101,11 +117,14 @@ def create_selection_list(selections):
 
 signal_selections, inverted_selections = create_selections(fake_factors_regions['generic'])
 signal_selections_minimal, inverted_selections_minimal = create_selections(fake_factors_minimal['generic'])
+signal_selections_veryminimal, inverted_selections_veryminimal = create_selections(fake_factors_veryminimal['generic'])
 
 signal_selections_list = list(set(signal_selections.values()))
 inverted_selections_list = list(set(inverted_selections.values()))
 signal_selections_minimal_list = list(set(signal_selections_minimal.values()))
 inverted_selections_minimal_list = list(set(inverted_selections_minimal.values()))
+signal_selections_veryminimal_list = list(set(signal_selections_veryminimal.values()))
+inverted_selections_veryminimal_list = list(set(inverted_selections_veryminimal.values()))
 
 
 

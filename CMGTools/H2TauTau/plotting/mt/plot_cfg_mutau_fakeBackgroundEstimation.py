@@ -11,7 +11,7 @@ from CMGTools.H2TauTau.proto.plotter.Samples import createSampleLists
 
 from CMGTools.H2TauTau.proto.plotter.binning import binning_svfitMass_finer,binning_svfitMass_mssm 
 
-from FakeFactors import fake_factors_minimal, signal_selection, inverted_selection
+from FakeFactors import fake_factors_minimal, fake_factors_veryminimal, signal_selection, inverted_selection
 
 int_lumi = 2094.2 # from Alexei's email
 
@@ -27,8 +27,10 @@ int_lumi = 2094.2 # from Alexei's email
 #fakeFactorsType = 'Combined'
 #histo_version = 'v_2_2016-02-04'
 #
-fakeFactorsTypes = ['ZMuMu','HighMTRaw','HighMT','QCDSS','Combined']
-histo_version = 'v_4_2016-02-09'
+#fakeFactorsTypes = ['ZMuMu','HighMTRaw','HighMT','QCDSS','Combined']
+fakeFactorsTypes = ['Combined', 'HighMT']
+#histo_version = 'v_4_2016-02-09'
+histo_version = 'v_1_2016-02-16'
 
 analysis_dir = '/afs/cern.ch/work/j/jsauvan/public/HTauTau/Trees/mt/151215/'
 samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir)
@@ -44,9 +46,12 @@ plot_dir = "signalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/
 
 ## templates for histogram and file names
 #histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FAKETYPE}'.format(FAKETYPE=fakeFactorsType)
-histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/AllFakeFactors/'
+#histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/AllFakeFactors/'
+histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/FakeFactorUncertainties/'
 histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}'
+
+systematics = ['ShiftNonClosureHighMT']
 
 # samples to be used
 Name = "Name"
@@ -81,19 +86,19 @@ histo_samples = [
 variables = [
     #VariableCfg(name='mvis', binning={'nbinsx':60, 'xmin':0, 'xmax':300}, unit='GeV', xtitle='m_{vis}'),
     VariableCfg(name='mvis_stdbins', binning=binning_svfitMass_finer, unit='GeV', xtitle='m_{vis}'),
-    VariableCfg(name='mvis_mssmbins', binning=binning_svfitMass_mssm, unit='GeV', xtitle='m_{vis}'),
-    VariableCfg(name='mt'  , binning={'nbinsx':40, 'xmin':0, 'xmax':200}, unit='GeV', xtitle='m_{T}'),
+    #VariableCfg(name='mvis_mssmbins', binning=binning_svfitMass_mssm, unit='GeV', xtitle='m_{vis}'),
+    #VariableCfg(name='mt'  , binning={'nbinsx':40, 'xmin':0, 'xmax':200}, unit='GeV', xtitle='m_{T}'),
 ]
 
 ## Define fake factors and selections
 global_selections = [
-    "",
+    #"",
     "MT40_"
 ]
 
 # Loop over fake factors
 for fakeFactorsType in fakeFactorsTypes:
-    fake_factors = fake_factors_minimal[fakeFactorsType]
+    fake_factors = fake_factors_veryminimal[fakeFactorsType]
     # Loop on variables
     for variable in variables:
         # Loop on global selections
@@ -103,6 +108,8 @@ for fakeFactorsType in fakeFactorsTypes:
                 ## Prepare histos configs
                 samples_tmp = []
                 fakes = []
+                samples_sys = {}
+                fakes_sys = {}
                 for sample in histo_samples:
                     config = BasicHistogramCfg(name=sample[Name],
                                              dir_name=sample[DirName],
@@ -113,6 +120,7 @@ for fakeFactorsType in fakeFactorsTypes:
                                              xsec=sample.get(XSection, 1),
                                              sumweights=sample.get(SumWeights,1)
                                              )
+
                     # Take fakes from the fake-factor directory, inverted isolation
                     config_fake = BasicHistogramCfg(name=sample[Name],
                                              dir_name=sample[DirName],
@@ -127,9 +135,50 @@ for fakeFactorsType in fakeFactorsTypes:
                     if config_fake.name!='data_obs': config_fake.scale = -1
                     fakes.append(copy.deepcopy(config_fake))
                     samples_tmp.append(copy.deepcopy(config))
+                    ##
+                    ## Systematic versions of config and config_fake
+                    config_sys = {}
+                    config_fake_sys = {}
+                    for sys in systematics:
+                        config_sys[sys] = BasicHistogramCfg(name=sample[Name],
+                                                 dir_name=sample[DirName],
+                                                 ana_dir=analysis_dir,
+                                                 histo_file_name=histo_file_template_name.format(SAMPLE=sample[HistoDir]),
+                                                 histo_name=histo_template_name.format(DIR='',SEL=global_selection+signal_selection(fake_factor),VAR=variable.name),
+                                                 is_data=sample.get(IsData, False),
+                                                 xsec=sample.get(XSection, 1),
+                                                 sumweights=sample.get(SumWeights,1)
+                                                 )
+                        config_fake_sys[sys] = BasicHistogramCfg(name=sample[Name],
+                                                 dir_name=sample[DirName],
+                                                 ana_dir=analysis_dir,
+                                                 histo_file_name=histo_file_template_name.format(SAMPLE=sample[HistoDir]),
+                                                 histo_name=histo_template_name.format(DIR=fake_factor+'_'+sys+'/',SEL=global_selection+inverted_selection(fake_factor),VAR=variable.name),
+                                                 is_data=sample.get(IsData, False),
+                                                 xsec=sample.get(XSection, 1),
+                                                 sumweights=sample.get(SumWeights,1)
+                                                 )
+                        # Remove non-fake contamination from fake backgrounds
+                        if config_fake_sys[sys].name!='data_obs': config_fake_sys[sys].scale = -1
+                        if not sys in fakes_sys: fakes_sys[sys] = []
+                        if not sys in samples_sys: samples_sys[sys] = []
+                        fakes_sys[sys].append(copy.deepcopy(config_fake_sys[sys]))
+                        samples_sys[sys].append(copy.deepcopy(config_sys[sys]))
+
                 # Add fakes component
                 samples_tmp.append( HistogramCfg(name='fakes_data', var=variable, cfgs=fakes, lumi=int_lumi) )
                 config = HistogramCfg(name='config', var=variable, cfgs=samples_tmp, lumi=int_lumi)
                 plot = createHistogram(config, verbose=True)
                 plot.Group('VV', ['WWTo1L1Nu2Q', 'VVTo2L2Nu', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'WZTo3L', 'ZZTo2L2Q', 'T_tWch', 'TBar_tWch'])
+                ## Create one plot for each systematic shift
+                config_sys = {}
+                plot_sys = {}
+                for sys in systematics:
+                    samples_sys[sys].append( HistogramCfg(name='fakes_data', var=variable, cfgs=fakes_sys[sys], lumi=int_lumi) )
+                    config_sys[sys] = HistogramCfg(name='config_'+sys, var=variable, cfgs=samples_sys[sys], lumi=int_lumi)
+                    plot_sys[sys] = createHistogram(config_sys[sys], verbose=True)
+                    plot_sys[sys].Group('VV', ['WWTo1L1Nu2Q', 'VVTo2L2Nu', 'WZTo1L1Nu2Q', 'WZTo1L3Nu', 'WZTo2L2Q', 'WZTo3L', 'ZZTo2L2Q', 'T_tWch', 'TBar_tWch'])
+
+                ## Add systematics to the nominal plot
+                plot.AddSystematics(plot_sys)
                 HistDrawer.draw(plot, plot_dir=plot_dir.format(FAKETYPE=fakeFactorsType,VERSION=version)+'/'+global_selection+'/'+fake_factor, SetLogy=False)
