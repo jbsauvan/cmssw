@@ -72,7 +72,7 @@ class DefaultSysCalculator():
         histoDown.SetName(nominal.GetName()+"_Down")
 
         for bin in range(0,nBins+2):
-            print "Bin", bin
+            #print "Bin", bin
             sysValueUp = 0
             sysValueDown = 0
             for sys in systematics:
@@ -343,8 +343,10 @@ class DataMCSysPlot(object):
         self.sysHistDown.Divide(nomHist)
         self.sysGraphUp = graphSysBand(self.sysHistUp)
         self.sysGraphDown = graphSysBand(self.sysHistDown)
-        self.sysGraphUp.SetFillColor(ROOT.kYellow)
-        self.sysGraphDown.SetFillColor(ROOT.kGreen)
+        self.sysGraphUp.SetFillColor(ROOT.kGray+2)
+        self.sysGraphUp.SetFillStyle(3344)
+        self.sysGraphDown.SetFillColor(ROOT.kGray+2)
+        self.sysGraphDown.SetFillStyle(3344)
         self.dataOverMCHist.Draw()
         self.sysGraphDown.Draw('lf same')
         self.sysGraphUp.Draw('lf same')

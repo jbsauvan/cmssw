@@ -73,7 +73,7 @@ fake_factors_veryminimal['HighMTRaw'] = []
 fake_factors_veryminimal['QCDSS'] = []
 fake_factors_veryminimal['Combined'] = []
 for fakefactor in fake_factors_veryminimal['generic']:
-    fake_factors_veryminimal['ZMuMu'].append(fakefactor.format(TAG='Weight'))
+    fake_factors_veryminimal['ZMuMu'].append(fakefactor.format(TAG='Weight_ZMuMu'))
     fake_factors_veryminimal['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
     fake_factors_veryminimal['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
     fake_factors_veryminimal['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))

@@ -1,6 +1,7 @@
 import pickle
 
 from CMGTools.H2TauTau.proto.plotter.PlotConfigs import HistogramCfg,BasicHistogramCfg
+from CMGTools.H2TauTau.proto.plotter.DataMCPlot import DataMCPlot
 from CMGTools.H2TauTau.proto.plotter.DataMCSysPlot import DataMCSysPlot
 
 from CMGTools.RootTools.DataMC.Histogram import Histogram
@@ -15,11 +16,11 @@ def initHist(hist, vcfg):
     hist.GetXaxis().SetTitle(xtitle)
     hist.SetStats(False)
 
-def createHistogram(hist_cfg, all_stack=False, verbose=False):
+def createHistogram(hist_cfg, all_stack=False, sys=False, verbose=False):
     '''Method to create actual histogram (DataMCPlot) instance from histogram 
     config.
     '''
-    plot = DataMCSysPlot(hist_cfg.var.name)
+    plot = DataMCSysPlot(hist_cfg.var.name) if sys else DataMCPlot(hist_cfg.var.name)
     plot.lumi = hist_cfg.lumi
     vcfg = hist_cfg.var
     for cfg in hist_cfg.cfgs:
