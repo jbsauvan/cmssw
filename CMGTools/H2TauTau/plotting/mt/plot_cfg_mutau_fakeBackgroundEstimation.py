@@ -32,7 +32,7 @@ int_lumi = 2094.2 # from Alexei's email
 #fakeFactorsTypes = ['ZMuMu','HighMT','QCDSS','Combined']
 fakeFactorsTypes = ['Combined']
 #histo_version = 'v_4_2016-02-09'
-histo_version = 'v_5_2016-02-19'
+histo_version = 'v_6_2016-02-25'
 
 analysis_dir = '/afs/cern.ch/work/j/jsauvan/public/HTauTau/Trees/mt/151215/'
 samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir)
@@ -41,7 +41,7 @@ for sample in all_samples:
     setSumWeights(sample, directory='MCWeighter')
 
 ## Output
-version  = 'v160218'
+version  = 'v160225'
 plot_dir = "signalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/"
 #publish_plots = True
 #publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/SignalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/".format(VERSION=version)
@@ -50,7 +50,7 @@ plot_dir = "signalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/
 #histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FAKETYPE}'.format(FAKETYPE=fakeFactorsType)
 #histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/AllFakeFactors/'
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/FakeFactorUncertainties/'
-histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.root'
+histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.1.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}'
 
 fakeFactorStatShifts = {
@@ -59,6 +59,7 @@ fakeFactorStatShifts = {
     'ZMuMu_Stat':[],
     'All_Stat':[],
 }
+fractionStatShifts = []
 
 file = ROOT.TFile.Open(histo_file_template_name.format(SAMPLE='W_L'))
 keys = file.GetListOfKeys()
@@ -67,15 +68,21 @@ for key in keys:
     if not key.IsFolder(): continue
     if not 'ShiftStat' in keyname: continue
     #if 'Up' in keyname: continue
-    if 'QCDSS' in keyname:
+    if 'FractionW' in keyname:
+        extension = keyname.split('_ShiftStatFractionW_')[-1]
+        fractionStatShifts.append('ShiftStatFractionW_'+extension)
+    elif 'FractionQCD' in keyname:
+        extension = keyname.split('_ShiftStatFractionQCD_')[-1]
+        fractionStatShifts.append('ShiftStatFractionQCD_'+extension)
+    elif 'QCDSS' in keyname:
         extension = keyname.split('_ShiftStatQCDSS_')[-1]
         fakeFactorStatShifts['QCDSS_Stat'].append('ShiftStatQCDSS_'+extension)
         fakeFactorStatShifts['All_Stat'].append('ShiftStatQCDSS_'+extension)
-    if 'HighMTRaw' in keyname:
+    elif 'HighMTRaw' in keyname:
         extension = keyname.split('_ShiftStatHighMTRaw_')[-1]
         fakeFactorStatShifts['HighMT_Stat'].append('ShiftStatHighMTRaw_'+extension)
         fakeFactorStatShifts['All_Stat'].append('ShiftStatHighMTRaw_'+extension)
-    if 'ZMuMu' in keyname:
+    elif 'ZMuMu' in keyname:
         extension = keyname.split('_ShiftStatZMuMu_')[-1]
         fakeFactorStatShifts['ZMuMu_Stat'].append('ShiftStatZMuMu_'+extension)
         fakeFactorStatShifts['All_Stat'].append('ShiftStatZMuMu_'+extension)
@@ -90,11 +97,11 @@ systematics = {}
 #systematics['HighMT'] = ['ShiftNonClosureHighMT']
 #systematics['QCDSS'] = ['ShiftNonClosureQCDSS']
 systematics['Combined'] = {
-    'QCDSS': ['ShiftNonClosureQCDSS'],
-    'HighMT': ['ShiftNonClosureHighMT'],
-    'ZMuMu': ['ShiftNonClosureZMuMu'],
-    'AllSys': ['ShiftNonClosureHighMT','ShiftNonClosureQCDSS','ShiftNonClosureZMuMu'],
-    'AllStat': fakeFactorStatShifts['All_Stat'],
+    #'FakeFactorSys': ['ShiftNonClosure_HighMT','ShiftNonClosure_QCDSS','ShiftNonClosure_ZMuMu'],
+    #'MTCorr': ['ShiftStatMTCorr_Up', 'ShiftStatMTCorr_Down', 'ShiftBinningMTCorr_Up', 'ShiftBinningMTCorr_Down'],
+    'Fractions':['ShiftFractionW_Up','ShiftFractionW_Down','ShiftFractionQCD_Up','ShiftFractionQCD_Down','ShiftFractionTT_Up','ShiftFractionTT_Down']+fractionStatShifts
+    #'AllStat': fakeFactorStatShifts['All_Stat'],
+    #'FractionStat':fractionStatShifts,
 }
 
 # samples to be used
