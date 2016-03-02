@@ -32,7 +32,7 @@ int_lumi = 2094.2 # from Alexei's email
 #fakeFactorsTypes = ['ZMuMu','HighMT','QCDSS','Combined']
 fakeFactorsTypes = ['Combined']
 #histo_version = 'v_4_2016-02-09'
-histo_version = 'v_6_2016-02-25'
+histo_version = 'v_8_2016-03-01'
 
 analysis_dir = '/afs/cern.ch/work/j/jsauvan/public/HTauTau/Trees/mt/151215/'
 samples_mc, samples_data, samples, all_samples, sampleDict = createSampleLists(analysis_dir=analysis_dir)
@@ -41,7 +41,7 @@ for sample in all_samples:
     setSumWeights(sample, directory='MCWeighter')
 
 ## Output
-version  = 'v160225'
+version  = 'v160301'
 plot_dir = "signalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/"
 #publish_plots = True
 #publication_dir = "/afs/cern.ch/user/j/jsauvan/www/H2Taus/FakeRate/SignalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/".format(VERSION=version)
@@ -50,7 +50,7 @@ plot_dir = "signalRegion/FakeRateEstimation/FakeFactorType_{FAKETYPE}/{VERSION}/
 #histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/{FAKETYPE}'.format(FAKETYPE=fakeFactorsType)
 #histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/AllFakeFactors/'
 histo_base_dir = '/afs/cern.ch/work/j/jsauvan/Projects/Htautau_Run2/Histos/StudyFakeRate/MuTau/FakeFactorUncertainties/'
-histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.1.root'
+histo_file_template_name = histo_base_dir+'/{SAMPLE}/'+histo_version+'/fakerates_MuTau_{SAMPLE}.root'
 histo_template_name = '{DIR}hFakeRate_{SEL}_{VAR}'
 
 fakeFactorStatShifts = {
@@ -97,9 +97,9 @@ systematics = {}
 #systematics['HighMT'] = ['ShiftNonClosureHighMT']
 #systematics['QCDSS'] = ['ShiftNonClosureQCDSS']
 systematics['Combined'] = {
-    #'FakeFactorSys': ['ShiftNonClosure_HighMT','ShiftNonClosure_QCDSS','ShiftNonClosure_ZMuMu'],
+    'FakeFactorSys': ['ShiftNonClosure_HighMT','ShiftNonClosure_QCDSS'],
     #'MTCorr': ['ShiftStatMTCorr_Up', 'ShiftStatMTCorr_Down', 'ShiftBinningMTCorr_Up', 'ShiftBinningMTCorr_Down'],
-    'Fractions':['ShiftFractionW_Up','ShiftFractionW_Down','ShiftFractionQCD_Up','ShiftFractionQCD_Down','ShiftFractionTT_Up','ShiftFractionTT_Down']+fractionStatShifts
+    #'Fractions':['ShiftFractionW_Up','ShiftFractionW_Down','ShiftFractionQCD_Up','ShiftFractionQCD_Down','ShiftFractionTT_Up','ShiftFractionTT_Down']+fractionStatShifts
     #'AllStat': fakeFactorStatShifts['All_Stat'],
     #'FractionStat':fractionStatShifts,
 }
