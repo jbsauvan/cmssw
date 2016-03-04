@@ -45,39 +45,57 @@ fake_factors_veryminimal['generic'] = [
 
 fake_factors_regions['ZMuMu'] = []
 fake_factors_regions['HighMT'] = []
+fake_factors_regions['HighMTSS'] = []
 fake_factors_regions['HighMTRaw'] = []
+fake_factors_regions['HighMTSSRaw'] = []
 fake_factors_regions['QCDSS'] = []
 fake_factors_regions['Combined'] = []
+fake_factors_regions['CombinedSS'] = []
 for fakefactor in fake_factors_regions['generic']:
     fake_factors_regions['ZMuMu'].append(fakefactor.format(TAG='Weight'))
     fake_factors_regions['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
+    fake_factors_regions['HighMTSSRaw'].append(fakefactor.format(TAG='Weight_HighMTSSRaw'))
     fake_factors_regions['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
+    fake_factors_regions['HighMTSS'].append(fakefactor.format(TAG='Weight_HighMTSS'))
     fake_factors_regions['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
     fake_factors_regions['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
+    fake_factors_regions['CombinedSS'].append(fakefactor.format(TAG='Weight_CombinedSS'))
 
 fake_factors_minimal['ZMuMu'] = []
 fake_factors_minimal['HighMT'] = []
+fake_factors_minimal['HighMTSS'] = []
 fake_factors_minimal['HighMTRaw'] = []
+fake_factors_minimal['HighMTSSRaw'] = []
 fake_factors_minimal['QCDSS'] = []
 fake_factors_minimal['Combined'] = []
+fake_factors_minimal['CombinedSS'] = []
 for fakefactor in fake_factors_minimal['generic']:
     fake_factors_minimal['ZMuMu'].append(fakefactor.format(TAG='Weight'))
     fake_factors_minimal['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
+    fake_factors_minimal['HighMTSSRaw'].append(fakefactor.format(TAG='Weight_HighMTSSRaw'))
     fake_factors_minimal['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
+    fake_factors_minimal['HighMTSS'].append(fakefactor.format(TAG='Weight_HighMTSS'))
     fake_factors_minimal['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
     fake_factors_minimal['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
+    fake_factors_minimal['CombinedSS'].append(fakefactor.format(TAG='Weight_CombinedSS'))
 
 fake_factors_veryminimal['ZMuMu'] = []
 fake_factors_veryminimal['HighMT'] = []
+fake_factors_veryminimal['HighMTSS'] = []
 fake_factors_veryminimal['HighMTRaw'] = []
+fake_factors_veryminimal['HighMTSSRaw'] = []
 fake_factors_veryminimal['QCDSS'] = []
 fake_factors_veryminimal['Combined'] = []
+fake_factors_veryminimal['CombinedSS'] = []
 for fakefactor in fake_factors_veryminimal['generic']:
     fake_factors_veryminimal['ZMuMu'].append(fakefactor.format(TAG='Weight_ZMuMu'))
     fake_factors_veryminimal['HighMTRaw'].append(fakefactor.format(TAG='Weight_HighMTRaw'))
+    fake_factors_veryminimal['HighMTSSRaw'].append(fakefactor.format(TAG='Weight_HighMTSSRaw'))
     fake_factors_veryminimal['HighMT'].append(fakefactor.format(TAG='Weight_HighMT'))
+    fake_factors_veryminimal['HighMTSS'].append(fakefactor.format(TAG='Weight_HighMTSS'))
     fake_factors_veryminimal['QCDSS'].append(fakefactor.format(TAG='Weight_QCDSS'))
     fake_factors_veryminimal['Combined'].append(fakefactor.format(TAG='Weight_Combined'))
+    fake_factors_veryminimal['CombinedSS'].append(fakefactor.format(TAG='Weight_CombinedSS'))
 
 
 def signal_selection(fake_factor):
