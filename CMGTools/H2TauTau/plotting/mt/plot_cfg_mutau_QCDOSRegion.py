@@ -40,7 +40,7 @@ inc_sig_tau &= Cut('l2_againstElectronMVA5>0.5')
 inc_sig_tau &= Cut('l2_decayModeFinding')
 inc_sig_tau &= Cut('l2_pt>20')
 #
-inc_sig_event = Cut('l1_charge*l2_charge>0')
+inc_sig_event = Cut('l1_charge*l2_charge<0')
 inc_sig_event &= Cut('mt<40')
 inc_sig_event &= Cut('veto_dilepton<0.5')
 inc_sig_event &= Cut('veto_thirdlepton<0.5')
@@ -56,18 +56,26 @@ isomu_medium3 = Cut('l1_reliso05<0.15 && l1_reliso05>0.01')
 isomu_anti   = Cut('l1_reliso05>0.15')
 isomu   = Cut('l1_reliso05<0.1')
 
-inc_cut = inc_sig_mu & inc_sig_tau & inc_sig_event   
+inc_cut = inc_sig_mu & inc_sig_tau  & inc_sig_event 
+#inc_cut_medium = inc_sig_mu & inc_sig_tau  & inc_sig_event & isomu_medium & isotau
+#inc_cut_anti = inc_sig_mu & inc_sig_tau  & inc_sig_event & isomu_anti & isotau
+#inc_cut_anti12 = inc_sig_mu & inc_sig_tau  & inc_sig_event & isomu_anti12 & isotau
+#inc_cut_anti15 = inc_sig_mu & inc_sig_tau  & inc_sig_event & isomu_anti15 & isotau
 
-cuts['QCDSS_IsoMu_IsoTau_Tree'] = inc_cut & isomu & isotau
-cuts['QCDSS_IsoMu_IsoTauAnti_Tree'] = inc_cut & isomu & isotau_anti
-cuts['QCDSS_IsoMuAnti_IsoTau_Tree'] = inc_cut & isomu_anti & isotau
-cuts['QCDSS_IsoMuAnti_IsoTauAnti_Tree'] = inc_cut & isomu_anti & isotau_anti
-cuts['QCDSS_IsoMuMedium10_IsoTau_Tree'] = inc_cut & isomu_medium1 & isotau
-cuts['QCDSS_IsoMuMedium10_IsoTauAnti_Tree'] = inc_cut & isomu_medium1 & isotau_anti
-cuts['QCDSS_IsoMuMedium05_IsoTau_Tree'] = inc_cut & isomu_medium2 & isotau
-cuts['QCDSS_IsoMuMedium05_IsoTauAnti_Tree'] = inc_cut & isomu_medium2 & isotau_anti
-cuts['QCDSS_IsoMuMedium01_IsoTau_Tree'] = inc_cut & isomu_medium3 & isotau
-cuts['QCDSS_IsoMuMedium01_IsoTauAnti_Tree'] = inc_cut & isomu_medium3 & isotau_anti
+#cuts['QCDOS_IsoMu_Tree'] = inc_sig
+#cuts['QCDOS_IsoMuMedium_Tree'] = inc_sig_medium
+#cuts['QCDOS_IsoMuAnti_Tree'] = inc_sig_anti
+#cuts['QCDOS_IsoMuAnti12_Tree'] = inc_sig_anti12
+#cuts['QCDOS_IsoMuAnti15_Tree'] = inc_sig_anti15
+
+cuts['QCDOS_IsoMu_IsoTau_Tree'] = inc_cut & isomu & isotau
+cuts['QCDOS_IsoMu_IsoTauAnti_Tree'] = inc_cut & isomu & isotau_anti
+cuts['QCDOS_IsoMuAnti_IsoTau_Tree'] = inc_cut & isomu_anti & isotau
+cuts['QCDOS_IsoMuAnti_IsoTauAnti_Tree'] = inc_cut & isomu_anti & isotau_anti
+cuts['QCDOS_IsoMuMedium10_IsoTau_Tree'] = inc_cut & isomu_medium1 & isotau
+cuts['QCDOS_IsoMuMedium10_IsoTauAnti_Tree'] = inc_cut & isomu_medium1 & isotau_anti
+cuts['QCDOS_IsoMuMedium05_IsoTau_Tree'] = inc_cut & isomu_medium2 & isotau
+cuts['QCDOS_IsoMuMedium05_IsoTauAnti_Tree'] = inc_cut & isomu_medium2 & isotau_anti
 
 
 # -> Command line
@@ -92,7 +100,7 @@ variables = [
     #VariableCfg(name='l2_eta', binning={'nbinsx':20, 'xmin':-2.5, 'xmax':2.5}, unit=None, xtitle='tau #eta'),
     #VariableCfg(name='l2_byCombinedIsolationDeltaBetaCorrRaw3Hits', binning={'nbinsx':100, 'xmin':0., 'xmax':100.}, unit='GeV', xtitle='tau delta-beta corr. 3-hit isolation'), 
     #VariableCfg(name='n_vertices', binning={'nbinsx':51, 'xmin':-0.5, 'xmax':50.5}, unit=None, xtitle='N_{vertices}'),
-    #VariableCfg(name='l1_reliso05', binning={'nbinsx':500, 'xmin':0., 'xmax':1.0}, unit='', xtitle='iso^{#mu}'),
+    VariableCfg(name='l1_reliso05', binning={'nbinsx':500, 'xmin':0., 'xmax':1.0}, unit='', xtitle='iso^{#mu}'),
 ]
 
 for name,cut in cuts.items():
