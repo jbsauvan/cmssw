@@ -183,7 +183,7 @@ class HistDrawer:
             box.Draw()
             HistDrawer.keeper.append(box)
 
-        HistDrawer.CMSPrelim(plot, pad, channel, legend=plot.legendPos)
+        #HistDrawer.CMSPrelim(plot, pad, channel, legend=plot.legendPos)
         can.cd()
 
         plotname = plot_dir + '/'
