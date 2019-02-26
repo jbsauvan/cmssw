@@ -93,7 +93,7 @@ def custom_3dclustering_histoMax(process,
 
 
 dr_layerbylayer = ([0] + # no layer 0
-        [0.010]*7 + [0.020]*7 + [0.030]*7 + [0.040]*7 + # EM
+        [0.015]*7 + [0.020]*7 + [0.030]*7 + [0.040]*7 + # EM
         [0.040]*6 + [0.050]*6 + # FH
         [0.050]*12) # BH
 def custom_3dclustering_histoMax_variableDr(process,
