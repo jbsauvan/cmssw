@@ -34,6 +34,8 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
         geom_set getNeighborsFromTriggerCell( const unsigned ) const final;
 
+        unsigned getLinksInModule(const unsigned module_id) const final;
+
         GlobalPoint getTriggerCellPosition(const unsigned ) const final;
         GlobalPoint getModulePosition(const unsigned ) const final;
 
@@ -474,6 +476,11 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
     return neighbor_detids;
 }
 
+unsigned
+HGCalTriggerGeometryHexImp2::
+getLinksInModule(const unsigned module_id) const {
+  return 1;
+}
 
 GlobalPoint 
 HGCalTriggerGeometryHexImp2::

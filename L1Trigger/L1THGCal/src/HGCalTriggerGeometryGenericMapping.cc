@@ -107,6 +107,14 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
   return geom_set();
 }
 
+
+unsigned
+HGCalTriggerGeometryGenericMapping::
+getLinksInModule(const unsigned module_id) const {
+  return 1;
+}
+
+
 GlobalPoint 
 HGCalTriggerGeometryGenericMapping::
 getTriggerCellPosition(const unsigned trigger_cell_det_id) const {

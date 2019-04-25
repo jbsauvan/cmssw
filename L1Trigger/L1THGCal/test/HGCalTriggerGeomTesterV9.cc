@@ -74,12 +74,14 @@ class HGCalTriggerGeomTesterV9 : public edm::stream::EDAnalyzer<>
         TTree* treeTriggerCells_;
         TTree* treeCells_;
         TTree* treeCellsBH_;
+        TTree* treeModuleErrors_;
         // tree variables
         int   moduleId_     ;
         int   moduleSide_   ;
         int   moduleSubdet_ ;
         int   moduleLayer_  ;
         int   module_       ;
+        int   moduleLinks_   ;
         float moduleX_      ;
         float moduleY_      ;
         float moduleZ_      ;
@@ -174,6 +176,10 @@ class HGCalTriggerGeomTesterV9 : public edm::stream::EDAnalyzer<>
         float cellBHY3_     ;
         float cellBHX4_     ;
         float cellBHY4_     ;
+        //
+        int   moduleErrorSubdet_ ;
+        int   moduleErrorLayer_  ;
+        int   moduleErrorWafer_ ;
 
     private:
         typedef std::unordered_map<uint32_t, std::unordered_set<uint32_t>>  trigger_map_set;
@@ -195,6 +201,7 @@ HGCalTriggerGeomTesterV9::HGCalTriggerGeomTesterV9(const edm::ParameterSet& conf
     treeModules_->Branch("subdet"         , &moduleSubdet_        , "subdet/I");
     treeModules_->Branch("layer"          , &moduleLayer_         , "layer/I");
     treeModules_->Branch("module"         , &module_              , "module/I");
+    treeModules_->Branch("links"          , &moduleLinks_          , "links/I");
     treeModules_->Branch("x"              , &moduleX_             , "x/F");
     treeModules_->Branch("y"              , &moduleY_             , "y/F");
     treeModules_->Branch("z"              , &moduleZ_             , "z/F");
@@ -335,6 +342,11 @@ HGCalTriggerGeomTesterV9::HGCalTriggerGeomTesterV9(const edm::ParameterSet& conf
     treeCellsBH_->Branch("y3", &cellBHY3_, "y3/F");
     treeCellsBH_->Branch("x4", &cellBHX4_, "x4/F");
     treeCellsBH_->Branch("y4", &cellBHY4_, "y4/F");
+    //
+    treeModuleErrors_ = fs_->make<TTree>("TreeModuleErrors","Tree of module mapping errors");
+    treeModuleErrors_->Branch("subdet", &moduleErrorSubdet_, "subdet/I");
+    treeModuleErrors_->Branch("layer", &moduleErrorLayer_, "layer/I");
+    treeModuleErrors_->Branch("wafer", &moduleErrorWafer_, "wafer/I");
 }
 
 
@@ -362,6 +374,8 @@ bool HGCalTriggerGeomTesterV9::checkMappingConsistency()
 {
     try
     {
+        // Set of (subdet,layer,wafer) with module mapping errors
+        std::set<std::tuple<unsigned,unsigned,unsigned>> module_errors;
         trigger_map_set modules_to_triggercells;
         trigger_map_set modules_to_cells;
         trigger_map_set triggercells_to_cells;
@@ -376,7 +390,15 @@ bool HGCalTriggerGeomTesterV9::checkMappingConsistency()
             auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
             // fill modules
-            uint32_t module = triggerGeometry_->getModuleFromCell(id);
+            uint32_t module = 0;
+            try
+            {
+                module = triggerGeometry_->getModuleFromCell(id);
+            }
+            catch(const cms::Exception& e) {
+                module_errors.emplace(std::make_tuple(HGCalDetId(trigger_cell).subdetId(), HGCalDetId(trigger_cell).layer(), HGCalDetId(trigger_cell).wafer()));
+               continue;
+            }
             itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -390,7 +412,15 @@ bool HGCalTriggerGeomTesterV9::checkMappingConsistency()
             auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
             // fill modules
-            uint32_t module = triggerGeometry_->getModuleFromCell(id);
+            uint32_t module = 0;
+            try
+            {
+                module = triggerGeometry_->getModuleFromCell(id);
+            }
+            catch(const cms::Exception& e) {
+                module_errors.emplace(std::make_tuple(HGCalDetId(trigger_cell).subdetId(), HGCalDetId(trigger_cell).layer(), HGCalDetId(trigger_cell).wafer()));
+               continue;
+            }
             itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
         }
@@ -410,6 +440,20 @@ bool HGCalTriggerGeomTesterV9::checkMappingConsistency()
             uint32_t module = triggerGeometry_->getModuleFromCell(id);
             itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
             itr_insert.first->second.emplace(id);
+        }
+
+        if(module_errors.size()>0)
+        {
+            for(const auto& module : module_errors)
+            {
+                moduleErrorSubdet_ = std::get<0>(module);
+                moduleErrorLayer_ = std::get<1>(module);
+                moduleErrorWafer_ = std::get<2>(module);
+                treeModuleErrors_->Fill();
+            }
+            throw cms::Exception("BadGeometry")
+                << "HGCalTriggerGeometry: Found  module mapping problems. Check the produced tree to see the list of problematic wafers";
+
         }
 
 
@@ -843,6 +887,14 @@ void HGCalTriggerGeomTesterV9::fillTriggerGeometry()
         moduleY_      = position.y();
         moduleZ_      = position.z();
         moduleTC_N_   = module_triggercells.second.size();
+        if(triggerGeometry_->disconnectedModule(id))
+        {
+            moduleLinks_ = 0;
+        }
+        else
+        {
+            moduleLinks_  = triggerGeometry_->getLinksInModule(id);
+        }
         //
         setTreeModuleSize(moduleTC_N_);
         size_t itc = 0;
