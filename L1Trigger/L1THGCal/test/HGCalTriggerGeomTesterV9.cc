@@ -743,6 +743,7 @@ void HGCalTriggerGeomTesterV9::fillTriggerGeometry()
 
   // Loop over trigger cells
   edm::LogPrint("TreeFilling") << "Filling trigger cells tree";
+  std::cerr<<trigger_cells.size()<<" trigger cells\n";
   for (const auto& triggercell_cells : trigger_cells) {
     HGCalDetId id(triggercell_cells.first);
     GlobalPoint position = triggerGeometry_->getTriggerCellPosition(id);
