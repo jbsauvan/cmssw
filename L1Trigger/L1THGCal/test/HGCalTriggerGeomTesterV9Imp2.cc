@@ -687,6 +687,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
   std::cout << "Filling EE geometry\n";
   for (const auto& id : triggerGeometry_->eeGeometry()->getValidDetIds()) {
     HGCSiliconDetId detid(id);
+    if (!triggerGeometry_->eeTopology().valid(id))
+      continue;
     cellId_ = detid.rawId();
     cellSide_ = detid.zside();
     cellSubdet_ = detid.subdet();
@@ -728,6 +730,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
   std::cout << "Filling HSi geometry\n";
   for (const auto& id : triggerGeometry_->hsiGeometry()->getValidDetIds()) {
     HGCSiliconDetId detid(id);
+    if (!triggerGeometry_->hsiTopology().valid(id))
+      continue;
     cellId_ = detid.rawId();
     cellSide_ = detid.zside();
     cellSubdet_ = detid.subdet();
