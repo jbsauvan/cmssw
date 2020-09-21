@@ -20,10 +20,10 @@ public:
     triggerTools_.eventSetup(es);
     coarseTCmapping_.eventSetup(es);
     superTCmapping_.eventSetup(es);
-    calibrationEE_.eventSetup(es);
-    calibrationHEsi_.eventSetup(es);
-    calibrationHEsc_.eventSetup(es);
-    calibrationNose_.eventSetup(es);
+    calibrationEE_.eventSetup(es, DetId::HGCalEE);
+    calibrationHEsi_.eventSetup(es, DetId::HGCalHSi);
+    calibrationHEsc_.eventSetup(es, DetId::HGCalHSc);
+    calibrationNose_.eventSetup(es, DetId::HGCalEE);
   }
 
 private:
