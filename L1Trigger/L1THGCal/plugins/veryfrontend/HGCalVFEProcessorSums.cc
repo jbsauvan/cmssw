@@ -29,10 +29,10 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                                 l1t::HGCalTriggerCellBxCollection& triggerCellColl,
                                 const edm::EventSetup& es) {
   vfeSummationImpl_->eventSetup(es);
-  calibrationEE_->eventSetup(es);
-  calibrationHEsi_->eventSetup(es);
-  calibrationHEsc_->eventSetup(es);
-  calibrationNose_->eventSetup(es);
+  calibrationEE_->eventSetup(es, DetId::HGCalEE);
+  calibrationHEsi_->eventSetup(es, DetId::HGCalEE);
+  calibrationHEsc_->eventSetup(es, DetId::HGCalEE);
+  calibrationNose_->eventSetup(es, DetId::HGCalEE);
   triggerTools_.eventSetup(es);
 
   std::vector<HGCalDataFrame> dataframes;

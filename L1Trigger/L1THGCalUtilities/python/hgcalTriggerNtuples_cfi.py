@@ -42,6 +42,9 @@ ntuple_genjet = cms.PSet(
     GenJets = cms.InputTag('ak4GenJetsNoNu')
 )
 
+import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
+feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
+
 ntuple_digis = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCDigis'),
     HGCDigisEE = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
@@ -50,8 +53,11 @@ ntuple_digis = cms.PSet(
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
-    isSimhitComp = cms.bool(False),
-    digiBXselect = cms.vuint32(2)
+    isSimhitComp = cms.bool(True),
+    digiBXselect = cms.vuint32(2),
+    tdcnBits = feCfg_si.tdcNbits,
+    tdcOnset = feCfg_si.tdcOnset_fC,
+    tdcsaturation = feCfg_si.tdcSaturation_fC,
 )
 
 ntuple_triggercells = cms.PSet(

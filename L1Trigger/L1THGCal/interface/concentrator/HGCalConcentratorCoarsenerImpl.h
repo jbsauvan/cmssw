@@ -16,7 +16,7 @@ public:
   void eventSetup(const edm::EventSetup& es) {
     triggerTools_.eventSetup(es);
     coarseTCmapping_.eventSetup(es);
-    calibration_.eventSetup(es);
+    calibration_.eventSetup(es, DetId::HGCalEE);
   }
 
 private:

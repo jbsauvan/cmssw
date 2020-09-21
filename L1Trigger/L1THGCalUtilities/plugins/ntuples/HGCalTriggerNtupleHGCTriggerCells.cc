@@ -321,7 +321,8 @@ double HGCalTriggerNtupleHGCTriggerCells::calibrate(double energy, int thickness
   double thicknessCorrection = thicknessCorrections_[thickness];
   double layerWeight = layerWeights_[layer];
   double TeV2GeV = 1.e3;
-  return energy * keV2fC_ / fcPerMip * layerWeight * TeV2GeV / thicknessCorrection;
+  // return energy * keV2fC_ / fcPerMip * layerWeight * TeV2GeV / thicknessCorrection;
+  return energy * keV2fC_ * 1e6;
 }
 
 void HGCalTriggerNtupleHGCTriggerCells::simhits(const edm::Event& e,

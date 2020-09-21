@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 #include <vector>
 #include <utility>
@@ -26,6 +27,8 @@ private:
   uint32_t linMax_;
   uint32_t linnBits_;
   std::vector<double> oot_coefficients_;
+  //
+  bool new_digi_ = false;
 };
 
 #endif

@@ -13,7 +13,8 @@ feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
 feCfg_sc = digiparam.hgchebackDigitizer.digiCfg.feCfg
 
 # trigger cell LSB before compression is the LSB of the ADC
-triggerCellLsbBeforeCompression_si = float(feCfg_si.adcSaturation_fC.value())/(2**float(feCfg_si.adcNbits.value()))
+#  triggerCellLsbBeforeCompression_si = float(feCfg_si.adcSaturation_fC.value())/(2**float(feCfg_si.adcNbits.value()))
+triggerCellLsbBeforeCompression_si = 1./80.
 triggerCellLsbBeforeCompression_sc = float(feCfg_sc.adcSaturation_fC.value())/(2**float(feCfg_sc.adcNbits.value()))
 
 # Linearization parameters for silicon
@@ -26,6 +27,7 @@ linearization_params_si = cms.PSet(
         tdcsaturation = feCfg_si.tdcSaturation_fC,
         linnBits = cms.uint32(17),
          oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
+         newDigi = cms.bool(True),
         )
 
 # Linearization parameters for scintillator
@@ -37,7 +39,8 @@ linearization_params_sc = cms.PSet(
         adcnBits = feCfg_sc.adcNbits,
         tdcsaturation = feCfg_sc.tdcSaturation_fC,
         linnBits = cms.uint32(17),
-         oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
+        oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
+        newDigi = cms.bool(False),
         )
 
 summation_params = cms.PSet(
@@ -47,7 +50,8 @@ summation_params = cms.PSet(
         noiseScintillator = cms.PSet(),
         # cell thresholds before TC sums
         # Cut at 3sigma of the noise
-        noiseThreshold = cms.double(3), # in units of sigmas of the noise
+        #  noiseThreshold = cms.double(3), # in units of sigmas of the noise
+        noiseThreshold = cms.double(0), # in units of sigmas of the noise
         )
 
 # Compression parameters for low density modules
@@ -75,6 +79,10 @@ thicknessCorrectionSi = recocalibparam.HGCalRecHit.thicknessCorrection
 thicknessCorrectionSc = recocalibparam.HGCalRecHit.sciThicknessCorrection
 thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
 
+# Radiation map info
+integLumi=3000.
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse,HGCAL_cceParams_toUse
+
 NTHICKNESS = 3
 calibration_params_ee = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
@@ -82,6 +90,13 @@ calibration_params_ee = cms.PSet(
         dEdXweights = layerWeights,
         thicknessCorrection = cms.vdouble(thicknessCorrectionSi[0:NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
+
+        newDigi = cms.bool(True),
+        doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
+        scaleByDoseAlgo   = cms.uint32(0),
+        scaleByDoseFactor = cms.double(integLumi/3000.),
+        ileakParam        = HGCAL_ileakParam_toUse,
+        cceParams         = HGCAL_cceParams_toUse,
         )
 
 calibration_params_hesi = cms.PSet(
@@ -90,6 +105,13 @@ calibration_params_hesi = cms.PSet(
         dEdXweights = layerWeights,
         thicknessCorrection = cms.vdouble(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
+
+        newDigi = cms.bool(True),
+        doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
+        scaleByDoseAlgo   = cms.uint32(0),
+        scaleByDoseFactor = cms.double(integLumi/3000.),
+        ileakParam        = HGCAL_ileakParam_toUse,
+        cceParams         = HGCAL_cceParams_toUse,
         )
 
 calibration_params_hesc = cms.PSet(
@@ -98,6 +120,7 @@ calibration_params_hesc = cms.PSet(
         dEdXweights = layerWeights,
         thicknessCorrection = cms.vdouble(thicknessCorrectionSc.value()),
         chargeCollectionEfficiency = cms.PSet(values=cms.vdouble(1.)),
+        newDigi = cms.bool(False),
         )
 
 calibration_params_nose = cms.PSet(
@@ -106,6 +129,7 @@ calibration_params_nose = cms.PSet(
         dEdXweights = layerWeightsNose,
         thicknessCorrection = thicknessCorrectionNose,
         chargeCollectionEfficiency = cms.PSet(),
+        newDigi = cms.bool(False),
         )
 
 vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
