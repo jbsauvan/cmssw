@@ -17,8 +17,12 @@ feCfg_sc = digiparam.hgchebackDigitizer.digiCfg.feCfg
 triggerCellLsbBeforeCompression_si = 1./80.
 triggerCellLsbBeforeCompression_sc = float(feCfg_sc.adcSaturation_fC.value())/(2**float(feCfg_sc.adcNbits.value()))
 
-# Linearization parameters for silicon
-linearization_params_si = cms.PSet(
+# Radiation map info
+integLumi=3000.
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse,HGCAL_cceParams_toUse
+
+# Linearization parameters for EE
+linearization_params_ee = cms.PSet(
         linLSB = cms.double(triggerCellLsbBeforeCompression_si),
         adcsaturation = feCfg_si.adcSaturation_fC,
         tdcnBits = feCfg_si.tdcNbits,
@@ -28,10 +32,33 @@ linearization_params_si = cms.PSet(
         linnBits = cms.uint32(17),
          oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
          newDigi = cms.bool(True),
+        doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
+        scaleByDoseAlgo   = cms.uint32(0),
+        scaleByDoseFactor = cms.double(integLumi/3000.),
+        ileakParam        = HGCAL_ileakParam_toUse,
+        cceParams         = HGCAL_cceParams_toUse,
         )
 
-# Linearization parameters for scintillator
-linearization_params_sc = cms.PSet(
+# Linearization parameters for HE silicon
+linearization_params_hesi = cms.PSet(
+        linLSB = cms.double(triggerCellLsbBeforeCompression_si),
+        adcsaturation = feCfg_si.adcSaturation_fC,
+        tdcnBits = feCfg_si.tdcNbits,
+        tdcOnset = feCfg_si.tdcOnset_fC,
+        adcnBits = feCfg_si.adcNbits,
+        tdcsaturation = feCfg_si.tdcSaturation_fC,
+        linnBits = cms.uint32(17),
+         oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
+         newDigi = cms.bool(True),
+        doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
+        scaleByDoseAlgo   = cms.uint32(0),
+        scaleByDoseFactor = cms.double(integLumi/3000.),
+        ileakParam        = HGCAL_ileakParam_toUse,
+        cceParams         = HGCAL_cceParams_toUse,
+        )
+
+# Linearization parameters for HE scintillator
+linearization_params_hesc = cms.PSet(
         linLSB = cms.double(triggerCellLsbBeforeCompression_sc),
         adcsaturation = feCfg_sc.adcSaturation_fC,
         tdcnBits = feCfg_sc.tdcNbits,
@@ -79,9 +106,6 @@ thicknessCorrectionSi = recocalibparam.HGCalRecHit.thicknessCorrection
 thicknessCorrectionSc = recocalibparam.HGCalRecHit.sciThicknessCorrection
 thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
 
-# Radiation map info
-integLumi=3000.
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse,HGCAL_cceParams_toUse
 
 NTHICKNESS = 3
 calibration_params_ee = cms.PSet(
@@ -133,8 +157,9 @@ calibration_params_nose = cms.PSet(
         )
 
 vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
-                     linearizationCfg_si = linearization_params_si,
-                     linearizationCfg_sc = linearization_params_sc,
+                     linearizationCfg_ee = linearization_params_ee,
+                     linearizationCfg_hesi = linearization_params_hesi,
+                     linearizationCfg_hesc = linearization_params_hesc,
                      summationCfg = summation_params,
                      compressionCfg_ldm = compression_params_ldm,
                      compressionCfg_hdm = compression_params_hdm,

@@ -30,6 +30,7 @@ private:
                std::unordered_map<uint32_t, double>& simhits_ee,
                std::unordered_map<uint32_t, double>& simhits_fh,
                std::unordered_map<uint32_t, double>& simhits_bh);
+  unsigned sector_uv(unsigned layer, std::pair<int,int>& uv);
   void clear() final;
 
   HGCalTriggerTools triggerTools_;
@@ -61,6 +62,9 @@ private:
   std::vector<int> tc_wafer_;
   std::vector<int> tc_waferu_;
   std::vector<int> tc_waferv_;
+  std::vector<int> tc_waferu_rotated_;
+  std::vector<int> tc_waferv_rotated_;
+  std::vector<int> tc_sector_;
   std::vector<int> tc_wafertype_;
   std::vector<int> tc_cell_;
   std::vector<int> tc_cellu_;
@@ -131,6 +135,9 @@ void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
   tree.Branch(withPrefix("wafer"), &tc_wafer_);
   tree.Branch(withPrefix("waferu"), &tc_waferu_);
   tree.Branch(withPrefix("waferv"), &tc_waferv_);
+  tree.Branch(withPrefix("waferurot"), &tc_waferu_rotated_);
+  tree.Branch(withPrefix("wafervrot"), &tc_waferv_rotated_);
+  tree.Branch(withPrefix("sector"), &tc_sector_);
   tree.Branch(withPrefix("wafertype"), &tc_wafertype_);
   tree.Branch(withPrefix("panel_number"), &tc_panel_number_);
   tree.Branch(withPrefix("panel_sector"), &tc_panel_sector_);
@@ -242,9 +249,14 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
       // V9 detids
       if (id.det() == DetId::HGCalTrigger) {
         HGCalTriggerDetId idv9(id);
+        std::pair<int, int> uv(idv9.waferU(), idv9.waferV());
+        unsigned sector = sector_uv(triggerTools_.layerWithOffset(id), uv);
         tc_subdet_.emplace_back(idv9.subdet());
         tc_waferu_.emplace_back(idv9.waferU());
         tc_waferv_.emplace_back(idv9.waferV());
+        tc_sector_.emplace_back(sector);
+        tc_waferu_rotated_.emplace_back(uv.first);
+        tc_waferv_rotated_.emplace_back(uv.second);
         tc_wafertype_.emplace_back(idv9.type());
         tc_cellu_.emplace_back(idv9.triggerCellU());
         tc_cellv_.emplace_back(idv9.triggerCellV());
@@ -253,6 +265,9 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
         tc_subdet_.emplace_back(idv9.subdet());
         tc_waferu_.emplace_back(-999);
         tc_waferv_.emplace_back(-999);
+        tc_sector_.emplace_back(-999);
+        tc_waferu_rotated_.emplace_back(-999);
+        tc_waferv_rotated_.emplace_back(-999);
         tc_wafertype_.emplace_back(idv9.type());
         tc_cellu_.emplace_back(idv9.ietaAbs());
         tc_cellv_.emplace_back(idv9.iphi());
@@ -321,8 +336,9 @@ double HGCalTriggerNtupleHGCTriggerCells::calibrate(double energy, int thickness
   double thicknessCorrection = thicknessCorrections_[thickness];
   double layerWeight = layerWeights_[layer];
   double TeV2GeV = 1.e3;
-  // return energy * keV2fC_ / fcPerMip * layerWeight * TeV2GeV / thicknessCorrection;
-  return energy * keV2fC_ * 1e6;
+  // return energy * keV2fC_ / fcPerMip;
+  return energy * keV2fC_ / fcPerMip * layerWeight * TeV2GeV / thicknessCorrection;
+  // return energy * keV2fC_;
 }
 
 void HGCalTriggerNtupleHGCTriggerCells::simhits(const edm::Event& e,
@@ -366,6 +382,48 @@ void HGCalTriggerNtupleHGCTriggerCells::simhits(const edm::Event& e,
   }
 }
 
+unsigned HGCalTriggerNtupleHGCTriggerCells::sector_uv(unsigned layer, std::pair<int,int>& uv) {
+  unsigned sector(0);
+  int offset;
+
+  if(layer<=28) { // CE-E    
+    if(uv.first>0 && uv.second>=0) return sector;
+
+    offset=0;
+    if(uv.first>=uv.second && uv.second<0) sector=2;
+    else sector=1;
+
+  } else if((layer%2)==1) { // CE-H Odd
+    if(uv.first>=0 && uv.second>=0) return sector;
+
+    offset=-1;    
+    if(uv.first>uv.second && uv.second<0) sector=2;
+    else sector=1;
+
+  } else { // CE-H Even
+    if(uv.first>=1 && uv.second>=1) return sector;
+
+    offset=1;
+    if(uv.first>=uv.second && uv.second<1) sector=2;
+    else sector=1;
+  }
+
+  int up,vp;
+
+  if(sector==1) {
+    up=uv.second-uv.first;
+    vp=-uv.first+offset;    
+
+  } else {
+    up=-uv.second+offset;
+    vp=uv.first-uv.second+offset;
+  }
+
+  uv.first=up;
+  uv.second=vp;
+  return sector;
+}
+
 void HGCalTriggerNtupleHGCTriggerCells::clear() {
   tc_n_ = 0;
   tc_id_.clear();
@@ -375,6 +433,9 @@ void HGCalTriggerNtupleHGCTriggerCells::clear() {
   tc_wafer_.clear();
   tc_waferu_.clear();
   tc_waferv_.clear();
+  tc_sector_.clear();
+  tc_waferu_rotated_.clear();
+  tc_waferv_rotated_.clear();
   tc_wafertype_.clear();
   tc_panel_number_.clear();
   tc_panel_sector_.clear();

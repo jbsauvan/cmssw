@@ -18,8 +18,9 @@ public:
            const edm::EventSetup& es) override;
 
 private:
-  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationSiImpl_;
-  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationScImpl_;
+  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationEEImpl_;
+  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationHEsiImpl_;
+  std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationHEscImpl_;
   std::unique_ptr<HGCalVFESummationImpl> vfeSummationImpl_;
   std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionLDMImpl_;
   std::unique_ptr<HGCalVFECompressionImpl> vfeCompressionHDMImpl_;

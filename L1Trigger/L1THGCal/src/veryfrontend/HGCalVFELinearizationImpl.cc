@@ -21,6 +21,33 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
   tdcLSB_ = std::ldexp(tdcsaturation_, -tdcnBits_);
   linMax_ = (0x1 << linnBits_) - 1;
 
+  if(new_digi_) {
+    noise_map_.setDoseMap(conf.getParameter<std::string>("doseMap"),
+        conf.getParameter<uint32_t>("scaleByDoseAlgo"));
+    noise_map_.setFluenceScaleFactor(conf.getParameter<double>("scaleByDoseFactor"));
+    noise_map_.setIleakParam(conf.getParameter<edm::ParameterSet>("ileakParam").getParameter<std::vector<double>>("ileakParam"));
+    noise_map_.setCceParam(conf.getParameter<edm::ParameterSet>("cceParams").getParameter<std::vector<double>>("cceParamFine"),
+        conf.getParameter<edm::ParameterSet>("cceParams").getParameter<std::vector<double>>("cceParamThin"),
+        conf.getParameter<edm::ParameterSet>("cceParams").getParameter<std::vector<double>>("cceParamThick"));
+  }
+
+}
+
+void HGCalVFELinearizationImpl::eventSetup(const edm::EventSetup& es, DetId::Detector det) {
+  triggerTools_.eventSetup(es);
+  if(new_digi_) {
+    //assign the geometry and tell the tool that the gain is automatically set to have the MIP close to 10ADC counts
+    switch(det) {
+      case DetId::HGCalEE:
+        noise_map_.setGeometry(triggerTools_.getTriggerGeometry()->eeGeometry(), HGCalSiNoiseMap::AUTO, 10);
+        break;
+      case DetId::HGCalHSi:
+        noise_map_.setGeometry(triggerTools_.getTriggerGeometry()->hsiGeometry(), HGCalSiNoiseMap::AUTO, 10);
+        break;
+      default:
+        throw cms::Exception("SetupError") << "Non supported detector type " << det << " for HGCalSiNoiseMap setup";
+    }
+  }
 }
 
 
@@ -38,10 +65,9 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCalDataFrame>& dat
 
     double adcLSB = adcLSB_;
     if(new_digi_) {
-      auto gain = static_cast<HGCalSiNoiseMap::GainRange_t>(frame[kIntimeSample].gain());
-      if(gain==HGCalSiNoiseMap::q80fC) adcLSB=1./80.;
-      else if(gain==HGCalSiNoiseMap::q160fC) adcLSB=1./160.;
-      else if(gain==HGCalSiNoiseMap::q320fC) adcLSB=1./320.;
+      HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_.getSiCellOpCharacteristics(frame.id());
+      HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.core.gain);
+      adcLSB = noise_map_.getLSBPerGain()[gain];
     }
 
     double amplitude = 0.;

@@ -3,10 +3,12 @@
 DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory, HGCalVFEProcessorSums, "HGCalVFEProcessorSums");
 
 HGCalVFEProcessorSums::HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf) {
-  vfeLinearizationSiImpl_ =
-      std::make_unique<HGCalVFELinearizationImpl>(conf.getParameter<edm::ParameterSet>("linearizationCfg_si"));
-  vfeLinearizationScImpl_ =
-      std::make_unique<HGCalVFELinearizationImpl>(conf.getParameter<edm::ParameterSet>("linearizationCfg_sc"));
+  vfeLinearizationEEImpl_ =
+      std::make_unique<HGCalVFELinearizationImpl>(conf.getParameter<edm::ParameterSet>("linearizationCfg_ee"));
+  vfeLinearizationHEsiImpl_ =
+      std::make_unique<HGCalVFELinearizationImpl>(conf.getParameter<edm::ParameterSet>("linearizationCfg_hesi"));
+  vfeLinearizationHEscImpl_ =
+      std::make_unique<HGCalVFELinearizationImpl>(conf.getParameter<edm::ParameterSet>("linearizationCfg_hesc"));
 
   vfeSummationImpl_ = std::make_unique<HGCalVFESummationImpl>(conf.getParameter<edm::ParameterSet>("summationCfg"));
 
@@ -29,8 +31,11 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                                 l1t::HGCalTriggerCellBxCollection& triggerCellColl,
                                 const edm::EventSetup& es) {
   vfeSummationImpl_->eventSetup(es);
+  vfeLinearizationEEImpl_->eventSetup(es, DetId::HGCalEE);
+  vfeLinearizationHEsiImpl_->eventSetup(es, DetId::HGCalHSi);
+  vfeLinearizationHEscImpl_->eventSetup(es, DetId::HGCalEE);
   calibrationEE_->eventSetup(es, DetId::HGCalEE);
-  calibrationHEsi_->eventSetup(es, DetId::HGCalEE);
+  calibrationHEsi_->eventSetup(es, DetId::HGCalHSi);
   calibrationHEsc_->eventSetup(es, DetId::HGCalEE);
   calibrationNose_->eventSetup(es, DetId::HGCalEE);
   triggerTools_.eventSetup(es);
@@ -69,9 +74,13 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   int thickness = triggerTools_.thicknessIndex(dataframes[0].id(), true);
   // Linearization of ADC and TOT values to the same LSB
   if (isSilicon) {
-    vfeLinearizationSiImpl_->linearize(dataframes, linearized_dataframes);
+    if(isEM) {
+      vfeLinearizationEEImpl_->linearize(dataframes, linearized_dataframes);
+    } else {
+      vfeLinearizationHEsiImpl_->linearize(dataframes, linearized_dataframes);
+    }
   } else {
-    vfeLinearizationScImpl_->linearize(dataframes, linearized_dataframes);
+    vfeLinearizationHEscImpl_->linearize(dataframes, linearized_dataframes);
   }
   // Sum of sensor cells into trigger cells
   vfeSummationImpl_->triggerCellSums(linearized_dataframes, tc_payload);

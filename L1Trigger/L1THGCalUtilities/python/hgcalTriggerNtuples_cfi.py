@@ -45,6 +45,10 @@ ntuple_genjet = cms.PSet(
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
 
+# Radiation map info
+integLumi=3000.
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse,HGCAL_cceParams_toUse
+
 ntuple_digis = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCDigis'),
     HGCDigisEE = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
@@ -58,6 +62,11 @@ ntuple_digis = cms.PSet(
     tdcnBits = feCfg_si.tdcNbits,
     tdcOnset = feCfg_si.tdcOnset_fC,
     tdcsaturation = feCfg_si.tdcSaturation_fC,
+    doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
+    scaleByDoseAlgo   = cms.uint32(0),
+    scaleByDoseFactor = cms.double(integLumi/3000.),
+    ileakParam        = HGCAL_ileakParam_toUse,
+    cceParams         = HGCAL_cceParams_toUse,
 )
 
 ntuple_triggercells = cms.PSet(

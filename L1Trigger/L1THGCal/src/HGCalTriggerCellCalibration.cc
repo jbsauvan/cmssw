@@ -82,21 +82,18 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
   double trgCellMipP = amplitude;
 
   if(new_digi_) {
-      double mipADC = 0.;
+      double mipfC = 0.;
+      double cce = 0.;
       auto cells = triggerTools_.getTriggerGeometry()->getCellsFromTriggerCell(trgdetid);
       for(const auto& cellid : cells) {
         HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_.getSiCellOpCharacteristics(cellid);
-        // double adcLSB = 1./80.;
-        // if(siop.core.gain==HGCalSiNoiseMap::q80fC) adcLSB=1./80.;
-        // else if(siop.core.gain==HGCalSiNoiseMap::q160fC) adcLSB=1./160.;
-        // else if(siop.core.gain==HGCalSiNoiseMap::q320fC) adcLSB=1./320.;
-        // std::cerr<<"LSB = "<<lsb_<<" adcLSB = "<<adcLSB<<", mipADC = "<<siop.mipADC<<"\n";
-        mipADC += double(siop.mipfC);
-        // std::cerr<<"  mipfC(cell) = "<<siop.mipfC<<"\n";
+        mipfC += double(siop.mipfC);
+        cce += siop.core.cce;
       }
-      mipADC /= cells.size();
-      // std::cerr<<"mipADC(TC) = "<<mipADC<<"\n";
-      // trgCellMipP = amplitude/mipADC;
+      mipfC /= cells.size();
+      cce /= cells.size();
+      trgCellMipP /= cce;
+      trgCellMipP /= mipfC;
   }
   else {
     if (chargeCollectionEfficiency_[thickness] > 0) {
@@ -135,14 +132,12 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
 
   /* weight the amplitude by the absorber coefficient in MeV/mip + bring it in
    * GeV */
-  trgCellEt = trgCell.mipPt();
-  // trgCellEt = trgCell.mipPt() * MevToGeV;
-  // trgCellEt *= dEdX_weights_.at(trgCellLayer);
-// 
+  trgCellEt = trgCell.mipPt() * MevToGeV;
+  trgCellEt *= dEdX_weights_.at(trgCellLayer);
   // [> correct for the cell-thickness <]
-  // if (thicknessCorrection_[thickness] > 0) {
-    // trgCellEt /= thicknessCorrection_[thickness];
-  // }
+  if (thicknessCorrection_[thickness] > 0) {
+    trgCellEt /= thicknessCorrection_[thickness];
+  }
 
   math::PtEtaPhiMLorentzVector calibP4(trgCellEt, trgCell.eta(), trgCell.phi(), 0.);
   trgCell.setP4(calibP4);
