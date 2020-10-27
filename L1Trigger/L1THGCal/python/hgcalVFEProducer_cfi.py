@@ -78,8 +78,8 @@ summation_params = cms.PSet(
         noiseScintillator = cms.PSet(),
         # cell thresholds before TC sums
         # Cut at 3sigma of the noise
-        #  noiseThreshold = cms.double(3), # in units of sigmas of the noise
-        noiseThreshold = cms.double(0), # in units of sigmas of the noise
+        noiseThreshold = cms.double(3), # in units of sigmas of the noise
+        #  noiseThreshold = cms.double(0), # in units of sigmas of the noise
         )
 
 # Compression parameters for low density modules
