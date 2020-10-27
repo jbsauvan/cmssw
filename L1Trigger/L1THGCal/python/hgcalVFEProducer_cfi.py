@@ -8,6 +8,7 @@ import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
 from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
+newDigi = False
 
 feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
 feCfg_sc = digiparam.hgchebackDigitizer.digiCfg.feCfg
@@ -31,7 +32,7 @@ linearization_params_ee = cms.PSet(
         tdcsaturation = feCfg_si.tdcSaturation_fC,
         linnBits = cms.uint32(17),
          oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
-         newDigi = cms.bool(True),
+         newDigi = cms.bool(newDigi),
         doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
         scaleByDoseAlgo   = cms.uint32(0),
         scaleByDoseFactor = cms.double(integLumi/3000.),
@@ -49,7 +50,7 @@ linearization_params_hesi = cms.PSet(
         tdcsaturation = feCfg_si.tdcSaturation_fC,
         linnBits = cms.uint32(17),
          oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
-         newDigi = cms.bool(True),
+         newDigi = cms.bool(newDigi),
         doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
         scaleByDoseAlgo   = cms.uint32(0),
         scaleByDoseFactor = cms.double(integLumi/3000.),
@@ -115,7 +116,7 @@ calibration_params_ee = cms.PSet(
         thicknessCorrection = cms.vdouble(thicknessCorrectionSi[0:NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
 
-        newDigi = cms.bool(True),
+        newDigi = cms.bool(newDigi),
         doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
         scaleByDoseAlgo   = cms.uint32(0),
         scaleByDoseFactor = cms.double(integLumi/3000.),
@@ -130,7 +131,7 @@ calibration_params_hesi = cms.PSet(
         thicknessCorrection = cms.vdouble(thicknessCorrectionSi[NTHICKNESS:2*NTHICKNESS]),
         chargeCollectionEfficiency = cms.PSet(),
 
-        newDigi = cms.bool(True),
+        newDigi = cms.bool(newDigi),
         doseMap           = cms.string('SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt'),
         scaleByDoseAlgo   = cms.uint32(0),
         scaleByDoseFactor = cms.double(integLumi/3000.),

@@ -82,18 +82,18 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
   double trgCellMipP = amplitude;
 
   if(new_digi_) {
-      double mipfC = 0.;
-      double cce = 0.;
-      auto cells = triggerTools_.getTriggerGeometry()->getCellsFromTriggerCell(trgdetid);
-      for(const auto& cellid : cells) {
-        HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_.getSiCellOpCharacteristics(cellid);
-        mipfC += double(siop.mipfC);
-        cce += siop.core.cce;
-      }
-      mipfC /= cells.size();
-      cce /= cells.size();
-      trgCellMipP /= cce;
-      trgCellMipP /= mipfC;
+    double mipfC = 0.;
+    double cce = 0.;
+    auto cells = triggerTools_.getTriggerGeometry()->getCellsFromTriggerCell(trgdetid);
+    for(const auto& cellid : cells) {
+      HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_.getSiCellOpCharacteristics(cellid);
+      mipfC += double(siop.mipfC);
+      cce += siop.core.cce;
+    }
+    mipfC /= cells.size();
+    cce /= cells.size();
+    trgCellMipP /= cce;
+    trgCellMipP /= mipfC;
   }
   else {
     if (chargeCollectionEfficiency_[thickness] > 0) {
