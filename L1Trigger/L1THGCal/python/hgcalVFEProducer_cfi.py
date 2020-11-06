@@ -14,8 +14,9 @@ feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
 feCfg_sc = digiparam.hgchebackDigitizer.digiCfg.feCfg
 
 # trigger cell LSB before compression is the LSB of the ADC
-#  triggerCellLsbBeforeCompression_si = float(feCfg_si.adcSaturation_fC.value())/(2**float(feCfg_si.adcNbits.value()))
-triggerCellLsbBeforeCompression_si = 1./80.
+triggerCellLsbBeforeCompression_si = float(feCfg_si.adcSaturation_fC.value())/(2**float(feCfg_si.adcNbits.value()))
+#  triggerCellLsbBeforeCompression_si = 1./80.
+
 triggerCellLsbBeforeCompression_sc = float(feCfg_sc.adcSaturation_fC.value())/(2**float(feCfg_sc.adcNbits.value()))
 
 # Radiation map info

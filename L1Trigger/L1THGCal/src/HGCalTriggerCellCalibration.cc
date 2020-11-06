@@ -97,12 +97,8 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
   }
   else {
     if (chargeCollectionEfficiency_[thickness] > 0) {
-      amplitude /= chargeCollectionEfficiency_[thickness];
+      trgCellMipP /= chargeCollectionEfficiency_[thickness];
     }
-
-    /* convert the charge amplitude in MIP: */
-    double trgCellMipP = amplitude;
-
     if (fCperMIP_[thickness] > 0) {
       trgCellMipP /= fCperMIP_[thickness];
     }

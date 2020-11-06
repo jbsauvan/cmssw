@@ -64,10 +64,12 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCalDataFrame>& dat
 
 
     double adcLSB = adcLSB_;
+    double noise = 0.;
     if(new_digi_) {
       HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_.getSiCellOpCharacteristics(frame.id());
       HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.core.gain);
       adcLSB = noise_map_.getLSBPerGain()[gain];
+      noise = siop.core.noise;
     }
 
     double amplitude = 0.;
@@ -86,6 +88,9 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCalDataFrame>& dat
         }
       }
       amplitude = std::max(0., data) * adcLSB;
+    }
+    if(amplitude<3.*noise) {
+      continue;
     }
     uint32_t amplitude_int = uint32_t(std::floor(amplitude / linLSB_ + 0.5));
     if (amplitude_int == 0)
