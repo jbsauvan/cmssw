@@ -82,18 +82,21 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
   double trgCellMipP = amplitude;
 
   if(new_digi_) {
-    double mipfC = 0.;
+    // double mipfC = 0.;
     double cce = 0.;
     auto cells = triggerTools_.getTriggerGeometry()->getCellsFromTriggerCell(trgdetid);
     for(const auto& cellid : cells) {
       HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_.getSiCellOpCharacteristics(cellid);
-      mipfC += double(siop.mipfC);
+      //mipfC += double(siop.mipfC);
       cce += siop.core.cce;
     }
-    mipfC /= cells.size();
+    // mipfC /= cells.size();
     cce /= cells.size();
     trgCellMipP /= cce;
-    trgCellMipP /= mipfC;
+    if (fCperMIP_[thickness] > 0) {
+      trgCellMipP /= fCperMIP_[thickness];
+    }
+    // trgCellMipP /= mipfC;
   }
   else {
     if (chargeCollectionEfficiency_[thickness] > 0) {
@@ -132,7 +135,7 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
   trgCellEt *= dEdX_weights_.at(trgCellLayer);
   // [> correct for the cell-thickness <]
   if (thicknessCorrection_[thickness] > 0) {
-    trgCellEt /= thicknessCorrection_[thickness];
+   trgCellEt /= thicknessCorrection_[thickness];
   }
 
   math::PtEtaPhiMLorentzVector calibP4(trgCellEt, trgCell.eta(), trgCell.phi(), 0.);

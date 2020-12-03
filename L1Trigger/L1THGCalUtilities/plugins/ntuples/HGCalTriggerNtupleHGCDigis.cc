@@ -31,6 +31,7 @@ private:
   void clear() final;
   float charge(const HGCalDataFrame& frame, const DetId& cellId) const;
   float mip(const HGCalDataFrame& frame, const DetId& cellId) const;
+  float mipFromADC(const HGCalDataFrame& frame, const DetId& cellId) const;
   float lsb(const HGCalDataFrame& frame, const DetId& cellId) const;
 
   edm::EDGetToken ee_token_, fh_token_, bh_token_;
@@ -65,6 +66,7 @@ private:
   std::vector<float> hgcdigi_lsb_;
   std::vector<float> hgcdigi_charge_;
   std::vector<float> hgcdigi_mip_;
+  std::vector<float> hgcdigi_mip2_;
   std::vector<float> hgcdigi_simenergy_;
   // std::vector<float> hgcdigi_simcharge_;
   // V8 detid scheme
@@ -188,6 +190,7 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
   tree.Branch("hgcdigi_lsb", &hgcdigi_lsb_);
   tree.Branch("hgcdigi_charge", &hgcdigi_charge_);
   tree.Branch("hgcdigi_mip", &hgcdigi_mip_);
+  tree.Branch("hgcdigi_mip2", &hgcdigi_mip2_);
   if (is_Simhit_comp_) {
     tree.Branch("hgcdigi_simenergy", &hgcdigi_simenergy_);
     //tree.Branch("hgcdigi_simcharge", &hgcdigi_simcharge_);
@@ -264,6 +267,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   hgcdigi_lsb_.reserve(hgcdigi_n_);
   hgcdigi_charge_.reserve(hgcdigi_n_);
   hgcdigi_mip_.reserve(hgcdigi_n_);
+  hgcdigi_mip2_.reserve(hgcdigi_n_);
   if (is_Simhit_comp_) {
     hgcdigi_simenergy_.reserve(hgcdigi_n_);
     // hgcdigi_simcharge_.reserve(hgcdigi_n_);
@@ -305,6 +309,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_lsb_.emplace_back(lsb(digi, id));
     hgcdigi_charge_.emplace_back(charge(digi, id));
     hgcdigi_mip_.emplace_back(mip(digi, id));
+    hgcdigi_mip2_.emplace_back(mipFromADC(digi, id));
     if (triggerGeometry_->isV9Geometry()) {
       const HGCSiliconDetId idv9(digi.id());
       hgcdigi_waferu_.emplace_back(idv9.waferU());
@@ -346,6 +351,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
     hgcdigi_lsb_.emplace_back(lsb(digi, id));
     hgcdigi_charge_.emplace_back(charge(digi, id));
     hgcdigi_mip_.emplace_back(mip(digi, id));
+    hgcdigi_mip2_.emplace_back(mipFromADC(digi, id));
     if (triggerGeometry_->isV9Geometry()) {
       const HGCSiliconDetId idv9(digi.id());
       hgcdigi_waferu_.emplace_back(idv9.waferU());
@@ -469,6 +475,7 @@ void HGCalTriggerNtupleHGCDigis::clear() {
   hgcdigi_lsb_.clear();
   hgcdigi_charge_.clear();
   hgcdigi_mip_.clear();
+  hgcdigi_mip2_.clear();
   if (is_Simhit_comp_)
     hgcdigi_simenergy_.clear();
 
@@ -597,5 +604,46 @@ float HGCalTriggerNtupleHGCDigis::mip(const HGCalDataFrame& frame, const DetId& 
   }
   amplitude /= cce;
   amplitude /= mipfC;
+  return amplitude;
+}
+
+
+float HGCalTriggerNtupleHGCDigis::mipFromADC(const HGCalDataFrame& frame, const DetId& cellId) const {
+
+  constexpr int kIntimeSample = 2;
+  bool isTDC( frame[kIntimeSample].mode() );
+  double rawData( double(frame[kIntimeSample].data()) );
+  bool isBusy( isTDC && rawData==0 );
+
+  double adcLSB = 0.;
+  double cce = 1.;
+  unsigned mipADC  = 1;
+  if(cellId.det()==DetId::HGCalEE) {
+    HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_ee_.getSiCellOpCharacteristics(cellId);
+    HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.core.gain);
+    adcLSB = noise_map_ee_.getLSBPerGain()[gain];
+    cce = siop.core.cce;
+    mipADC = siop.mipADC;
+  }
+  else if(cellId.det()==DetId::HGCalHSi) {
+    HGCalSiNoiseMap::SiCellOpCharacteristics siop = noise_map_fh_.getSiCellOpCharacteristics(cellId);
+    HGCalSiNoiseMap::GainRange_t gain((HGCalSiNoiseMap::GainRange_t)siop.core.gain);
+    adcLSB = noise_map_fh_.getLSBPerGain()[gain];
+    cce = siop.core.cce;
+    mipADC = siop.mipADC;
+  }
+
+  if(isBusy) {
+    return 0.;
+  }
+  double amplitude = 0.;
+  if (isTDC) {  
+    amplitude = (std::floor(tdcOnset_ / adcLSB) + 1.0) * adcLSB + (rawData+0.5) * tdcLSB_;
+  } else {  //ADC mode
+    amplitude = std::max(0., rawData+0.5) * adcLSB;
+  }
+  amplitude /= cce;
+  amplitude /= adcLSB;
+  amplitude /= mipADC;
   return amplitude;
 }
