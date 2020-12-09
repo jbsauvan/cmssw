@@ -30,6 +30,8 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                Method = cms.vstring(['thresholdSelect']*3),
                                threshold_silicon = cms.double(2.), # MipT
                                threshold_scintillator = cms.double(2.), # MipT
+                               UseThresholdMap = cms.bool(False),
+                               ThresholdMapping = cms.FileInPath('L1Trigger/L1THGCal/data/thresholds_signaldrivencapped_TT_TuneCP5_14TeV-powheg-pythia8_Phase2HLTTDRWinter20DIGI-PU200_110X_mcRun4_realistic_v3-v2_201130.csv'),
                                coarsenTriggerCells = cms.vuint32(0,0,0),
                                fixedDataSizePerHGCROC = cms.bool(False),
                                ctcSize = cms.vuint32(CTC_SIZE),
