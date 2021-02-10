@@ -792,7 +792,8 @@ unsigned HGCalTriggerGeometryHexLayerBasedImp1::layerWithOffset(unsigned id) con
   return layer;
 }
 
-HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexLayerBasedImp1::getStage1FpgasFromStage2Fpga(const unsigned) const {
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexLayerBasedImp1::getStage1FpgasFromStage2Fpga(
+    const unsigned) const {
   geom_set stage1_ids;
   return stage1_ids;
 }
@@ -802,7 +803,8 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexLayerBasedImp1::getLbg
   return lpgbt_ids;
 }
 
-HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexLayerBasedImp1::getStage2FpgasFromStage1Fpga(const unsigned) const {
+HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexLayerBasedImp1::getStage2FpgasFromStage1Fpga(
+    const unsigned) const {
   geom_set stage2_ids;
   return stage2_ids;
 }

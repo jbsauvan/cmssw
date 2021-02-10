@@ -863,5 +863,4 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getLpgbtsFromModu
   return lpgbt_ids;
 }
 
-
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, HGCalTriggerGeometryV9Imp2, "HGCalTriggerGeometryV9Imp2");

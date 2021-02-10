@@ -26,7 +26,6 @@
    [28:31] Detector type (HGCalTrigger)
 */
 
-
 class HGCalModuleDetId : public DetId {
 public:
   /** Create a null cellid*/
@@ -78,8 +77,8 @@ public:
   bool isHSilicon() const { return (subdet() == HGCalHSiTrigger); }
   bool isHScintillator() const { return (subdet() == HGCalHScTrigger); }
   bool isForward() const { return true; }
-  
-  //get u and v rotated to whole detector coordinates 
+
+  //get u and v rotated to whole detector coordinates
   int wholeDetectorU() const;
   int wholeDetectorV() const;
 
@@ -99,7 +98,6 @@ public:
   static const int kHGCalSubdetMask = 0x3;
   static const int kHGCalZsideOffset = 27;
   static const int kHGCalZsideMask = 0x1;
-
 };
 
 std::ostream& operator<<(std::ostream&, const HGCalModuleDetId& id);
