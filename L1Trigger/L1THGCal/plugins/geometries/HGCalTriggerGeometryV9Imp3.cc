@@ -413,8 +413,9 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
 
   // HFNose
   else if (det == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+    HFNoseDetId module_nose_id(module_id);
     HFNoseDetIdToModule hfn;
-    std::vector<HFNoseTriggerDetId> ids = hfn.getTriggerDetIds(hgc_module_id);
+    std::vector<HFNoseTriggerDetId> ids = hfn.getTriggerDetIds(module_nose_id);
     for (auto const& idx : ids) {
       if (validTriggerCellFromCells(idx.rawId()))
         trigger_cell_det_ids.emplace(idx);
@@ -476,8 +477,9 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
 
   // HFNose
   else if (det == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+    HFNoseDetId module_nose_id(module_id);
     HFNoseDetIdToModule hfn;
-    std::vector<HFNoseTriggerDetId> ids = hfn.getTriggerDetIds(hgc_module_id);
+    std::vector<HFNoseTriggerDetId> ids = hfn.getTriggerDetIds(module_nose_id);
     for (auto const& idx : ids) {
       if (validTriggerCellFromCells(idx.rawId()))
         trigger_cell_det_ids.emplace(idx);
