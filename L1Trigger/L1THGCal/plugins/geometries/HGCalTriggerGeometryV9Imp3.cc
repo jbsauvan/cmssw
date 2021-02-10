@@ -75,7 +75,7 @@ private:
   edm::FileInPath jsonMappingFile_;
 
   // rotation class
-  HGCalGeomRotation geom_rotation_120_(HGCalGeomRotation::SectorType(HGCalGeomRotation::SectorType::Sector120Degrees ) );
+  HGCalGeomRotation geom_rotation_120_ = {HGCalGeomRotation::SectorType::Sector120Degrees};
 
 
   // module related maps
@@ -113,8 +113,7 @@ private:
   unsigned packLayerModuleId(unsigned layer, unsigned wafer) const;
   void unpackWaferId(unsigned wafer, int& waferU, int& waferV) const;
   void unpackLayerWaferId(unsigned wafer, unsigned &layer, int& waferU, int& waferV) const;
-  void uvMappingFromSector0(unsigned layer, int& moduleU, int& moduleV, unsigned sector) const;
-  unsigned uvMappingToSector0(unsigned layer, int& moduleU, int& moduleV) const;
+  HGCalGeomRotation::WaferCentring getWaferCentring(unsigned layer) const;
   void etaphiMappingFromSector0(int& eta, int& phi, unsigned sector) const;
   unsigned etaphiMappingToSector0(int& eta, int& phi) const;
 
@@ -139,6 +138,8 @@ HGCalTriggerGeometryV9Imp3::HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& 
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_modules_, disconnected_modules_.end()));
   tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
+  //  geom_rotation_120_(HGCalGeomRotation::SectorType::Sector120Degree);
+
 }
 
 void HGCalTriggerGeometryV9Imp3::reset() {
@@ -286,10 +287,11 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     HFNoseTriggerDetId trigger_cell_trig_id(trigger_cell_id);
     tc_type = trigger_cell_trig_id.type();
     layer = trigger_cell_trig_id.layer();
+    enum class WaferCentring { WaferCentred, CornerCentredY, CornerCentredMercedes };
     zside = trigger_cell_trig_id.zside();
     int waferu = trigger_cell_trig_id.waferU();
     int waferv = trigger_cell_trig_id.waferV();
-    unsigned sector = uvMappingToSector0(layer, waferu, waferv);
+    unsigned sector = geom_rotation_120_.uvMappingToSector0(getWaferCentring(layer), waferu, waferv);
     module_id = HGCalModuleDetId(trigger_cell_trig_id.subdet(), zside, tc_type, layer, sector, waferu, waferv);
   }
   // Silicon
@@ -300,7 +302,7 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     zside = trigger_cell_trig_id.zside();
     int waferu = trigger_cell_trig_id.waferU();
     int waferv = trigger_cell_trig_id.waferV();
-    unsigned sector = uvMappingToSector0(layer, waferu, waferv);
+    unsigned sector = geom_rotation_120_.uvMappingToSector0(getWaferCentring(layer), waferu, waferv);
     module_id = HGCalModuleDetId(trigger_cell_trig_id.subdet(), zside, tc_type, layer, sector, waferu, waferv);
   }
   return module_id;
@@ -426,15 +428,15 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
     HGCSiliconDetIdToROC tc2roc;
     int moduleU = hgc_module_id.moduleU();
     int moduleV = hgc_module_id.moduleU();
+    unsigned layer = hgc_module_id.layer();
 
     //Rotate to sector
-    uvMappingFromSector0(hgc_module_id.layer(), moduleU, moduleV, hgc_module_id.sector());
+    geom_rotation_120_.uvMappingFromSector0(getWaferCentring(layer), moduleU, moduleV, hgc_module_id.sector());
 
     DetId::Detector det = (hgc_module_id.subdetId() == ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
     HGCalTriggerSubdetector subdet =
       (hgc_module_id.subdetId() == ForwardSubdetector::HGCEE ? HGCalTriggerSubdetector::HGCalEETrigger
                                                                 : HGCalTriggerSubdetector::HGCalHSiTrigger);
-    unsigned layer = hgc_module_id.layer();
     unsigned wafer_type = detIdWaferType(det, layer, moduleU, moduleV);
     int nroc = (wafer_type == HGCSiliconDetId::HGCalFine ? 6 : 3);
     // Loop on ROCs in wafer
@@ -489,15 +491,15 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
     HGCSiliconDetIdToROC tc2roc;
     int moduleU = hgc_module_id.moduleU();
     int moduleV = hgc_module_id.moduleU();
+    unsigned layer = hgc_module_id.layer();
 
     //Rotate to sector
-    uvMappingFromSector0(hgc_module_id.layer(), moduleU, moduleV, hgc_module_id.sector());
+    geom_rotation_120_.uvMappingFromSector0(getWaferCentring(layer), moduleU, moduleV, hgc_module_id.sector());
 
     DetId::Detector det = (hgc_module_id.subdetId() == ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
     HGCalTriggerSubdetector subdet =
       (hgc_module_id.subdetId() == ForwardSubdetector::HGCEE ? HGCalTriggerSubdetector::HGCalEETrigger
                                                                 : HGCalTriggerSubdetector::HGCalHSiTrigger);
-    unsigned layer = hgc_module_id.layer();
     unsigned wafer_type = detIdWaferType(det, layer, moduleU, moduleV);
     int nroc = (wafer_type == HGCSiliconDetId::HGCalFine ? 6 : 3);
     // Loop on ROCs in wafer
@@ -771,36 +773,6 @@ void HGCalTriggerGeometryV9Imp3::unpackLayerWaferId(unsigned wafer, unsigned& la
   waferV = (wafer >> HGCalModuleDetId::kHGCalModuleUOffset) & HGCalModuleDetId::kHGCalModuleUMask;
 }
 
-void HGCalTriggerGeometryV9Imp3::uvMappingFromSector0(unsigned layer, int& moduleU, int& moduleV, unsigned sector) const{
-  int offset;
-
-  if (sector==0){
-    return;
-  }
-
-  if(layer<=28) { // CE-E
-    offset=0;
-  } else if((layer%2)==1) { // CE-H Odd
-    offset=-1;
-  } else { // CE-H Even
-    offset=1;
-  }
-
-  int uPrime,vPrime;
-
-  if(sector==1) {
-    uPrime=-moduleV + offset;
-    vPrime=moduleU - moduleV + offset;
-  } else {
-    uPrime=moduleV - moduleU;
-    vPrime=-moduleU + offset;
-  }
-
-  moduleU=uPrime;
-  moduleV=vPrime;
-
-}
-
 void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& eta, int& phi, unsigned sector) const{
 
   if (sector==0){
@@ -811,48 +783,16 @@ void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& eta, int& phi, un
 }
 
 
-unsigned HGCalTriggerGeometryV9Imp3::uvMappingToSector0(unsigned layer, int& moduleU, int& moduleV) const{
-
-  unsigned sector = 0;
-  int offset;
+HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(unsigned layer) const{
 
   if(layer<=28) { // CE-E
-    if(moduleU>0 && moduleV>=0) return sector;
-    
-    offset=0;
-    if(moduleU>=moduleV && moduleV<0) sector=2;
-    else sector=1;
-    
+    return HGCalGeomRotation::WaferCentring::WaferCentred;
   } else if((layer%2)==1) { // CE-H Odd
-    if(moduleU>=0 && moduleV>=0) return sector;
-    
-    offset=-1;
-    if(moduleU>moduleV && moduleV<0) sector=2;
-      else sector=1;
-    
+    return HGCalGeomRotation::WaferCentring::CornerCentredY;
   } else { // CE-H Even
-    if(moduleU>=1 && moduleV>=1) return sector;
-    
-    offset=1;
-    if(moduleU>=moduleV && moduleV<1) sector=2;
-    else sector=1;
+    return HGCalGeomRotation::WaferCentring::CornerCentredMercedes;
   }
-  
-  int uPrime,vPrime;
-  
-  if(sector==1) {
-    uPrime=moduleV-moduleU;
-    vPrime=-moduleU+offset;
-    
-  } else {
-    uPrime=-moduleV+offset;
-    vPrime=moduleU-moduleV+offset;
-  }
-  
-  moduleU=uPrime;
-  moduleV=vPrime;
 
-  return sector;
 }
 
 unsigned HGCalTriggerGeometryV9Imp3::etaphiMappingToSector0(int& eta, int& phi) const{
