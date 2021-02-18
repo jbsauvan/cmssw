@@ -70,8 +70,6 @@ private:
 
   unsigned sector0_mask_ = 0x7f;  // 7 bits to encode module number in 60deg sector
 
-  edm::FileInPath l1tModulesMapping_;
-  edm::FileInPath l1tLinksMapping_;
   edm::FileInPath jsonMappingFile_;
 
   // rotation class
@@ -124,8 +122,6 @@ HGCalTriggerGeometryV9Imp3::HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& 
       hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize")),
       hSc_module_size_(conf.getParameter<unsigned>("ScintillatorModuleSize")),
       hSc_links_per_module_(conf.getParameter<unsigned>("ScintillatorLinksPerModule")),
-      l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
-      l1tLinksMapping_(conf.getParameter<edm::FileInPath>("L1TLinksMapping")),
       jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")) {
   const unsigned ntc_per_wafer = 48;
   hSc_wafers_per_module_ = std::round(hSc_module_size_ * hSc_module_size_ / float(ntc_per_wafer));
@@ -136,7 +132,6 @@ HGCalTriggerGeometryV9Imp3::HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& 
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_modules_, disconnected_modules_.end()));
   tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
-  //  geom_rotation_120_(HGCalGeomRotation::SectorType::Sector120Degree);
 }
 
 void HGCalTriggerGeometryV9Imp3::reset() {
@@ -284,7 +279,6 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     HFNoseTriggerDetId trigger_cell_trig_id(trigger_cell_id);
     tc_type = trigger_cell_trig_id.type();
     layer = trigger_cell_trig_id.layer();
-    enum class WaferCentring { WaferCentred, CornerCentredY, CornerCentredMercedes };
     zside = trigger_cell_trig_id.zside();
     int waferu = trigger_cell_trig_id.waferU();
     int waferv = trigger_cell_trig_id.waferV();
@@ -544,7 +538,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) 
 }
 
 unsigned HGCalTriggerGeometryV9Imp3::getModuleSize(const unsigned module_id) const {
-  throw cms::Exception("FeatureNotImplemented") << "getModuleSize is not implemented in HGCalTriggerGeometryV9Imp3";
+  unsigned nWafers = 1;
+  return nWafers;
 }
 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1FpgasFromStage2Fpga(
@@ -671,51 +666,51 @@ GlobalPoint HGCalTriggerGeometryV9Imp3::getModulePosition(const unsigned module_
 
 void HGCalTriggerGeometryV9Imp3::fillMaps() {
   // read json mapping file
-  json mapping_config_;
+  json mapping_config;
   std::ifstream json_input_file(jsonMappingFile_.fullPath());
   if (!json_input_file.is_open()) {
     throw cms::Exception("MissingDataFile") << "Cannot open HGCalTriggerGeometry L1TMapping file\n";
   }
-  json_input_file >> mapping_config_;
+  json_input_file >> mapping_config;
 
   //Stage 1 to Stage 2 mapping
-  for (unsigned stage1_id = 0; stage1_id < mapping_config_["Stage1"].size(); stage1_id++) {
-    for (auto& stage2_id : mapping_config_["Stage1"][stage1_id]["Stage2"]) {
+  for (unsigned stage1_id = 0; stage1_id < mapping_config["Stage1"].size(); stage1_id++) {
+    for (auto& stage2_id : mapping_config["Stage1"][stage1_id]["Stage2"]) {
       stage1_to_stage2_.emplace(stage1_id, stage2_id);
     }
   }
 
   //Stage 2 to Stage 1 mapping
-  for (unsigned stage2_id = 0; stage2_id < mapping_config_["Stage2"].size(); stage2_id++) {
-    for (auto& stage1_id : mapping_config_["Stage2"][stage2_id]["Stage1"]) {
+  for (unsigned stage2_id = 0; stage2_id < mapping_config["Stage2"].size(); stage2_id++) {
+    for (auto& stage1_id : mapping_config["Stage2"][stage2_id]["Stage1"]) {
       stage2_to_stage1_.emplace(stage2_id, stage1_id);
     }
   }
 
   //Stage 1 to lpgbt mapping
-  for (unsigned stage1_id = 0; stage1_id < mapping_config_["Stage1"].size(); stage1_id++) {
-    for (auto& lpgbt_id : mapping_config_["Stage1"][stage1_id]["lpgbts"]) {
+  for (unsigned stage1_id = 0; stage1_id < mapping_config["Stage1"].size(); stage1_id++) {
+    for (auto& lpgbt_id : mapping_config["Stage1"][stage1_id]["lpgbts"]) {
       stage1_to_lpgbts_.emplace(stage1_id, lpgbt_id);
     }
   }
 
   //lpgbt to Stage 1 mapping
-  for (unsigned lpgbt_id = 0; lpgbt_id < mapping_config_["lpgbt"].size(); lpgbt_id++) {
-    lpgbt_to_stage1_.emplace(lpgbt_id, mapping_config_["lpgbt"]["Stage1"]);
+  for (unsigned lpgbt_id = 0; lpgbt_id < mapping_config["lpgbt"].size(); lpgbt_id++) {
+    lpgbt_to_stage1_.emplace(lpgbt_id, mapping_config["lpgbt"]["Stage1"]);
   }
 
   //lpgbt to module mapping
-  for (unsigned lpgbt_id = 0; lpgbt_id < mapping_config_["lpgbt"].size(); lpgbt_id++) {
-    for (auto& modules : mapping_config_["lpgbt"][lpgbt_id]["Modules"]) {
+  for (unsigned lpgbt_id = 0; lpgbt_id < mapping_config["lpgbt"].size(); lpgbt_id++) {
+    for (auto& modules : mapping_config["lpgbt"][lpgbt_id]["Modules"]) {
       lpgbt_to_modules_.emplace(lpgbt_id, packLayerWaferId(modules["layer"], modules["u"], modules["v"]));
     }
   }
 
   //module to lpgbt mapping
-  for (unsigned module = 0; module < mapping_config_["Module"].size(); module++) {
+  for (unsigned module = 0; module < mapping_config["Module"].size(); module++) {
     links_per_module_.emplace(packLayerWaferId(module["layer"], module["u"], module["v"]),
-                              mapping_config_["Module"][module]["lpgbts"].size());
-    for (auto& lpgbt : mapping_config_["Module"][module]["lpgbts"]) {
+                              mapping_config["Module"][module]["lpgbts"].size());
+    for (auto& lpgbt : mapping_config["Module"][module]["lpgbts"]) {
       module_to_lpgbts_.emplace(packLayerWaferId(module["layer"], module["u"], module["v"]), lpgbt["id"]);
     }
   }
@@ -780,7 +775,7 @@ void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& ieta, int& iphi, 
 }
 
 HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(unsigned layer) const {
-  if (layer <= 28) {  // CE-E
+  if (layer <= heOffset_) {  // CE-E
     return HGCalGeomRotation::WaferCentring::WaferCentred;
   } else if ((layer % 2) == 1) {  // CE-H Odd
     return HGCalGeomRotation::WaferCentring::CornerCentredY;
@@ -810,8 +805,6 @@ bool HGCalTriggerGeometryV9Imp3::validTriggerCell(const unsigned trigger_cell_id
 
 bool HGCalTriggerGeometryV9Imp3::disconnectedModule(const unsigned module_id) const {
   bool disconnected = false;
-  if (disconnected_modules_.find(HGCalDetId(module_id).wafer()) != disconnected_modules_.end())
-    disconnected = true;
   if (disconnected_layers_.find(layerWithOffset(module_id)) != disconnected_layers_.end())
     disconnected = true;
   return disconnected;

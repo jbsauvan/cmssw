@@ -78,10 +78,6 @@ public:
   bool isHScintillator() const { return (subdet() == HGCalHScTrigger); }
   bool isForward() const { return true; }
 
-  //get u and v rotated to whole detector coordinates
-  int wholeDetectorU() const;
-  int wholeDetectorV() const;
-
   static const HGCalModuleDetId Undefined;
 
   static const int kHGCalModuleUOffset = 0;
