@@ -106,7 +106,6 @@ private:
 
   int detIdWaferType(unsigned det, unsigned layer, short waferU, short waferV) const;
   unsigned packLayerWaferId(unsigned layer, int waferU, int waferV) const;
-  void unpackLayerWaferId(unsigned wafer, unsigned& layer, int& waferU, int& waferV) const;
   HGCalGeomRotation::WaferCentring getWaferCentring(unsigned layer) const;
   void etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const;
   unsigned etaphiMappingToSector0(int& ieta, int& iphi) const;
@@ -740,12 +739,6 @@ unsigned HGCalTriggerGeometryV9Imp3::packLayerWaferId(unsigned layer, int waferU
   packed_value |= ((waferV & HGCalModuleDetId::kHGCalModuleVMask) << HGCalModuleDetId::kHGCalModuleVOffset);
   packed_value |= ((layer & HGCalModuleDetId::kHGCalLayerMask) << HGCalModuleDetId::kHGCalLayerOffset);
   return packed_value;
-}
-
-void HGCalTriggerGeometryV9Imp3::unpackLayerWaferId(unsigned wafer, unsigned& layer, int& waferU, int& waferV) const {
-  layer = (wafer >> HGCalModuleDetId::kHGCalLayerOffset) & HGCalModuleDetId::kHGCalLayerMask;
-  waferU = (wafer >> HGCalModuleDetId::kHGCalModuleUOffset) & HGCalModuleDetId::kHGCalModuleUMask;
-  waferV = (wafer >> HGCalModuleDetId::kHGCalModuleUOffset) & HGCalModuleDetId::kHGCalModuleUMask;
 }
 
 void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const {
