@@ -105,10 +105,8 @@ private:
   bool validTriggerCellFromCells(const unsigned) const;
 
   int detIdWaferType(unsigned det, unsigned layer, short waferU, short waferV) const;
-  unsigned packWaferId(int waferU, int waferV) const;
   unsigned packLayerWaferId(unsigned layer, int waferU, int waferV) const;
   unsigned packLayerModuleId(unsigned layer, unsigned wafer) const;
-  void unpackWaferId(unsigned wafer, int& waferU, int& waferV) const;
   void unpackLayerWaferId(unsigned wafer, unsigned& layer, int& waferU, int& waferV) const;
   HGCalGeomRotation::WaferCentring getWaferCentring(unsigned layer) const;
   void etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const;
@@ -738,17 +736,6 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
   json_input_file.close();
 }
 
-unsigned HGCalTriggerGeometryV9Imp3::packWaferId(int waferU, int waferV) const {
-  unsigned packed_value = 0;
-  unsigned waferUsign = (waferU >= 0) ? 0 : 1;
-  unsigned waferVsign = (waferV >= 0) ? 0 : 1;
-  packed_value |= ((std::abs(waferU) & HGCSiliconDetId::kHGCalWaferUMask) << HGCSiliconDetId::kHGCalWaferUOffset);
-  packed_value |= ((waferUsign & HGCSiliconDetId::kHGCalWaferUSignMask) << HGCSiliconDetId::kHGCalWaferUSignOffset);
-  packed_value |= ((std::abs(waferV) & HGCSiliconDetId::kHGCalWaferVMask) << HGCSiliconDetId::kHGCalWaferVOffset);
-  packed_value |= ((waferVsign & HGCSiliconDetId::kHGCalWaferVSignMask) << HGCSiliconDetId::kHGCalWaferVSignOffset);
-  return packed_value;
-}
-
 unsigned HGCalTriggerGeometryV9Imp3::packLayerWaferId(unsigned layer, int waferU, int waferV) const {
   unsigned packed_value = 0;
 
@@ -769,15 +756,6 @@ unsigned HGCalTriggerGeometryV9Imp3::packLayerModuleId(unsigned layer, unsigned 
   packed_value |= ((module & HGCalDetId::kHGCalWaferMask) << HGCalDetId::kHGCalWaferOffset);
   packed_value |= ((subdet & DetId::kSubdetMask) << DetId::kSubdetOffset);
   return packed_value;
-}
-
-void HGCalTriggerGeometryV9Imp3::unpackWaferId(unsigned wafer, int& waferU, int& waferV) const {
-  unsigned waferUAbs = (wafer >> HGCSiliconDetId::kHGCalWaferUOffset) & HGCSiliconDetId::kHGCalWaferUMask;
-  unsigned waferVAbs = (wafer >> HGCSiliconDetId::kHGCalWaferVOffset) & HGCSiliconDetId::kHGCalWaferVMask;
-  waferU = (((wafer >> HGCSiliconDetId::kHGCalWaferUSignOffset) & HGCSiliconDetId::kHGCalWaferUSignMask) ? -waferUAbs
-                                                                                                         : waferUAbs);
-  waferV = (((wafer >> HGCSiliconDetId::kHGCalWaferVSignOffset) & HGCSiliconDetId::kHGCalWaferVSignMask) ? -waferVAbs
-                                                                                                         : waferVAbs);
 }
 
 void HGCalTriggerGeometryV9Imp3::unpackLayerWaferId(unsigned wafer, unsigned& layer, int& waferU, int& waferV) const {
