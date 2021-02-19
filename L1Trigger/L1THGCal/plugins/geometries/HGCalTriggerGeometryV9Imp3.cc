@@ -666,40 +666,40 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
     throw cms::Exception("MissingDataFile") << "Cannot open HGCalTriggerGeometry L1TMapping file\n";
   }
   json_input_file >> mapping_config;
-    
+
   //Stage 1 to Stage 2 mapping
-  try{
-    for (unsigned stage1_id = 0; stage1_id < mapping_config.at("Stage11").size(); stage1_id++) {
+  try {
+    for (unsigned stage1_id = 0; stage1_id < mapping_config.at("Stage1").size(); stage1_id++) {
       for (auto& stage2_id : mapping_config.at("Stage1").at(stage1_id).at("Stage2")) {
-	stage1_to_stage2_.emplace(stage1_id, stage2_id);
+        stage1_to_stage2_.emplace(stage1_id, stage2_id);
       }
     }
 
     //Stage 1 to lpgbt mapping
     for (unsigned stage1_id = 0; stage1_id < mapping_config.at("Stage1").size(); stage1_id++) {
       for (auto& lpgbt_id : mapping_config.at("Stage1").at(stage1_id).at("lpgbts")) {
-	stage1_to_lpgbts_.emplace(stage1_id, lpgbt_id);
+        stage1_to_lpgbts_.emplace(stage1_id, lpgbt_id);
       }
     }
 
   } catch (const json::exception& e) {
-    edm::LogError("HGCalTriggerGeometryV9Imp3") << "The mapping input json file does not have the expected structure for the Stage1 block"; 
+    edm::LogError("HGCalTriggerGeometryV9Imp3")
+        << "The mapping input json file does not have the expected structure for the Stage1 block";
   }
-  
 
-  try{
+  try {
     //Stage 2 to Stage 1 mapping
     for (unsigned stage2_id = 0; stage2_id < mapping_config.at("Stage2").size(); stage2_id++) {
       for (auto& stage1_id : mapping_config.at("Stage2").at(stage2_id).at("Stage1")) {
-	stage2_to_stage1_.emplace(stage2_id, stage1_id);
+        stage2_to_stage1_.emplace(stage2_id, stage1_id);
       }
     }
   } catch (const json::exception& e) {
-    edm::LogError("HGCalTriggerGeometryV9Imp3") << "The mapping input json file does not have the expected structure for the Stage2 block"; 
+    edm::LogError("HGCalTriggerGeometryV9Imp3")
+        << "The mapping input json file does not have the expected structure for the Stage2 block";
   }
-  
 
-  try{
+  try {
     //lpgbt to Stage 1 mapping
     for (unsigned lpgbt_id = 0; lpgbt_id < mapping_config.at("lpgbt").size(); lpgbt_id++) {
       lpgbt_to_stage1_.emplace(lpgbt_id, mapping_config.at("lpgbt").at(lpgbt_id).at("Stage1"));
@@ -708,26 +708,33 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
     //lpgbt to module mapping
     for (unsigned lpgbt_id = 0; lpgbt_id < mapping_config.at("lpgbt").size(); lpgbt_id++) {
       for (auto& modules : mapping_config.at("lpgbt").at(lpgbt_id).at("Modules")) {
-	lpgbt_to_modules_.emplace(lpgbt_id, packLayerWaferId(modules.at("layer"), modules.at("u"), modules.at("v")));
+        lpgbt_to_modules_.emplace(lpgbt_id, packLayerWaferId(modules.at("layer"), modules.at("u"), modules.at("v")));
       }
     }
 
   } catch (const json::exception& e) {
-    edm::LogError("HGCalTriggerGeometryV9Imp3") << "The mapping input json file does not have the expected structure for the lpGBT block"; 
+    edm::LogError("HGCalTriggerGeometryV9Imp3")
+        << "The mapping input json file does not have the expected structure for the lpGBT block";
   }
 
-  try{
+  try {
     //module to lpgbt mapping
     for (unsigned module = 0; module < mapping_config.at("Module").size(); module++) {
-      links_per_module_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"), mapping_config.at("Module").at(module).at("u"), mapping_config.at("Module").at(module).at("v")), mapping_config.at("Module").at(module).at("lpgbts").size());
+      links_per_module_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
+                                                 mapping_config.at("Module").at(module).at("u"),
+                                                 mapping_config.at("Module").at(module).at("v")),
+                                mapping_config.at("Module").at(module).at("lpgbts").size());
       for (auto& lpgbt : mapping_config.at("Module").at(module).at("lpgbts")) {
-	module_to_lpgbts_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"), mapping_config.at("Module").at(module).at("u"), mapping_config.at("Module").at(module).at("v")), lpgbt.at("id"));
+        module_to_lpgbts_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
+                                                   mapping_config.at("Module").at(module).at("u"),
+                                                   mapping_config.at("Module").at(module).at("v")),
+                                  lpgbt.at("id"));
       }
     }
   } catch (const json::exception& e) {
-    edm::LogError("HGCalTriggerGeometryV9Imp3") << "The mapping input json file does not have the expected structure for the Module block"; 
+    edm::LogError("HGCalTriggerGeometryV9Imp3")
+        << "The mapping input json file does not have the expected structure for the Module block";
   }
-
 
   json_input_file.close();
 }
