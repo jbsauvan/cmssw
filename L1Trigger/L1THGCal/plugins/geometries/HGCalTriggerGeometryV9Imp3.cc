@@ -106,7 +106,6 @@ private:
 
   int detIdWaferType(unsigned det, unsigned layer, short waferU, short waferV) const;
   unsigned packLayerWaferId(unsigned layer, int waferU, int waferV) const;
-  unsigned packLayerModuleId(unsigned layer, unsigned wafer) const;
   void unpackLayerWaferId(unsigned wafer, unsigned& layer, int& waferU, int& waferV) const;
   HGCalGeomRotation::WaferCentring getWaferCentring(unsigned layer) const;
   void etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const;
@@ -526,11 +525,9 @@ unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) 
   // TO ADD HFNOSE : getLinksInModule
   // Silicon
   else {
-    HGCalDetId module_det_id_si(module_id);
-    unsigned module = module_det_id_si.wafer();
+    HGCalModuleDetId module_det_id_si(module_id);
     unsigned layer = layerWithOffset(module_id);
-    module = (module & sector0_mask_);
-    links = links_per_module_.at(packLayerModuleId(layer, module));
+    links = links_per_module_.at(packLayerWaferId(layer, module_det_id_si.moduleU(), module_det_id_si.moduleV()));
   }
   return links;
 }
@@ -742,19 +739,6 @@ unsigned HGCalTriggerGeometryV9Imp3::packLayerWaferId(unsigned layer, int waferU
   packed_value |= ((waferU & HGCalModuleDetId::kHGCalModuleUMask) << HGCalModuleDetId::kHGCalModuleUOffset);
   packed_value |= ((waferV & HGCalModuleDetId::kHGCalModuleVMask) << HGCalModuleDetId::kHGCalModuleVOffset);
   packed_value |= ((layer & HGCalModuleDetId::kHGCalLayerMask) << HGCalModuleDetId::kHGCalLayerOffset);
-  return packed_value;
-}
-
-unsigned HGCalTriggerGeometryV9Imp3::packLayerModuleId(unsigned layer, unsigned module) const {
-  unsigned packed_value = 0;
-  unsigned subdet = ForwardSubdetector::HGCEE;
-  if (layer > heOffset_) {
-    layer -= heOffset_;
-    subdet = ForwardSubdetector::HGCHEF;
-  }
-  packed_value |= ((layer & HGCalDetId::kHGCalLayerMask) << HGCalDetId::kHGCalLayerOffset);
-  packed_value |= ((module & HGCalDetId::kHGCalWaferMask) << HGCalDetId::kHGCalWaferOffset);
-  packed_value |= ((subdet & DetId::kSubdetMask) << DetId::kSubdetOffset);
   return packed_value;
 }
 
