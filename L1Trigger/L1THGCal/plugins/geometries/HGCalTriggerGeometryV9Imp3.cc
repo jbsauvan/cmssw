@@ -525,8 +525,7 @@ unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) 
   // Silicon
   else {
     HGCalModuleDetId module_det_id_si(module_id);
-    unsigned layer = layerWithOffset(module_id);
-    links = links_per_module_.at(packLayerWaferId(layer, module_det_id_si.moduleU(), module_det_id_si.moduleV()));
+    links = links_per_module_.at(packLayerWaferId(module_det_id_si.layer(), module_det_id_si.moduleU(), module_det_id_si.moduleV()));
   }
   return links;
 }
