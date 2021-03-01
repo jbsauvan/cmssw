@@ -8,13 +8,14 @@ HGCalModuleDetId::HGCalModuleDetId() : DetId() {}
 
 HGCalModuleDetId::HGCalModuleDetId(uint32_t rawid) : DetId(rawid) {}
 
-HGCalModuleDetId::HGCalModuleDetId(int subdet, int zp, int type, int layer, int sector, int moduleU, int moduleV)
-    : DetId(HGCalTrigger, ForwardEmpty) {
+HGCalModuleDetId::HGCalModuleDetId(
+    ForwardSubdetector subdet, int zp, int type, int layer, int sector, int moduleU, int moduleV)
+    : DetId(Forward, subdet) {
   int zside = (zp < 0) ? 1 : 0;
-  id_ |= (((moduleU & kHGCalModuleUMask) << kHGCalModuleUOffset) |
-          ((moduleV & kHGCalModuleVMask) << kHGCalModuleVOffset) | ((sector & kHGCalSectorMask) << kHGCalSectorOffset) |
-          ((layer & kHGCalLayerMask) << kHGCalLayerOffset) | ((zside & kHGCalZsideMask) << kHGCalZsideOffset) |
-          ((type & kHGCalTypeMask) << kHGCalTypeOffset) | ((subdet & kHGCalSubdetMask) << kHGCalSubdetOffset));
+  id_ |=
+      (((moduleU & kHGCalModuleUMask) << kHGCalModuleUOffset) | ((moduleV & kHGCalModuleVMask) << kHGCalModuleVOffset) |
+       ((sector & kHGCalSectorMask) << kHGCalSectorOffset) | ((layer & kHGCalLayerMask) << kHGCalLayerOffset) |
+       ((zside & kHGCalZsideMask) << kHGCalZsideOffset) | ((type & kHGCalTypeMask) << kHGCalTypeOffset));
 }
 
 HGCalModuleDetId::HGCalModuleDetId(const DetId& gen) {

@@ -12,18 +12,18 @@
           or phi-coordinate of the scintillator module
    [8:9] sector (0,1,2 counter-clockwise from u-axis)
 
-   [10:17] reserved for future use
+   [10:16] reserved for future use
 
-   [18:22] layer number 
-   [23:24] Type (0 fine divisions of wafer with 120 mum thick silicon
+   [17:21] layer number 
+   [22:23] Type (0 fine divisions of wafer with 120 mum thick silicon
                  1 coarse divisions of wafer with 200 mum thick silicon
                  2 coarse divisions of wafer with 300 mum thick silicon
                  0 fine divisions of scintillators
                  1 coarse divisions of scintillators)
 
-   [25:26] Subdetector Type (HFNoseTrigger/HGCalEETrigger/HGCalHSiTrigger/HGCalHScTrigger)
-   [27:27] z-side (0 for +z; 1 for -z)
-   [28:31] Detector type (HGCalTrigger)
+   [24:24] z-side (0 for +z; 1 for -z)
+   [25:27] Subdetector Type (HGCEE/HGCHEF/HGCHEB/HFNose)
+   [28:31] Detector type (Forward)
 */
 
 class HGCalModuleDetId : public DetId {
@@ -33,16 +33,11 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HGCalModuleDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, type, layer, sector, module numbers */
-  HGCalModuleDetId(int subdet, int zp, int type, int layer, int sector, int moduleU, int moduleV);
+  HGCalModuleDetId(ForwardSubdetector subdet, int zp, int type, int layer, int sector, int moduleU, int moduleV);
   /** Constructor from a generic cell id */
   HGCalModuleDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HGCalModuleDetId& operator=(const DetId& id);
-
-  /// get the subdetector
-  HGCalTriggerSubdetector subdet() const {
-    return (HGCalTriggerSubdetector)((id_ >> kHGCalSubdetOffset) & kHGCalSubdetMask);
-  }
 
   /// get the type
   int type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
@@ -68,14 +63,11 @@ public:
   /// get the scintillator panel phi
   int phi() const { return moduleV(); }
 
-  /* /\** Converter for a geometry cell id *\/ */
-  /* HGCalModuleDetId geometryCell() const { return id_ & kHGCalMaskCell; } */
-
   /// consistency check : no bits left => no overhead
-  bool isHFNose() const { return (subdet() == HFNoseTrigger); }
-  bool isEE() const { return (subdet() == HGCalEETrigger); }
-  bool isHSilicon() const { return (subdet() == HGCalHSiTrigger); }
-  bool isHScintillator() const { return (subdet() == HGCalHScTrigger); }
+  bool isHFNose() const { return (subdetId() == HFNose); }
+  bool isEE() const { return (subdetId() == HGCEE); }
+  bool isHSilicon() const { return (subdetId() == HGCHEF); }
+  bool isHScintillator() const { return (subdetId() == HGCHEB); }
   bool isForward() const { return true; }
 
   static const HGCalModuleDetId Undefined;
@@ -86,13 +78,11 @@ public:
   static const int kHGCalModuleVMask = 0xF;
   static const int kHGCalSectorOffset = 8;
   static const int kHGCalSectorMask = 0x3;
-  static const int kHGCalLayerOffset = 18;
+  static const int kHGCalLayerOffset = 17;
   static const int kHGCalLayerMask = 0x1F;
-  static const int kHGCalTypeOffset = 23;
+  static const int kHGCalTypeOffset = 22;
   static const int kHGCalTypeMask = 0x3;
-  static const int kHGCalSubdetOffset = 25;
-  static const int kHGCalSubdetMask = 0x3;
-  static const int kHGCalZsideOffset = 27;
+  static const int kHGCalZsideOffset = 24;
   static const int kHGCalZsideMask = 0x1;
 };
 
