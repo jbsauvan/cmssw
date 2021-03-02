@@ -20,7 +20,7 @@ HGCalModuleDetId::HGCalModuleDetId(
 
 HGCalModuleDetId::HGCalModuleDetId(const DetId& gen) {
   if (!gen.null()) {
-    if (gen.det() != HGCalTrigger) {
+    if (gen.det() != Forward ) {
       throw cms::Exception("Invalid DetId")
           << "Cannot initialize HGCalModuleDetId from " << std::hex << gen.rawId() << std::dec;
     }
@@ -30,7 +30,7 @@ HGCalModuleDetId::HGCalModuleDetId(const DetId& gen) {
 
 HGCalModuleDetId& HGCalModuleDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
-    if (gen.det() != HGCalTrigger) {
+    if (gen.det() != Forward) {
       throw cms::Exception("Invalid DetId")
           << "Cannot assign HGCalModuleDetId from " << std::hex << gen.rawId() << std::dec;
     }
