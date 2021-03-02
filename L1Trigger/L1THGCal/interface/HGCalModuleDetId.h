@@ -43,7 +43,7 @@ public:
   int type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return ((id_ >> kHGCalZsideOffset) & kHGCalZsideMask ? 1 : -1); }
+  int zside() const { return ((id_ >> kHGCalZsideOffset) & kHGCalZsideMask ? -1 : 1); }
 
   /// get the layer #
   int layer() const { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
