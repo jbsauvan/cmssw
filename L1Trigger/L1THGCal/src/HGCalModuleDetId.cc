@@ -20,7 +20,7 @@ HGCalModuleDetId::HGCalModuleDetId(
 
 HGCalModuleDetId::HGCalModuleDetId(const DetId& gen) {
   if (!gen.null()) {
-    if (gen.det() != Forward ) {
+    if (gen.det() != Forward) {
       throw cms::Exception("Invalid DetId")
           << "Cannot initialize HGCalModuleDetId from " << std::hex << gen.rawId() << std::dec;
     }

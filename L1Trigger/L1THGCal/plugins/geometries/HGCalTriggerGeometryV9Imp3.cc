@@ -286,7 +286,7 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
     unsigned subdet = trigger_cell_trig_id.subdet();
     unsigned subdet_old =
-      (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? ForwardSubdetector::HGCEE : ForwardSubdetector::HGCHEF);
+        (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? ForwardSubdetector::HGCEE : ForwardSubdetector::HGCHEF);
     tc_type = trigger_cell_trig_id.type();
     layer = trigger_cell_trig_id.layer();
     zside = trigger_cell_trig_id.zside();
@@ -387,7 +387,6 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
 
   // Scintillator
   if (subdet == ForwardSubdetector::HGCHEB) {
-
     int ieta0 = hgc_module_id.eta();
     int iphi0 = hgc_module_id.phi();
 
@@ -423,7 +422,7 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
     unsigned layer = hgc_module_id.layer();
 
     //Rotate to sector
-    geom_rotation_120_.uvMappingFromSector0(getWaferCentring(layer), moduleU, moduleV, hgc_module_id.sector());    
+    geom_rotation_120_.uvMappingFromSector0(getWaferCentring(layer), moduleU, moduleV, hgc_module_id.sector());
 
     DetId::Detector det = (hgc_module_id.subdetId() == ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
     HGCalTriggerSubdetector subdet =
