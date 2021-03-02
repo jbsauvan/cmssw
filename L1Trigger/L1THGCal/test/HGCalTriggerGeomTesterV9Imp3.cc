@@ -621,16 +621,16 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
     }
     edm::LogPrint("ModuleCheck") << "Checking cell -> module -> cell consistency";
     for (const auto& module_cells : modules_to_cells) {
-      DetId id(module_cells.first);
+      HGCalModuleDetId id(module_cells.first);
       // Check consistency of cells included in module
       HGCalTriggerGeometryBase::geom_set cells_geom = triggerGeometry_->getCellsFromModule(id);
       const auto& cells = module_cells.second;
       for (auto cell : cells) {
         if (cells_geom.find(cell) == cells_geom.end()) {
-          if (id.det() == DetId::HGCalHSc) {
+          if (id.subdetId() == ForwardSubdetector::HGCHEB) {
             edm::LogProblem("BadModule") << "Error: \n Cell " << cell << "(" << HGCScintillatorDetId(cell)
                                          << ")\n has not been found in \n module " << HGCScintillatorDetId(id);
-          } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+          } else if (id.subdetId() == ForwardSubdetector::HFNose) {
             edm::LogProblem("BadModule") << "Error: \n Cell " << cell << "(" << HFNoseDetId(cell)
                                          << ")\n has not been found in \n module " << HFNoseDetId(id);
           } else {
@@ -1030,13 +1030,13 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
   edm::LogPrint("TreeFilling") << "Filling modules tree";
 
   for (const auto& module_triggercells : modules) {
-    DetId id(module_triggercells.first);
+    HGCalModuleDetId id(module_triggercells.first);
     GlobalPoint position = triggerGeometry_->getModulePosition(id);
     moduleId_ = id.rawId();
     moduleX_ = position.x();
     moduleY_ = position.y();
     moduleZ_ = position.z();
-    if (id.det() == DetId::HGCalHSc) {
+    if (id.subdetId() == ForwardSubdetector::HGCHEB) {
       HGCScintillatorDetId sc_id(module_triggercells.first);
       moduleSide_ = sc_id.zside();
       moduleSubdet_ = ForwardSubdetector::HGCHEB;
@@ -1044,7 +1044,7 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
       moduleIEta_ = sc_id.ietaAbs();
       moduleIPhi_ = sc_id.iphi();
       module_ = 0;
-    } else if (id.det() == DetId::Forward and id.subdetId() == ForwardSubdetector::HFNose) {
+    } else if (id.subdetId() == ForwardSubdetector::HFNose) {
       HFNoseTriggerDetId nose_id(module_triggercells.first);
       moduleSide_ = nose_id.zside();
       moduleSubdet_ = nose_id.subdetId();
@@ -1073,7 +1073,7 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
     size_t itc = 0;
     for (const auto& tc : module_triggercells.second) {
       moduleTC_id_.get()[itc] = tc;
-      if (id.det() == DetId::HGCalHSc) {
+      if (id.subdetId() == ForwardSubdetector::HGCHEB) {
         HGCScintillatorDetId tcId(tc);
         moduleTC_zside_.get()[itc] = tcId.zside();
         moduleTC_subdet_.get()[itc] = tcId.subdet();
@@ -1084,7 +1084,7 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
         moduleTC_cellV_.get()[itc] = 0;
         moduleTC_ieta_.get()[itc] = tcId.ietaAbs();
         moduleTC_iphi_.get()[itc] = tcId.iphi();
-      } else if (id.det() == DetId::Forward and id.subdetId() == ForwardSubdetector::HFNose) {
+      } else if (id.subdetId() == ForwardSubdetector::HFNose) {
         HFNoseTriggerDetId tcId(tc);
         moduleTC_zside_.get()[itc] = tcId.zside();
         moduleTC_subdet_.get()[itc] = tcId.subdet();
@@ -1119,7 +1119,7 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
     setTreeModuleCellSize(moduleCell_N_);
     size_t ic = 0;
     for (const auto& c : cells_in_module) {
-      if (id.det() == DetId::HGCalHSc) {
+      if (id.subdetId() == ForwardSubdetector::HGCHEB) {
         HGCScintillatorDetId cId(c);
         GlobalPoint cell_position = triggerGeometry_->hscGeometry()->getPosition(cId);
         triggerCellCell_id_.get()[ic] = c;
@@ -1135,7 +1135,7 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
         triggerCellCell_x_.get()[ic] = cell_position.x();
         triggerCellCell_y_.get()[ic] = cell_position.y();
         triggerCellCell_z_.get()[ic] = cell_position.z();
-      } else if (id.det() == DetId::Forward and id.subdetId() == ForwardSubdetector::HFNose) {
+      } else if (id.subdetId() == ForwardSubdetector::HFNose) {
         HFNoseDetId cId(c);
         const GlobalPoint position = triggerGeometry_->noseGeometry()->getPosition(c);
         moduleCell_id_.get()[ic] = c;

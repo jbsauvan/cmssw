@@ -286,7 +286,7 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     HGCalTriggerDetId trigger_cell_trig_id(trigger_cell_id);
     unsigned subdet = trigger_cell_trig_id.subdet();
     unsigned subdet_old =
-        (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? ForwardSubdetector::HGCEE : ForwardSubdetector::HGCHEF);
+      (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? ForwardSubdetector::HGCEE : ForwardSubdetector::HGCHEF);
     tc_type = trigger_cell_trig_id.type();
     layer = trigger_cell_trig_id.layer();
     zside = trigger_cell_trig_id.zside();
@@ -379,13 +379,15 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFromModule(
     const unsigned module_id) const {
   DetId module_det_id(module_id);
+  unsigned subdet = module_det_id.subdetId();
   unsigned det = module_det_id.det();
   geom_set trigger_cell_det_ids;
 
   HGCalModuleDetId hgc_module_id(module_id);
 
   // Scintillator
-  if (det == DetId::HGCalHSc) {
+  if (subdet == ForwardSubdetector::HGCHEB) {
+
     int ieta0 = hgc_module_id.eta();
     int iphi0 = hgc_module_id.phi();
 
@@ -403,9 +405,8 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
       }
     }
   }
-
   // HFNose
-  else if (det == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+  else if (subdet == ForwardSubdetector::HFNose) {
     HFNoseDetId module_nose_id(module_id);
     HFNoseDetIdToModule hfn;
     std::vector<HFNoseTriggerDetId> ids = hfn.getTriggerDetIds(module_nose_id);
@@ -418,11 +419,11 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
   else {
     HGCSiliconDetIdToROC tc2roc;
     int moduleU = hgc_module_id.moduleU();
-    int moduleV = hgc_module_id.moduleU();
+    int moduleV = hgc_module_id.moduleV();
     unsigned layer = hgc_module_id.layer();
 
     //Rotate to sector
-    geom_rotation_120_.uvMappingFromSector0(getWaferCentring(layer), moduleU, moduleV, hgc_module_id.sector());
+    geom_rotation_120_.uvMappingFromSector0(getWaferCentring(layer), moduleU, moduleV, hgc_module_id.sector());    
 
     DetId::Detector det = (hgc_module_id.subdetId() == ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
     HGCalTriggerSubdetector subdet =
@@ -450,12 +451,15 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
 HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrderedTriggerCellsFromModule(
     const unsigned module_id) const {
   DetId module_det_id(module_id);
+  unsigned subdet = module_det_id.subdetId();
   unsigned det = module_det_id.det();
   geom_ordered_set trigger_cell_det_ids;
 
   HGCalModuleDetId hgc_module_id(module_id);
+
   // Scintillator
-  if (det == DetId::HGCalHSc) {
+  //  if (det == DetId::HGCalHSc) {
+  if (subdet == ForwardSubdetector::HGCHEB) {
     int ieta0 = hgc_module_id.eta() * hSc_module_size_;
     int iphi0 = (hgc_module_id.phi() * (hgc_module_id.sector() + 1)) * hSc_module_size_;
 
@@ -470,7 +474,8 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
   }
 
   // HFNose
-  else if (det == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+  //  else if (det == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+  else if (subdet == ForwardSubdetector::HFNose) {
     HFNoseDetId module_nose_id(module_id);
     HFNoseDetIdToModule hfn;
     std::vector<HFNoseTriggerDetId> ids = hfn.getTriggerDetIds(module_nose_id);
@@ -520,9 +525,10 @@ unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) 
   DetId module_det_id(module_id);
   unsigned links = 0;
   // Scintillator
-  if (module_det_id.det() == DetId::HGCalHSc) {
+  //  if (module_det_id.det() == DetId::HGCalHSc) {
+  if (module_det_id.subdetId() == ForwardSubdetector::HGCHEB) {
     links = hSc_links_per_module_;
-  } else if (module_det_id.det() == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
+  } else if (module_det_id.subdetId() == ForwardSubdetector::HFNose) {
     links = 1;
   }
   // TO ADD HFNOSE : getLinksInModule
@@ -603,6 +609,7 @@ HGCalTriggerGeometryV9Imp3::geom_set HGCalTriggerGeometryV9Imp3::getLpgbtsFromMo
 
 GlobalPoint HGCalTriggerGeometryV9Imp3::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
   unsigned det = DetId(trigger_cell_det_id).det();
+
   // Position: barycenter of the trigger cell.
   Basic3DVector<float> triggerCellVector(0., 0., 0.);
   const auto cell_ids = getCellsFromTriggerCell(trigger_cell_det_id);
@@ -634,17 +641,19 @@ GlobalPoint HGCalTriggerGeometryV9Imp3::getTriggerCellPosition(const unsigned tr
 
 GlobalPoint HGCalTriggerGeometryV9Imp3::getModulePosition(const unsigned module_det_id) const {
   unsigned det = DetId(module_det_id).det();
+  unsigned subdet = HGCalModuleDetId(module_det_id).subdetId();
   // Position: barycenter of the module.
   Basic3DVector<float> moduleVector(0., 0., 0.);
   const auto cell_ids = getCellsFromModule(module_det_id);
   // Scintillator
-  if (det == DetId::HGCalHSc) {
+  //  if (det == DetId::HGCalHSc) {
+  if (subdet == ForwardSubdetector::HGCHEB) {
     for (const auto& cell : cell_ids) {
       moduleVector += hscGeometry()->getPosition(cell).basicVector();
     }
   }
   // HFNose
-  else if (det == DetId::Forward && DetId(module_det_id).subdetId() == ForwardSubdetector::HFNose) {
+  else if (subdet == ForwardSubdetector::HFNose) {
     for (const auto& cell : cell_ids) {
       HFNoseDetId cellDetId(cell);
       moduleVector += noseGeometry()->getPosition(cellDetId).basicVector();
