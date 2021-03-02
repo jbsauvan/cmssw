@@ -582,7 +582,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
           if (id.det() == DetId::HGCalHSc) {
             HGCScintillatorDetId cellid(cell);
             edm::LogProblem("BadModule") << "Error: \n Trigger cell " << cell << "(" << cellid
-                                         << ")\n has not been found in \n module " << HGCScintillatorDetId(id);
+                                         << ")\n has not been found in \n module " << HGCalModuleDetId(id);
             std::stringstream output;
             output << " Available trigger cells are:\n";
             for (auto cell_geom : triggercells_geom) {
@@ -594,7 +594,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
           } else if (id.det() == DetId::Forward and id.subdetId() == ForwardSubdetector::HFNose) {
             HFNoseTriggerDetId cellid(cell);
             edm::LogProblem("BadModule") << "Error : \n Trigger cell " << cell << "(" << cellid
-                                         << ")\n has not been found in \n module " << HFNoseDetId(id);
+                                         << ")\n has not been found in \n module " << HGCalModuleDetId(id);
             std::stringstream output;
             output << " Available trigger cells are:\n";
             for (auto cell_geom : triggercells_geom) {
@@ -629,10 +629,10 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
         if (cells_geom.find(cell) == cells_geom.end()) {
           if (id.subdetId() == ForwardSubdetector::HGCHEB) {
             edm::LogProblem("BadModule") << "Error: \n Cell " << cell << "(" << HGCScintillatorDetId(cell)
-                                         << ")\n has not been found in \n module " << HGCScintillatorDetId(id);
+                                         << ")\n has not been found in \n module " << HGCalModuleDetId(id);
           } else if (id.subdetId() == ForwardSubdetector::HFNose) {
             edm::LogProblem("BadModule") << "Error: \n Cell " << cell << "(" << HFNoseDetId(cell)
-                                         << ")\n has not been found in \n module " << HFNoseDetId(id);
+                                         << ")\n has not been found in \n module " << HGCalModuleDetId(id);
           } else {
             edm::LogProblem("BadModule") << "Error: \n Cell " << cell << "(" << HGCSiliconDetId(cell)
                                          << ")\n has not been found in \n module " << HGCalModuleDetId(id);
@@ -640,7 +640,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
           std::stringstream output;
           output << " Available cells are:\n";
           for (auto cell_geom : cells_geom) {
-            output << cell_geom << " ";
+            output << cell_geom << " " ;
           }
           edm::LogProblem("BadModule") << output.str();
           throw cms::Exception("BadGeometry") << "HGCalTriggerGeometry: Found inconsistency in cell <-> module mapping";
