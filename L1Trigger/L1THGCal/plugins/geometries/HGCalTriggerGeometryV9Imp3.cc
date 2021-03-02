@@ -93,7 +93,7 @@ private:
   unsigned last_trigger_layer_ = 0;
 
   //Scintillator layout
-  unsigned hSc_num_panels_per_sector_ = 12;
+  unsigned hSc_num_panels_per_sector_ = 8;
 
   // layer offsets
   unsigned heOffset_ = 0;
@@ -358,7 +358,9 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getCellsFromTrigg
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getCellsFromModule(const unsigned module_id) const {
   geom_set cell_det_ids;
   geom_set trigger_cells = getTriggerCellsFromModule(module_id);
+
   for (auto trigger_cell_id : trigger_cells) {
+    //std::cout <<  (HGCalTriggerDetId(trigger_cell_id)) << std::endl;
     geom_set cells = getCellsFromTriggerCell(trigger_cell_id);
     cell_det_ids.insert(cells.begin(), cells.end());
   }
@@ -387,14 +389,12 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
 
   // Scintillator
   if (subdet == ForwardSubdetector::HGCHEB) {
-    int ieta0 = hgc_module_id.eta();
+    int ietamin = hscTopology().dddConstants().getREtaRange(hgc_module_id.layer()).first;
+    int ietamin_tc = ((ietamin - 1) / hSc_triggercell_size_ + 1);
+    int ieta0 = (hgc_module_id.eta() - 1) * hSc_module_size_ + ietamin_tc;
     int iphi0 = hgc_module_id.phi();
-
     etaphiMappingFromSector0(ieta0, iphi0, hgc_module_id.sector());
-
-    ieta0 *= hSc_module_size_;
-    iphi0 *= hSc_module_size_;
-
+    iphi0 = (iphi0 - 1) * hSc_module_size_ + 1;
     for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_module_size_; ietaAbs++) {
       int ieta = ietaAbs * hgc_module_id.zside();
       for (int iphi = iphi0; iphi < iphi0 + (int)hSc_module_size_; iphi++) {
@@ -764,7 +764,6 @@ void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& ieta, int& iphi, 
   if (sector == 0) {
     return;
   }
-
   iphi = iphi + (sector * hSc_num_panels_per_sector_);
 }
 
@@ -781,9 +780,9 @@ HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(un
 unsigned HGCalTriggerGeometryV9Imp3::etaphiMappingToSector0(int& ieta, int& iphi) const {
   unsigned sector = 0;
 
-  if (unsigned(std::abs(iphi)) >= 2 * hSc_num_panels_per_sector_)
+  if (unsigned(std::abs(iphi)) > 2 * hSc_num_panels_per_sector_)
     sector = 2;
-  else if (unsigned(std::abs(iphi)) >= hSc_num_panels_per_sector_)
+  else if (unsigned(std::abs(iphi)) > hSc_num_panels_per_sector_)
     sector = 1;
   else
     sector = 0;

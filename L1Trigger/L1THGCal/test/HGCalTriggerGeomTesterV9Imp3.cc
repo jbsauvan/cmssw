@@ -640,7 +640,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
           std::stringstream output;
           output << " Available cells are:\n";
           for (auto cell_geom : cells_geom) {
-            output << cell_geom << " " ;
+            output << cell_geom << " ";
           }
           edm::LogProblem("BadModule") << output.str();
           throw cms::Exception("BadGeometry") << "HGCalTriggerGeometry: Found inconsistency in cell <-> module mapping";
