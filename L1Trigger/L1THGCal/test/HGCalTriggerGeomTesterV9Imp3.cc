@@ -430,11 +430,12 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       uint32_t module = 0;
       try {
         module = triggerGeometry_->getModuleFromCell(id);
-      } catch (const cms::Exception& e) {
-        module_errors.emplace(std::make_tuple(HGCalTriggerDetId(trigger_cell).subdet(),
-                                              HGCalTriggerDetId(trigger_cell).layer(),
-                                              HGCalTriggerDetId(trigger_cell).waferU(),
-                                              HGCalTriggerDetId(trigger_cell).waferV()));
+	triggerGeometry_->getLinksInModule(module);
+      } catch (const std::exception& e) {
+        module_errors.emplace(std::make_tuple(HGCalModuleDetId(module).subdetId(),
+                                              HGCalModuleDetId(module).layer(),
+                                              HGCalModuleDetId(module).moduleU(),
+                                              HGCalModuleDetId(module).moduleV()));
         continue;
       }
       itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
@@ -452,11 +453,12 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       uint32_t module = 0;
       try {
         module = triggerGeometry_->getModuleFromCell(id);
-      } catch (const cms::Exception& e) {
-        module_errors.emplace(std::make_tuple(HGCalTriggerDetId(trigger_cell).subdet(),
-                                              HGCalTriggerDetId(trigger_cell).layer(),
-                                              HGCalTriggerDetId(trigger_cell).waferU(),
-                                              HGCalTriggerDetId(trigger_cell).waferV()));
+	triggerGeometry_->getLinksInModule(module);
+      } catch (const std::exception& e) {
+        module_errors.emplace(std::make_tuple(HGCalModuleDetId(module).subdetId(),
+                                              HGCalModuleDetId(module).layer(),
+                                              HGCalModuleDetId(module).moduleU(),
+                                              HGCalModuleDetId(module).moduleV()));
         continue;
       }
       itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
@@ -1036,30 +1038,17 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
     moduleX_ = position.x();
     moduleY_ = position.y();
     moduleZ_ = position.z();
-    if (id.subdetId() == ForwardSubdetector::HGCHEB) {
-      HGCScintillatorDetId sc_id(module_triggercells.first);
-      moduleSide_ = sc_id.zside();
-      moduleSubdet_ = ForwardSubdetector::HGCHEB;
-      moduleLayer_ = sc_id.layer();
-      moduleIEta_ = sc_id.ietaAbs();
-      moduleIPhi_ = sc_id.iphi();
-      module_ = 0;
-    } else if (id.subdetId() == ForwardSubdetector::HFNose) {
-      HFNoseTriggerDetId nose_id(module_triggercells.first);
-      moduleSide_ = nose_id.zside();
-      moduleSubdet_ = nose_id.subdetId();
-      moduleLayer_ = nose_id.layer();
-      moduleIEta_ = 0;
-      moduleIPhi_ = 0;
-      module_ = 0;
+
+    moduleSide_ = id.zside();
+    moduleSubdet_ = id.subdetId();
+    moduleLayer_ = id.layer();
+    module_ = 0;
+    if (id.subdetId() == ForwardSubdetector::HGCHEB || id.subdetId() == ForwardSubdetector::HFNose) {
+      moduleIEta_ = id.eta();
+      moduleIPhi_ = id.phi();
     } else {
-      HGCalDetId si_id(module_triggercells.first);
-      moduleSide_ = si_id.zside();
-      moduleSubdet_ = si_id.subdetId();
-      moduleLayer_ = si_id.layer();
       moduleIEta_ = 0;
       moduleIPhi_ = 0;
-      module_ = si_id.wafer();
     }
     moduleTC_N_ = module_triggercells.second.size();
     if (triggerGeometry_->disconnectedModule(id)) {
@@ -1067,7 +1056,6 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
     } else {
       moduleLinks_ = triggerGeometry_->getLinksInModule(id);
     }
-
     //
     setTreeModuleSize(moduleTC_N_);
     size_t itc = 0;
