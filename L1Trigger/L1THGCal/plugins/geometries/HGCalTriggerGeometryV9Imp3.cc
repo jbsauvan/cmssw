@@ -360,7 +360,6 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getCellsFromModul
   geom_set trigger_cells = getTriggerCellsFromModule(module_id);
 
   for (auto trigger_cell_id : trigger_cells) {
-    //std::cout <<  (HGCalTriggerDetId(trigger_cell_id)) << std::endl;
     geom_set cells = getCellsFromTriggerCell(trigger_cell_id);
     cell_det_ids.insert(cells.begin(), cells.end());
   }
@@ -382,7 +381,6 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
     const unsigned module_id) const {
   DetId module_det_id(module_id);
   unsigned subdet = module_det_id.subdetId();
-  unsigned det = module_det_id.det();
   geom_set trigger_cell_det_ids;
 
   HGCalModuleDetId hgc_module_id(module_id);
@@ -451,13 +449,11 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
     const unsigned module_id) const {
   DetId module_det_id(module_id);
   unsigned subdet = module_det_id.subdetId();
-  unsigned det = module_det_id.det();
   geom_ordered_set trigger_cell_det_ids;
 
   HGCalModuleDetId hgc_module_id(module_id);
 
   // Scintillator
-  //  if (det == DetId::HGCalHSc) {
   if (subdet == ForwardSubdetector::HGCHEB) {
     int ieta0 = hgc_module_id.eta() * hSc_module_size_;
     int iphi0 = (hgc_module_id.phi() * (hgc_module_id.sector() + 1)) * hSc_module_size_;
@@ -473,7 +469,6 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
   }
 
   // HFNose
-  //  else if (det == DetId::Forward && module_det_id.subdetId() == ForwardSubdetector::HFNose) {
   else if (subdet == ForwardSubdetector::HFNose) {
     HFNoseDetId module_nose_id(module_id);
     HFNoseDetIdToModule hfn;
@@ -521,10 +516,9 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getNeighborsFromT
 }
 
 unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) const {
-  DetId module_det_id(module_id);
+  HGCalModuleDetId module_det_id(module_id);
   unsigned links = 0;
   // Scintillator
-  //  if (module_det_id.det() == DetId::HGCalHSc) {
   if (module_det_id.subdetId() == ForwardSubdetector::HGCHEB) {
     links = hSc_links_per_module_;
   } else if (module_det_id.subdetId() == ForwardSubdetector::HFNose) {
@@ -533,9 +527,8 @@ unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) 
   // TO ADD HFNOSE : getLinksInModule
   // Silicon
   else {
-    HGCalModuleDetId module_det_id_si(module_id);
-    links = links_per_module_.at(
-        packLayerWaferId(module_det_id_si.layer(), module_det_id_si.moduleU(), module_det_id_si.moduleV()));
+    links =
+        links_per_module_.at(packLayerWaferId(module_det_id.layer(), module_det_id.moduleU(), module_det_id.moduleV()));
   }
   return links;
 }
@@ -639,13 +632,11 @@ GlobalPoint HGCalTriggerGeometryV9Imp3::getTriggerCellPosition(const unsigned tr
 }
 
 GlobalPoint HGCalTriggerGeometryV9Imp3::getModulePosition(const unsigned module_det_id) const {
-  unsigned det = DetId(module_det_id).det();
   unsigned subdet = HGCalModuleDetId(module_det_id).subdetId();
   // Position: barycenter of the module.
   Basic3DVector<float> moduleVector(0., 0., 0.);
   const auto cell_ids = getCellsFromModule(module_det_id);
   // Scintillator
-  //  if (det == DetId::HGCalHSc) {
   if (subdet == ForwardSubdetector::HGCHEB) {
     for (const auto& cell : cell_ids) {
       moduleVector += hscGeometry()->getPosition(cell).basicVector();
@@ -732,10 +723,11 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
   try {
     //module to lpgbt mapping
     for (unsigned module = 0; module < mapping_config.at("Module").size(); module++) {
-      links_per_module_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
-                                                 mapping_config.at("Module").at(module).at("u"),
-                                                 mapping_config.at("Module").at(module).at("v")),
-                                mapping_config.at("Module").at(module).at("lpgbts").size());
+      if (mapping_config.at("Module").at(module).at("isSilicon"))
+        links_per_module_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
+                                                   mapping_config.at("Module").at(module).at("u"),
+                                                   mapping_config.at("Module").at(module).at("v")),
+                                  mapping_config.at("Module").at(module).at("lpgbts").size());
       for (auto& lpgbt : mapping_config.at("Module").at(module).at("lpgbts")) {
         module_to_lpgbts_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
                                                    mapping_config.at("Module").at(module).at("u"),

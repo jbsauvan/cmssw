@@ -430,7 +430,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       uint32_t module = 0;
       try {
         module = triggerGeometry_->getModuleFromCell(id);
-	triggerGeometry_->getLinksInModule(module);
+        triggerGeometry_->getLinksInModule(module);
       } catch (const std::exception& e) {
         module_errors.emplace(std::make_tuple(HGCalModuleDetId(module).subdetId(),
                                               HGCalModuleDetId(module).layer(),
@@ -453,7 +453,7 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
       uint32_t module = 0;
       try {
         module = triggerGeometry_->getModuleFromCell(id);
-	triggerGeometry_->getLinksInModule(module);
+        triggerGeometry_->getLinksInModule(module);
       } catch (const std::exception& e) {
         module_errors.emplace(std::make_tuple(HGCalModuleDetId(module).subdetId(),
                                               HGCalModuleDetId(module).layer(),
