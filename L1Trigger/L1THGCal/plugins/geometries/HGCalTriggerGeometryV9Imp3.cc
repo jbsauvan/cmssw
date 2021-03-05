@@ -723,16 +723,17 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
   try {
     //module to lpgbt mapping
     for (unsigned module = 0; module < mapping_config.at("Module").size(); module++) {
-      if (mapping_config.at("Module").at(module).at("isSilicon"))
-        links_per_module_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
-                                                   mapping_config.at("Module").at(module).at("u"),
-                                                   mapping_config.at("Module").at(module).at("v")),
-                                  mapping_config.at("Module").at(module).at("lpgbts").size());
+      unsigned num_elinks = 0;  //Sum number of e-links in each module over lpGBTs
+      unsigned layer = mapping_config.at("Module").at(module).at("layer");
+      unsigned moduleU = mapping_config.at("Module").at(module).at("u");
+      unsigned moduleV = mapping_config.at("Module").at(module).at("v");
+
       for (auto& lpgbt : mapping_config.at("Module").at(module).at("lpgbts")) {
-        module_to_lpgbts_.emplace(packLayerWaferId(mapping_config.at("Module").at(module).at("layer"),
-                                                   mapping_config.at("Module").at(module).at("u"),
-                                                   mapping_config.at("Module").at(module).at("v")),
-                                  lpgbt.at("id"));
+        module_to_lpgbts_.emplace(packLayerWaferId(layer, moduleU, moduleV), lpgbt.at("id"));
+        num_elinks += unsigned(lpgbt.at("nElinks"));
+      }
+      if (mapping_config.at("Module").at(module).at("isSilicon")) {
+        links_per_module_.emplace(packLayerWaferId(layer, moduleU, moduleV), num_elinks);
       }
     }
   } catch (const json::exception& e) {
