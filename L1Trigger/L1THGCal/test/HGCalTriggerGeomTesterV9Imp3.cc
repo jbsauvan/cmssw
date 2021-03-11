@@ -649,6 +649,54 @@ bool HGCalTriggerGeomTesterV9Imp3::checkMappingConsistency() {
         }
       }
     }
+
+    // Filling Stage 1 FPGA -> modules
+    edm::LogPrint("ModuleCheck") << "Checking module -> stage-1 -> module consistency";
+    trigger_map_set stage1_to_modules;
+    for (const auto& module_tc : modules_to_triggercells) {
+      DetId id(module_tc.first);
+      HGCalTriggerGeometryBase::geom_set lpgbts = triggerGeometry_->getLpgbtsFromModule(id);
+      uint32_t stage1 = 0;
+      for(const auto& lpgbt : lpgbts) {
+        uint32_t stage1_tmp = triggerGeometry_->getStage1FpgaFromLpgbt(lpgbt);
+        if(stage1!=0 && stage1_tmp!=stage1) {
+          throw cms::Exception("BadGeometry") << "HGCalTriggerGeometry: Module "
+            << HGCalModuleDetId(id) << " is split is split into more than one Stage-1 FPGA";
+        }
+        stage1 = stage1_tmp;
+      }
+      auto itr_insert = stage1_to_modules.emplace(stage1, std::unordered_set<uint32_t>());
+      itr_insert.first->second.emplace(id);
+    }
+    // checking S1 -> module consistency
+    for (const auto& stage1_modules : modules_to_triggercells) {
+      HGCalModuleDetId stage1(stage1_modules.first);
+      HGCalTriggerGeometryBase::geom_set modules_geom;
+      // Check consistency of modules going to Stage-1 FPGA
+      HGCalTriggerGeometryBase::geom_set lpgbts = triggerGeometry_->getLbgbtsFromStage1Fpga(stage1);
+      for(const auto& lpgbt : lpgbts) {
+        HGCalTriggerGeometryBase::geom_set modules = triggerGeometry_->getModulesFromLpgbt(lpgbt);
+        modules_geom.insert(modules.begin(), modules.end());
+      }
+      const auto& modules = stage1_modules.second;
+      for (auto module : modules) {
+        if (modules_geom.find(module) == modules_geom.end()) {
+            edm::LogProblem("BadStage1") << "Error: \n Module " << module << "(" << HGCalModuleDetId(module)
+                                         << ")\n has not been found in \n stage-1 " << HGCalModuleDetId(stage1);
+          std::stringstream output;
+          output << "   Available modules are:\n";
+          for (auto module_geom : modules_geom) {
+            output << module_geom << " ";
+          }
+          output << "   Connected lpgbts are:\n";
+          for (auto lpgbt : lpgbts) {
+            output << lpgbt << " ";
+          }
+          edm::LogProblem("BadStage1") << output.str();
+          throw cms::Exception("BadGeometry") << "HGCalTriggerGeometry: Found inconsistency in Stage1 <-> module mapping";
+        }
+      }
+    }
   } catch (const cms::Exception& e) {
     edm::LogWarning("HGCalTriggerGeometryTester")
         << "Problem with the trigger geometry detected. Only the basic cells tree will be filled\n";
