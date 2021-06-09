@@ -18,6 +18,14 @@ def custom_ntuples_standalone_clustering(process):
     return process
 
 
+def custom_ntuples_standalone_tower(process):
+    ntuples = process.hgcalTriggerNtuplizer.Ntuples
+    for ntuple in ntuples:
+        if ntuple.NtupleName=='HGCalTriggerNtupleHGCTowers':
+            ntuple.Towers = cms.InputTag('hgcalTowerProducer:HGCalTowerProcessorSA')
+    return process
+
+
 def create_ntuple(process, inputs,
         ntuple_list=[
             'event',

@@ -70,16 +70,18 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', ''
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 # Use new processors and standalone algorithms
-from L1Trigger.L1THGCal.customNewProcessors import custom_clustering_standalone
+from L1Trigger.L1THGCal.customNewProcessors import custom_clustering_standalone, custom_tower_standalone
 process = custom_clustering_standalone(process)
+process = custom_tower_standalone(process)
 
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
-from L1Trigger.L1THGCalUtilities.customNtuples import custom_ntuples_standalone_clustering
+from L1Trigger.L1THGCalUtilities.customNtuples import custom_ntuples_standalone_clustering, custom_ntuples_standalone_tower
 process = custom_ntuples_standalone_clustering(process)
+process = custom_ntuples_standalone_tower(process)
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
