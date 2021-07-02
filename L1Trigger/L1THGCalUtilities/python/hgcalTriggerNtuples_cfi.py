@@ -49,7 +49,7 @@ ntuple_digis = cms.PSet(
     HGCDigisBH = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+    bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
     isSimhitComp = cms.bool(False),
     digiBXselect = cms.vuint32(2)
 )
