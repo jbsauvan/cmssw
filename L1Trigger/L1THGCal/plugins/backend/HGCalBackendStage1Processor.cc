@@ -5,6 +5,7 @@ DEFINE_EDM_PLUGIN(HGCalBackendLayer1Factory, HGCalBackendStage1Processor, "HGCal
 HGCalBackendStage1Processor::HGCalBackendStage1Processor(const edm::ParameterSet& conf)
     : HGCalBackendLayer1ProcessorBase(conf) {
   clusteringDummy_ = std::make_unique<HGCalClusteringDummyImpl>(conf.getParameterSet("C2d_parameters"));
+  truncation_ = std::make_unique<HGCalStage1TruncationImpl>(conf.getParameterSet("truncation_parameters"));
 }
 
 void HGCalBackendStage1Processor::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
@@ -12,6 +13,8 @@ void HGCalBackendStage1Processor::run(const edm::Handle<l1t::HGCalTriggerCellBxC
                                       const edm::EventSetup& es) {
   if (clusteringDummy_)
     clusteringDummy_->eventSetup(es);
+  if (truncation_)
+    truncation_->eventSetup(es);
 
   std::unordered_map<uint32_t, std::vector<edm::Ptr<l1t::HGCalTriggerCell>>> tcs_per_fpga;
 
@@ -22,16 +25,9 @@ void HGCalBackendStage1Processor::run(const edm::Handle<l1t::HGCalTriggerCellBxC
     tcs_per_fpga[fpga].push_back(tc_ptr);
   }
 
+  std::vector<edm::Ptr<l1t::HGCalTriggerCell>> truncated_tcs;
   for (auto& fpga_tcs : tcs_per_fpga) {
-    l1t::HGCalClusterBxCollection clusters;
-    std::sort(fpga_tcs.second.begin(),
-              fpga_tcs.second.end(),
-              [](const edm::Ptr<l1t::HGCalTriggerCell>& a, const edm::Ptr<l1t::HGCalTriggerCell>& b) -> bool {
-                return a->mipPt() > b->mipPt();
-              });
-    clusteringDummy_->clusterizeDummy(fpga_tcs.second, clusters);
-    for (unsigned i = 0; i < clusters.size(0); i++) {
-      collCluster2D.push_back(0, clusters.at(0, i));
-    }
+    truncation_->run(fpga_tcs.second, truncated_tcs);
   }
+  clusteringDummy_->clusterizeDummy(truncated_tcs, collCluster2D);
 }
