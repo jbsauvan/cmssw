@@ -27,7 +27,7 @@ void HGCalBackendStage1Processor::run(const edm::Handle<l1t::HGCalTriggerCellBxC
 
   std::vector<edm::Ptr<l1t::HGCalTriggerCell>> truncated_tcs;
   for (auto& fpga_tcs : tcs_per_fpga) {
-    truncation_->run(fpga_tcs.second, truncated_tcs);
+    truncation_->run(fpga_tcs.first, fpga_tcs.second, truncated_tcs);
   }
   clusteringDummy_->clusterizeDummy(truncated_tcs, collCluster2D);
 }
