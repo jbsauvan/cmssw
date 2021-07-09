@@ -1,13 +1,11 @@
 #ifndef __L1Trigger_L1THGCal_HGCalStage1TruncationImpl_h__
 #define __L1Trigger_L1THGCal_HGCalStage1TruncationImpl_h__
 
-#include <array>
-#include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeomRotation.h"
+
+#include <vector>
 
 class HGCalStage1TruncationImpl {
 public:

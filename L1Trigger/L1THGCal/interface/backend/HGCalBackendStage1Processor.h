@@ -3,7 +3,6 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
