@@ -24,7 +24,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(5)
 )
 
 # Input source
@@ -69,19 +69,21 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', ''
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
-# Use new processors and standalone algorithms
-from L1Trigger.L1THGCal.customNewProcessors import custom_clustering_standalone, custom_tower_standalone
-process = custom_clustering_standalone(process)
-process = custom_tower_standalone(process)
+# Use new Stage 1 processor
+from L1Trigger.L1THGCal.customNewProcessors import custom_stage1_truncation
+process = custom_stage1_truncation(process)
+
+# Switch to latest trigger geometry containing information on links mapping
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V11
+process = custom_geometry_decentralized_V11(process, links='signaldriven', implementation=2)
 
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 
 
-# load ntuplizer
+# load ntuplizer and custom to use collections from Stag1 truncation processor
 process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
-from L1Trigger.L1THGCalUtilities.customNtuples import custom_ntuples_standalone_clustering, custom_ntuples_standalone_tower
-process = custom_ntuples_standalone_clustering(process)
-process = custom_ntuples_standalone_tower(process)
+from L1Trigger.L1THGCalUtilities.customNtuples import custom_ntuples_stage1_truncation
+process = custom_ntuples_stage1_truncation(process)
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
