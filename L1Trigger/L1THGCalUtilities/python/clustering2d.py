@@ -28,7 +28,6 @@ def create_topological(process, inputs,
                        cluster_threshold=topological_C2d_params.clustering_threshold_silicon  # MipT
                        ):
     producer = process.hgcalBackEndLayer1Producer.clone(
-            #  InputTriggerCells = cms.InputTag('{}:HGCalConcentratorProcessorSelection'.format(inputs))
             InputTriggerCells = cms.InputTag(inputs)
             )
     producer.ProcessorParameters.C2d_parameters = topological_C2d_params.clone()
@@ -60,7 +59,7 @@ class CreateDummy(object):
         producer.ProcessorParameters.C2d_parameters = dummy_C2d_params.clone()
         return producer
 
-def CreateTruthDummy(process, inputs):
+class CreateTruthDummy(object):
     def __call__(self, process, inputs):
         producer = process.hgcalBackEndLayer1Producer.clone(
                 InputTriggerCells = cms.InputTag(inputs)

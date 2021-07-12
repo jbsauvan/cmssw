@@ -79,9 +79,7 @@ class CreateHistoMaxVariableDr(object):
                 dR_multicluster_byLayer_coefficientA = distances
                 )
         self.seeding_parameters = histoMax_C3d_seeding_params.clone()
-
-        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto,
-                seed_threshold)
+        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, 0, shape_threshold, shape_distance)
 
     def __call__(self, process, inputs):
@@ -106,9 +104,7 @@ class CreateHistoMaxXYVariableDr(object):
                 dR_multicluster_byLayer_coefficientA = distances
                 )
         self.seeding_parameters = histoMaxXYVariableDR_C3d_params.clone()
-
-        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, histoMaxXYVariableDR_C3d_params.binSumsHisto,
-                seed_threshold)
+        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, histoMaxXYVariableDR_C3d_params.binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, 0, shape_threshold, shape_distance)
 
     def __call__(self, process, inputs):
@@ -134,8 +130,7 @@ class CreateHistoInterpolatedMax1stOrder(object):
                 neighbour_weights = neighbour_weights_1stOrder
                 )
         self.clustering_parameters = histoMax_C3d_clustering_params.clone()
-        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto,
-                seed_threshold)
+        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, distance, shape_threshold, shape_distance)
 
     def __call__(self, process, inputs):
@@ -161,8 +156,7 @@ class CreateHistoInterpolatedMax2ndOrder(object):
                 neighbour_weights = neighbour_weights_2ndOrder
                 )
         self.clustering_parameters = histoMax_C3d_clustering_params.clone()
-        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto,
-                seed_threshold)
+        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, distance, shape_threshold, shape_distance)
 
     def __call__(self, process, inputs):
@@ -186,8 +180,7 @@ class CreateHistoThreshold(object):
             ):
         self.seeding_parameters = histoThreshold_C3d_params.clone()
         self.clustering_parameters = histoMax_C3d_clustering_params.clone()
-        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto,
-                seed_threshold)
+        set_histomax_seeding_params(self.seeding_parameters, nBins_X1, nBins_X2, binSumsHisto, seed_threshold)
         set_histomax_clustering_params(self.clustering_parameters, distance, shape_threshold, shape_distance)
 
     def __call__(self, process, inputs):
