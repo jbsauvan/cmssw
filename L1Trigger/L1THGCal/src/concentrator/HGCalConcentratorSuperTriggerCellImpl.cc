@@ -64,17 +64,9 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
 
       DetId tc_Id(id);
 
-      //To guard against the case in v8 geometry where
-      //there might be different thicknesses within a module
-      //This is a small effect, but in principle energy might
-      //be lost.
       if (superTCmapping_.getCoarseTriggerCellId(id) != s.second.getSTCId()) {
-        if (triggerTools_.getTriggerGeometry()->isV9Geometry()) {
-          throw cms::Exception("NonExistingCoarseTC")
-              << "The coarse trigger cell correponsing to the nominal trigger cell does not exist";
-        } else {
-          continue;
-        }
+        throw cms::Exception("NonExistingCoarseTC")
+          << "The coarse trigger cell correponsing to the nominal trigger cell does not exist";
       }
       trigCellVecOutput.push_back(triggerCell);
       if (energyDivisionType_ == oneBitFraction) {  //Get the 1 bit fractions
