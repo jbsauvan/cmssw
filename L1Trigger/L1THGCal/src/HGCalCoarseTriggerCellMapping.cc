@@ -54,7 +54,7 @@ uint32_t HGCalCoarseTriggerCellMapping::getRepresentativeDetId(uint32_t tcid) co
 
 uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) const {
   unsigned int layer = triggerTools_.layerWithOffset(detid);
-  int thickness = triggerTools_.thicknessIndex(detid, true);
+  int thickness = triggerTools_.thicknessIndex(detid);
 
   int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
 
@@ -101,7 +101,7 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
 }
 
 std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(uint32_t ctcId) const {
-  int thickness = triggerTools_.thicknessIndex(ctcId, true);
+  int thickness = triggerTools_.thicknessIndex(ctcId);
   unsigned int layer = triggerTools_.layerWithOffset(ctcId);
   int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
 

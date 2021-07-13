@@ -44,7 +44,7 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
       continue;
 
     HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(output_ids.at(0));
-    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0), true) : 0);
+    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0)) : 0);
 
     for (const auto& id : output_ids) {
       if (((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_[subdet]) &&
@@ -91,7 +91,7 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   uint32_t compressed_value = getCompressedSTCEnergy(stc);
 
   HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(c.detId());
-  int thickness = triggerTools_.thicknessIndex(c.detId(), true);
+  int thickness = triggerTools_.thicknessIndex(c.detId());
 
   bool isSilicon = triggerTools_.isSilicon(c.detId());
   bool isEM = triggerTools_.isEm(c.detId());
