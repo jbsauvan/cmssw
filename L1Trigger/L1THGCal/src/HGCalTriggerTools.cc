@@ -6,7 +6,6 @@
 #include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "L1Trigger/L1THGCal//interface/HGCalModuleDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
@@ -304,14 +303,5 @@ DetId HGCalTriggerTools::simToReco(const DetId& simid, const HGCalTopology& topo
   if (dddConst.waferHexagon8() || dddConst.tileTrapezoid()) {
     recoid = simid;
   }
-  return recoid;
-}
-
-DetId HGCalTriggerTools::simToReco(const DetId& simid, const HcalTopology& topo) const {
-  DetId recoid(0);
-  const auto& dddConst = topo.dddConstants();
-  HcalDetId id = HcalHitRelabeller::relabel(simid, dddConst);
-  if (id.subdet() == int(HcalEndcap))
-    recoid = id;
   return recoid;
 }

@@ -77,7 +77,6 @@ public:
   }
 
   DetId simToReco(const DetId&, const HGCalTopology&) const;
-  DetId simToReco(const DetId&, const HcalTopology&) const;
   unsigned triggerLayer(const unsigned id) const { return geom_->triggerLayer(id); }
 
   static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 3;

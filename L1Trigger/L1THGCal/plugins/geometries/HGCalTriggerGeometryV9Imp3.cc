@@ -21,7 +21,6 @@ class HGCalTriggerGeometryV9Imp3 : public HGCalTriggerGeometryBase {
 public:
   HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& conf);
 
-  void initialize(const CaloGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void reset() final;
@@ -144,10 +143,6 @@ void HGCalTriggerGeometryV9Imp3::reset() {
   module_to_stage1_.clear();
 }
 
-void HGCalTriggerGeometryV9Imp3::initialize(const CaloGeometry* calo_geometry) {
-  throw cms::Exception("BadGeometry")
-      << "HGCalTriggerGeometryV9Imp3 geometry cannot be initialized with the V7/V8 HGCAL geometry";
-}
 
 void HGCalTriggerGeometryV9Imp3::initialize(const HGCalGeometry* hgc_ee_geometry,
                                             const HGCalGeometry* hgc_hsi_geometry,
