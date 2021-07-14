@@ -143,7 +143,6 @@ void HGCalTriggerGeometryV9Imp3::reset() {
   module_to_stage1_.clear();
 }
 
-
 void HGCalTriggerGeometryV9Imp3::initialize(const HGCalGeometry* hgc_ee_geometry,
                                             const HGCalGeometry* hgc_hsi_geometry,
                                             const HGCalGeometry* hgc_hsc_geometry) {

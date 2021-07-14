@@ -66,7 +66,7 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
 
       if (superTCmapping_.getCoarseTriggerCellId(id) != s.second.getSTCId()) {
         throw cms::Exception("NonExistingCoarseTC")
-          << "The coarse trigger cell correponsing to the nominal trigger cell does not exist";
+            << "The coarse trigger cell correponsing to the nominal trigger cell does not exist";
       }
       trigCellVecOutput.push_back(triggerCell);
       if (energyDivisionType_ == oneBitFraction) {  //Get the 1 bit fractions

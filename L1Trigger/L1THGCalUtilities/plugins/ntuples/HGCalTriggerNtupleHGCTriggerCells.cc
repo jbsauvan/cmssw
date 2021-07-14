@@ -223,9 +223,9 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
         tc_wafertype_.emplace_back(idsci.type());
         tc_cellu_.emplace_back(idsci.ietaAbs());
         tc_cellv_.emplace_back(idsci.iphi());
-      }
-      else {
-        throw cms::Exception("InvalidHGCalTriggerDetid") << "Found unexpected trigger cell detid to be filled in HGCal Trigger Cell ntuple.";
+      } else {
+        throw cms::Exception("InvalidHGCalTriggerDetid")
+            << "Found unexpected trigger cell detid to be filled in HGCal Trigger Cell ntuple.";
       }
       tc_data_.emplace_back(tc_itr->hwPt());
       tc_uncompressedCharge_.emplace_back(tc_itr->uncompressedCharge());

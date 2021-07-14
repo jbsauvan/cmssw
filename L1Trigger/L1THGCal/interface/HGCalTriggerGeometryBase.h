@@ -26,7 +26,6 @@ public:
 
   bool isWithNoseGeometry() const { return isNose_; }
 
-
   const HGCalGeometry* noseGeometry() const { return hgc_nose_geometry_; }
   const HGCalGeometry* eeGeometry() const { return hgc_ee_geometry_; }
   const HGCalGeometry* fhGeometry() const { return hgc_hsi_geometry_; }

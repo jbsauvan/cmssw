@@ -117,8 +117,7 @@ namespace l1t {
              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger &&
              HFNoseTriggerDetId(id).isEE())) {
           pt_em += id_constituent.second->pt() * fraction;
-        } else if ((id.det() == DetId::HGCalHSi) ||
-                   (id.det() == DetId::HGCalHSc) ||
+        } else if ((id.det() == DetId::HGCalHSi) || (id.det() == DetId::HGCalHSc) ||
                    (id.det() == DetId::HGCalTrigger &&
                     HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger) ||
                    (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose &&

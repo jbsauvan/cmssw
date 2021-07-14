@@ -13,7 +13,6 @@ HGCalCoarseTriggerCellMapping::HGCalCoarseTriggerCellMapping(const std::vector<u
     checkSizeValidity(ctc);
 }
 
-
 const std::map<int, int> HGCalCoarseTriggerCellMapping::kSplit_ = {
     {kCTCsizeIndividual_, kSplit_Individual_},
     {kCTCsizeVeryFine_, kSplit_VeryFine_},
@@ -109,7 +108,6 @@ std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(
   DetId tc_Id(ctcId);
 
   if (tc_Id.det() == DetId::HGCalTrigger || tc_Id.det() == DetId::HGCalHSc) {
-
     if (triggerTools_.isScintillator(ctcId)) {
       int splitInv = ~(kHGCalScinCellMaskInv_ | kSplit_Scin_.at(ctcSize));
       for (int i = 0; i < splitInv + 1; i++) {

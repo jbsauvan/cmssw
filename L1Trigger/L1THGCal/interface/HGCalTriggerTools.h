@@ -95,7 +95,6 @@ private:
   unsigned bhLayers_;
   unsigned noseLayers_;
   unsigned totalLayers_;
-
 };
 
 #endif

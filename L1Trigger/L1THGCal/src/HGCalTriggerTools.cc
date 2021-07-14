@@ -290,8 +290,7 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
     layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
   } else if (subdet == ForwardSubdetector::HFNose) {
     layerGlobalZ = geom_->noseTopology().dddConstants().waferZ(layer, true);
-  } else if ((subdet == ForwardSubdetector::HGCHEB) ||
-             (subdet == DetId::HGCalHSc)) {
+  } else if ((subdet == ForwardSubdetector::HGCHEB) || (subdet == DetId::HGCalHSc)) {
     layerGlobalZ = geom_->hscTopology().dddConstants().waferZ(layer, true);
   }
   return layerGlobalZ;
