@@ -85,7 +85,10 @@ void HGCalTriggerNtupleHGCTriggerSums::fill(const edm::Event& e, const edm::Even
   e.getByToken(trigger_sums_token_, trigger_sums_h);
   const l1t::HGCalTriggerSumsBxCollection& trigger_sums = *trigger_sums_h;
 
-  triggerTools_.eventSetup(es);
+  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
+  es.get<CaloGeometryRecord>().get(geometry);
+
+  triggerTools_.setGeometry(geometry.product());
 
   clear();
   for (auto ts_itr = trigger_sums.begin(0); ts_itr != trigger_sums.end(0); ts_itr++) {

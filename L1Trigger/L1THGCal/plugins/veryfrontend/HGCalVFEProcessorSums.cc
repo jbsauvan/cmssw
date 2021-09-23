@@ -26,14 +26,13 @@ HGCalVFEProcessorSums::HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HG
 }
 
 void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
-                                l1t::HGCalTriggerCellBxCollection& triggerCellColl,
-                                const edm::EventSetup& es) {
-  vfeSummationImpl_->eventSetup(es);
-  calibrationEE_->eventSetup(es);
-  calibrationHEsi_->eventSetup(es);
-  calibrationHEsc_->eventSetup(es);
-  calibrationNose_->eventSetup(es);
-  triggerTools_.eventSetup(es);
+                                l1t::HGCalTriggerCellBxCollection& triggerCellColl) {
+  vfeSummationImpl_->setGeometry(geometry_);
+  calibrationEE_->setGeometry(geometry_);
+  calibrationHEsi_->setGeometry(geometry_);
+  calibrationHEsc_->setGeometry(geometry_);
+  calibrationNose_->setGeometry(geometry_);
+  triggerTools_.setGeometry(geometry_);
 
   std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t>> linearized_dataframes;

@@ -77,7 +77,7 @@ void HGCalTriggerNtupleHGCConcentratorData::fill(const edm::Event& e, const edm:
   // retrieve geometry
   es.get<CaloGeometryRecord>().get(geometry_);
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(geometry_.product());
 
   clear();
   for (auto econ_itr = concentrator_data.begin(0); econ_itr != concentrator_data.end(0); econ_itr++) {

@@ -58,7 +58,7 @@ void HFNoseVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (nose_digis_h.isValid()) {
     const HGCalDigiCollection& nose_digis = *nose_digis_h;
-    vfeProcess_->run(nose_digis, *vfe_trigcell_output, es);
+    vfeProcess_->run(nose_digis, *vfe_trigcell_output);
   }
 
   // Put in the event

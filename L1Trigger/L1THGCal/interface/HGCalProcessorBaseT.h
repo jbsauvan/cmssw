@@ -16,11 +16,9 @@ public:
 
   const std::string& name() const { return name_; }
 
-  void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom; }
+  virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom; }
 
-  virtual void eventSetup(const edm::EventSetup& es){};
-
-  virtual void run(const InputCollection& inputColl, OutputCollection& outColl, const edm::EventSetup& es) = 0;
+  virtual void run(const InputCollection& inputColl, OutputCollection& outColl) = 0;
 
 protected:
   const HGCalTriggerGeometryBase* geometry_;

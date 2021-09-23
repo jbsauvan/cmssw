@@ -55,21 +55,20 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
 void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
                                               std::tuple<l1t::HGCalTriggerCellBxCollection,
                                                          l1t::HGCalTriggerSumsBxCollection,
-                                                         l1t::HGCalConcentratorDataBxCollection>& triggerCollOutput,
-                                              const edm::EventSetup& es) {
+                                                         l1t::HGCalConcentratorDataBxCollection>& triggerCollOutput) {
   if (thresholdImpl_)
-    thresholdImpl_->eventSetup(es);
+    thresholdImpl_->setGeometry(geometry_);
   if (bestChoiceImpl_)
-    bestChoiceImpl_->eventSetup(es);
+    bestChoiceImpl_->setGeometry(geometry_);
   if (superTriggerCellImpl_)
-    superTriggerCellImpl_->eventSetup(es);
+    superTriggerCellImpl_->setGeometry(geometry_);
   if (autoEncoderImpl_)
-    autoEncoderImpl_->eventSetup(es);
+    autoEncoderImpl_->setGeometry(geometry_);
   if (coarsenerImpl_)
-    coarsenerImpl_->eventSetup(es);
+    coarsenerImpl_->setGeometry(geometry_);
   if (trigSumImpl_)
-    trigSumImpl_->eventSetup(es);
-  triggerTools_.eventSetup(es);
+    trigSumImpl_->setGeometry(geometry_);
+  triggerTools_.setGeometry(geometry_);
 
   auto& triggerCellCollOutput = std::get<0>(triggerCollOutput);
   auto& triggerSumCollOutput = std::get<1>(triggerCollOutput);

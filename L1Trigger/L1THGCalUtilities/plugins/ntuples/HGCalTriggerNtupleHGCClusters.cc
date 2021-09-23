@@ -86,7 +86,7 @@ void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const edm::EventSe
   edm::ESHandle<HGCalTriggerGeometryBase> geometry;
   es.get<CaloGeometryRecord>().get(geometry);
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(geometry.product());
 
   // Associate cells to clusters
   std::unordered_map<uint32_t, l1t::HGCalMulticlusterBxCollection::const_iterator> cluster2multicluster;

@@ -41,15 +41,15 @@ public:
   }
 
   void run(const edm::Handle<l1t::HGCalClusterBxCollection>& collHandle,
-           std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection>& be_output,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+           std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection>& be_output) override {
+    if(!geometry_)
+      throw cms::Exception("HGCTriggerSetupError") << "The geometry has not been set in HGCalBackendLayer2Processor3DClustering";
     if (multiclustering_)
-      multiclustering_->eventSetup(es);
+      multiclustering_->setGeometry(geometry_);
     if (multiclusteringHistoSeeding_)
-      multiclusteringHistoSeeding_->eventSetup(es);
+      multiclusteringHistoSeeding_->setGeometry(geometry_);
     if (multiclusteringHistoClustering_)
-      multiclusteringHistoClustering_->eventSetup(es);
+      multiclusteringHistoClustering_->setGeometry(geometry_);
 
     auto& collCluster3D = be_output.first;
     auto& rejectedClusters = be_output.second;
@@ -67,15 +67,15 @@ public:
     /* call to multiclustering and compute shower shape*/
     switch (multiclusteringAlgoType_) {
       case dRC3d:
-        multiclustering_->clusterizeDR(clustersPtrs, collCluster3D, *triggerGeometry_);
+        multiclustering_->clusterizeDR(clustersPtrs, collCluster3D, *geometry_);
         break;
       case DBSCANC3d:
-        multiclustering_->clusterizeDBSCAN(clustersPtrs, collCluster3D, *triggerGeometry_);
+        multiclustering_->clusterizeDBSCAN(clustersPtrs, collCluster3D, *geometry_);
         break;
       case HistoC3d:
         multiclusteringHistoSeeding_->findHistoSeeds(clustersPtrs, seedPositionsEnergy);
         multiclusteringHistoClustering_->clusterizeHisto(
-            clustersPtrs, seedPositionsEnergy, *triggerGeometry_, collCluster3D, rejectedClusters);
+            clustersPtrs, seedPositionsEnergy, *geometry_, collCluster3D, rejectedClusters);
         break;
       default:
         // Should not happen, clustering type checked in constructor
@@ -84,15 +84,13 @@ public:
 
     // Call all the energy interpretation modules on the cluster collection
     for (const auto& interpreter : energy_interpreters_) {
-      interpreter->eventSetup(es);
+      interpreter->setGeometry(geometry_);
       interpreter->interpret(collCluster3D);
     }
   }
 
 private:
   enum MulticlusterType { dRC3d, DBSCANC3d, HistoC3d };
-
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
   /* algorithms instances */
   std::unique_ptr<HGCalMulticlusteringImpl> multiclustering_;

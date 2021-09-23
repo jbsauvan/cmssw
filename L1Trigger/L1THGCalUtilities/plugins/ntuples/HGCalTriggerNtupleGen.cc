@@ -3,6 +3,8 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
@@ -254,6 +256,7 @@ void HGCalTriggerNtupleGen::initialize(TTree &tree, const edm::ParameterSet &con
 void HGCalTriggerNtupleGen::fill(const edm::Event &iEvent, const edm::EventSetup &es) {
   clear();
 
+
   edm::Handle<std::vector<PileupSummaryInfo>> PupInfo_h;
   iEvent.getByToken(gen_PU_token_, PupInfo_h);
   const std::vector<PileupSummaryInfo> &PupInfo = *PupInfo_h;
@@ -270,7 +273,10 @@ void HGCalTriggerNtupleGen::fill(const edm::Event &iEvent, const edm::EventSetup
     aField_ = &(*magfield);
   }
 
-  triggerTools_.eventSetup(es);
+  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
+  es.get<CaloGeometryRecord>().get(geometry);
+
+  triggerTools_.setGeometry(geometry.product());
 
   // This balck magic is needed to use the mySimEvent_
   edm::Handle<edm::HepMCProduct> hevH;

@@ -162,7 +162,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   e.getByToken(bh_token_, bh_digis_h);
   const HGCalDigiCollection& bh_digis = *bh_digis_h;
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.setGeometry(triggerGeometry_.product());
 
   // sim hit association
   std::unordered_map<uint32_t, double> simhits_ee;

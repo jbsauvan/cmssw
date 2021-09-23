@@ -29,13 +29,11 @@ public:
   }
 
   void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
-           l1t::HGCalClusterBxCollection& collCluster2D,
-           const edm::EventSetup& es) override {
-    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+           l1t::HGCalClusterBxCollection& collCluster2D) override {
     if (clustering_)
-      clustering_->eventSetup(es);
+      clustering_->setGeometry(geometry_);
     if (clusteringDummy_)
-      clusteringDummy_->eventSetup(es);
+      clusteringDummy_->setGeometry(geometry_);
 
     /* create a persistent vector of pointers to the trigger-cells */
     std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;

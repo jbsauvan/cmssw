@@ -14,8 +14,7 @@ public:
   HGCalVFEProcessorSums(const edm::ParameterSet& conf);
 
   void run(const HGCalDigiCollection& digiColl,
-           l1t::HGCalTriggerCellBxCollection& triggerCellColl,
-           const edm::EventSetup& es) override;
+           l1t::HGCalTriggerCellBxCollection& triggerCellColl) override;
 
 private:
   std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationSiImpl_;
