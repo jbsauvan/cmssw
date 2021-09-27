@@ -20,7 +20,7 @@ public:
   HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCTriggerCells() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   double calibrate(double, int, unsigned);
@@ -142,7 +142,7 @@ void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
     tree.Branch(withPrefix("genparticle_index"), &tc_genparticle_index_);
 }
 
-void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve trigger cells
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigger_cells_h;
   e.getByToken(trigger_cells_token_, trigger_cells_h);
@@ -153,8 +153,8 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
   e.getByToken(multiclusters_token_, multiclusters_h);
   const l1t::HGCalMulticlusterBxCollection& multiclusters = *multiclusters_h;
 
-  // retrieve geometry
-  es.get<CaloGeometryRecord>().get(geometry_);
+  geometry_ = es.geometry;
+
 
   // sim hit association
   std::unordered_map<uint32_t, double> simhits_ee;

@@ -122,7 +122,7 @@ public:
   HGCalTriggerNtupleGen(const edm::ParameterSet &);
 
   void initialize(TTree &, const edm::ParameterSet &, edm::ConsumesCollector &&) final;
-  void fill(const edm::Event &, const edm::EventSetup &) final;
+  void fill(const edm::Event &, const HGCalTriggerNtupleEventSetup &) final;
 
   enum ReachHGCal { notReach = 0, outsideEESurface = 1, onEESurface = 2 };
 
@@ -253,7 +253,7 @@ void HGCalTriggerNtupleGen::initialize(TTree &tree, const edm::ParameterSet &con
   tree.Branch("genpart_posz", &genpart_posz_);
 }
 
-void HGCalTriggerNtupleGen::fill(const edm::Event &iEvent, const edm::EventSetup &es) {
+void HGCalTriggerNtupleGen::fill(const edm::Event &iEvent, const HGCalTriggerNtupleEventSetup &es) {
   clear();
 
 
@@ -261,22 +261,9 @@ void HGCalTriggerNtupleGen::fill(const edm::Event &iEvent, const edm::EventSetup
   iEvent.getByToken(gen_PU_token_, PupInfo_h);
   const std::vector<PileupSummaryInfo> &PupInfo = *PupInfo_h;
 
-  if (pdt_watcher_.check(es)) {
-    edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-    es.get<PDTRecord>().get(pdt);
-    mySimEvent_->initializePdt(&(*pdt));
-  }
-
-  if (magfield_watcher_.check(es)) {
-    edm::ESHandle<MagneticField> magfield;
-    es.get<IdealMagneticFieldRecord>().get(magfield);
-    aField_ = &(*magfield);
-  }
-
-  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
-  es.get<CaloGeometryRecord>().get(geometry);
-
-  triggerTools_.setGeometry(geometry.product());
+  mySimEvent_->initializePdt(&(*es.pdt));
+  aField_ = &(*es.magfield);
+  triggerTools_.setGeometry(es.geometry.product());
 
   // This balck magic is needed to use the mySimEvent_
   edm::Handle<edm::HepMCProduct> hevH;

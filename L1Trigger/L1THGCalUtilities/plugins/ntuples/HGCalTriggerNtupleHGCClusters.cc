@@ -12,7 +12,7 @@ public:
   HGCalTriggerNtupleHGCClusters(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCClusters() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void clear() final;
@@ -73,7 +73,7 @@ void HGCalTriggerNtupleHGCClusters::initialize(TTree& tree,
   tree.Branch(withPrefix("multicluster_pt"), &cl_multicluster_pt_);
 }
 
-void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve clusters
   edm::Handle<l1t::HGCalClusterBxCollection> clusters_h;
   e.getByToken(clusters_token_, clusters_h);
@@ -83,10 +83,7 @@ void HGCalTriggerNtupleHGCClusters::fill(const edm::Event& e, const edm::EventSe
   const l1t::HGCalMulticlusterBxCollection& multiclusters = *multiclusters_h;
 
   // retrieve geometry
-  edm::ESHandle<HGCalTriggerGeometryBase> geometry;
-  es.get<CaloGeometryRecord>().get(geometry);
-
-  triggerTools_.setGeometry(geometry.product());
+  triggerTools_.setGeometry(es.geometry.product());
 
   // Associate cells to clusters
   std::unordered_map<uint32_t, l1t::HGCalMulticlusterBxCollection::const_iterator> cluster2multicluster;

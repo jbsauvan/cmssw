@@ -22,11 +22,16 @@ private:
   edm::Service<TFileService> file_service_;
   std::vector<ntuple_ptr> hgc_ntuples_;
   TTree* tree_;
+
+  edm::ESWatcher<PDTRecord> pdt_watcher_;
+  edm::ESWatcher<IdealMagneticFieldRecord> magfield_watcher_;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
 };
 
 DEFINE_FWK_MODULE(HGCalTriggerNtupleManager);
 
-HGCalTriggerNtupleManager::HGCalTriggerNtupleManager(const edm::ParameterSet& conf) {
+HGCalTriggerNtupleManager::HGCalTriggerNtupleManager(const edm::ParameterSet& conf) 
+: triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord>()) {
   tree_ = file_service_->make<TTree>("HGCalTriggerNtuple", "HGCalTriggerNtuple");
   const std::vector<edm::ParameterSet>& ntuple_cfgs = conf.getParameterSetVector("Ntuples");
   for (const auto& ntuple_cfg : ntuple_cfgs) {
@@ -37,8 +42,21 @@ HGCalTriggerNtupleManager::HGCalTriggerNtupleManager(const edm::ParameterSet& co
 }
 
 void HGCalTriggerNtupleManager::analyze(const edm::Event& e, const edm::EventSetup& es) {
-  for (auto& hgc_ntuple : hgc_ntuples_) {
-    hgc_ntuple->fill(e, es);
+  HGCalTriggerNtupleEventSetup ntuple_es;
+
+  if (pdt_watcher_.check(es)) {
+    es.get<PDTRecord>().get(ntuple_es.pdt);
   }
+
+  if (magfield_watcher_.check(es)) {
+    es.get<IdealMagneticFieldRecord>().get(ntuple_es.magfield);
+  }
+
+  es.get<CaloGeometryRecord>().get(ntuple_es.geometry);
+
+  for (auto& hgc_ntuple : hgc_ntuples_) {
+    hgc_ntuple->fill(e, ntuple_es);
+  }
+
   tree_->Fill();
 }

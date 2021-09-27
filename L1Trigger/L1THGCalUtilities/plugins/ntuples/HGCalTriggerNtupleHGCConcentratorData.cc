@@ -13,7 +13,7 @@ public:
   HGCalTriggerNtupleHGCConcentratorData(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCConcentratorData() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void clear() final;
@@ -68,16 +68,13 @@ void HGCalTriggerNtupleHGCConcentratorData::initialize(TTree& tree,
   tree.Branch(withPrefix("data"), &econ_data_);
 }
 
-void HGCalTriggerNtupleHGCConcentratorData::fill(const edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerNtupleHGCConcentratorData::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
   // retrieve trigger cells
   edm::Handle<l1t::HGCalConcentratorDataBxCollection> concentrator_data_h;
   e.getByToken(concentrator_data_token_, concentrator_data_h);
   const l1t::HGCalConcentratorDataBxCollection& concentrator_data = *concentrator_data_h;
 
-  // retrieve geometry
-  es.get<CaloGeometryRecord>().get(geometry_);
-
-  triggerTools_.setGeometry(geometry_.product());
+  triggerTools_.setGeometry(es.geometry.product());
 
   clear();
   for (auto econ_itr = concentrator_data.begin(0); econ_itr != concentrator_data.end(0); econ_itr++) {

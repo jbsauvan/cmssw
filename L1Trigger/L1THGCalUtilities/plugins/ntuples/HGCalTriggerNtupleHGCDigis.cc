@@ -15,7 +15,7 @@ public:
   HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf);
   ~HGCalTriggerNtupleHGCDigis() override{};
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-  void fill(const edm::Event& e, const edm::EventSetup& es) final;
+  void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 
 private:
   void simhits(const edm::Event& e,
@@ -149,8 +149,7 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
     tree.Branch("bhdigi_simenergy", &bhdigi_simenergy_);
 }
 
-void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CaloGeometryRecord>().get(triggerGeometry_);
+void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) {
 
   edm::Handle<HGCalDigiCollection> ee_digis_h;
   e.getByToken(ee_token_, ee_digis_h);
@@ -162,7 +161,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const edm::EventSetup
   e.getByToken(bh_token_, bh_digis_h);
   const HGCalDigiCollection& bh_digis = *bh_digis_h;
 
-  triggerTools_.setGeometry(triggerGeometry_.product());
+  triggerTools_.setGeometry(es.geometry.product());
 
   // sim hit association
   std::unordered_map<uint32_t, double> simhits_ee;
