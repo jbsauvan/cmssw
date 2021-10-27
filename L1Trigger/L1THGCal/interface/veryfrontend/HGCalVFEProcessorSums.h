@@ -18,6 +18,7 @@ public:
            const edm::EventSetup& es) override;
 
 private:
+  bool connectAllModules_ = false;
   std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationEEImpl_;
   std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationHEsiImpl_;
   std::unique_ptr<HGCalVFELinearizationImpl> vfeLinearizationHEscImpl_;
