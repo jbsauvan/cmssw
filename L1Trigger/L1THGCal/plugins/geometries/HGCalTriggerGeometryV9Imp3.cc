@@ -66,8 +66,6 @@ public:
 private:
   // HSc trigger cell grouping
   unsigned hSc_triggercell_size_ = 2;
-  // unsigned hSc_module_size_ = 12;  // in TC units (144 TC / panel = 36 e-links)
-  //  unsigned hSc_wafers_per_module_ = 3;
   static constexpr unsigned hSc_num_panels_per_sector_ = 12;
   static constexpr unsigned hSc_tcs_per_module_phi_ = 4;
   static constexpr unsigned hSc_front_layers_split_ = 12;
