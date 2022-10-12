@@ -89,7 +89,11 @@ HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters(
     };
     if (x1 < minx1 || x1 >= maxx1) {
       throw cms::Exception("OutOfBound") << "TC X1 = " << x1 << " out of the seeding histogram bounds " << minx1
-                                         << " - " << maxx1;
+                                         << " - " << maxx1
+                                         << "\n    x= " << clu->centre().x() << ", y = " << clu->centre().y()
+                                         << "\n    silicon = " << triggerTools_.isSilicon(clu->detId())
+                                         << "\n    TC detid(si) = " << HGCalTriggerDetId(clu->detId())
+                                         << "\n    TC detid(sci) = " << HGCScintillatorDetId(clu->detId());
     }
     if (x2 < minx2 || x2 >= maxx2) {
       throw cms::Exception("OutOfBound") << "TC X2 = " << x2 << " out of the seeding histogram bounds " << minx2
