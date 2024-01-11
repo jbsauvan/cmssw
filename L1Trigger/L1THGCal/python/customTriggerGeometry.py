@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 def custom_geometry_V11_Imp3(process, stage1links=120):
     process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV9Imp3')
     process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.ScintillatorTriggerCellSize = cms.uint32(2)
+    process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.KeepModulesNotInMapping = cms.bool(True)
     if stage1links==120:
         process.l1tHGCalTriggerGeometryESProducer.TriggerGeometry.JsonMappingFile = cms.FileInPath("L1Trigger/L1THGCal/data/hgcal_trigger_link_mapping_120links_v1.json")
     elif stage1links==72:

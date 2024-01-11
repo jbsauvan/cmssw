@@ -73,11 +73,13 @@ private:
   static constexpr unsigned hSc_front_layers_split_ = 12;
   static constexpr unsigned hSc_back_layers_split_ = 8;
   static constexpr unsigned hSc_layer_for_split_ = 40;
+  static constexpr unsigned hSc_tcs_per_sector_ = hSc_num_panels_per_sector_*hSc_tcs_per_module_phi_;
   static constexpr int hSc_tc_layer0_min_ = 24;
   static constexpr int ntc_per_wafer_ = 48;
   static constexpr int nSectors_ = 3;
 
   edm::FileInPath jsonMappingFile_;
+  bool keepModulesNotInMapping_ = false;
 
   // rotation class
   HGCalGeomRotation geom_rotation_120_ = {HGCalGeomRotation::SectorType::Sector120Degrees};
@@ -109,6 +111,7 @@ private:
 
   void fillMaps();
   bool validCellId(unsigned det, unsigned cell_id) const;
+  bool validCellIdFromPosition(unsigned det, unsigned cell_id) const;
   bool validTriggerCellFromCells(const unsigned) const;
 
   int detIdWaferType(unsigned det, unsigned layer, short waferU, short waferV) const;
@@ -127,7 +130,8 @@ private:
 HGCalTriggerGeometryV9Imp3::HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& conf)
     : HGCalTriggerGeometryBase(conf),
       hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize")),
-      jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")) {
+      jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")),
+      keepModulesNotInMapping_(conf.getParameter<bool>("KeepModulesNotInMapping")) {
   std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
 }
@@ -401,11 +405,8 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
     } else {
       ieta0 = ieta0 + 1;
     }
-    iphi0 = (iphi0 * hSc_tcs_per_module_phi_) + hSc_tc_layer0_min_ + 1;
-    int total_tcs = hSc_num_panels_per_sector_ * hSc_tcs_per_module_phi_ * nSectors_;
-    if (iphi0 > total_tcs) {
-      iphi0 = iphi0 - total_tcs;
-    }
+    int total_tcs = hSc_tcs_per_sector_ * nSectors_;
+    iphi0 = ((iphi0-1) * hSc_tcs_per_module_phi_ + 1) % total_tcs;
 
     int hSc_tcs_per_module_eta = (layer > hSc_layer_for_split_) ? hSc_back_layers_split_ : hSc_front_layers_split_;
 
@@ -555,7 +556,13 @@ unsigned HGCalTriggerGeometryV9Imp3::getLinksInModule(const unsigned module_id) 
   else {
     int packed_module =
         packLayerSubdetWaferId(module_det_id.layer(), subdet, module_det_id.moduleU(), module_det_id.moduleV());
-    links = links_per_module_.at(packed_module);
+
+    auto links_itr = links_per_module_.find(packed_module);
+    if(!keepModulesNotInMapping_ && links_itr==links_per_module_.end()) {
+      throw cms::Exception("OutOfRange") << "Cannot find number of links connected to module "<<module_det_id<<"\n";
+    }
+    if(links_itr!=links_per_module_.end())
+      links = links_itr->second;
   }
   return links;
 }
@@ -740,11 +747,17 @@ HGCalTriggerGeometryV9Imp3::geom_set HGCalTriggerGeometryV9Imp3::getLpgbtsFromMo
 unsigned HGCalTriggerGeometryV9Imp3::getStage1FpgaFromModule(const unsigned module_id) const {
   HGCalTriggerModuleDetId id(module_id);
 
-  unsigned stage1_label =
-      module_to_stage1_.at(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV()));
+  unsigned stage1_id = 0;
+  auto mod_s1_itr = module_to_stage1_.find(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV()));
+  if(!keepModulesNotInMapping_ && mod_s1_itr==module_to_stage1_.end()) {
+    throw cms::Exception("OutOfRange") << "Cannot find Stage 1 FPGA connected to module "<<id<<"\n";
+  }
 
-  return HGCalTriggerBackendDetId(
-      id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), stage1_label);
+  if (mod_s1_itr!=module_to_stage1_.end()) {
+    stage1_id = HGCalTriggerBackendDetId(
+        id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1FPGA, id.sector(), mod_s1_itr->second).rawId();
+  }
+  return stage1_id;
 }
 
 GlobalPoint HGCalTriggerGeometryV9Imp3::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
@@ -944,14 +957,7 @@ void HGCalTriggerGeometryV9Imp3::unpackLayerSubdetWaferId(
 }
 
 void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const {
-  if (sector == 0) {
-    return;
-  }
-  if (sector == 2) {
-    iphi = iphi + hSc_num_panels_per_sector_;
-  } else if (sector == 1) {
-    iphi = iphi + (2 * hSc_num_panels_per_sector_);
-  }
+  iphi += hSc_num_panels_per_sector_*sector;
 }
 
 HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(unsigned layer, int subdet) const {
@@ -973,33 +979,18 @@ HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(un
 }
 
 unsigned HGCalTriggerGeometryV9Imp3::tcEtaphiMappingToSector0(int& tc_ieta, int& tc_iphi) const {
-  unsigned sector = 0;
-
-  if (tc_iphi > hSc_tc_layer0_min_ && tc_iphi <= hSc_tc_layer0_min_ + ntc_per_wafer_) {
-    sector = 0;
-  } else if (tc_iphi > hSc_tc_layer0_min_ + ntc_per_wafer_ && tc_iphi <= hSc_tc_layer0_min_ + 2 * ntc_per_wafer_) {
-    sector = 2;
-  } else {
-    sector = 1;
+  unsigned sector = (tc_iphi-1) / hSc_tcs_per_sector_;
+  if(sector>nSectors_) {
+    throw cms::Exception("HGCalTriggerGeometryV9Imp3::OutOfRange") << "Got sector index ("<<sector<<") larger than expected ("<<nSectors_<<")";
   }
-
-  if (sector == 0) {
-    tc_iphi = tc_iphi - hSc_tc_layer0_min_;
-  } else if (sector == 2) {
-    tc_iphi = tc_iphi - (hSc_tc_layer0_min_ + ntc_per_wafer_);
-  } else if (sector == 1) {
-    if (tc_iphi <= hSc_tc_layer0_min_) {
-      tc_iphi = tc_iphi + nSectors_ * ntc_per_wafer_;
-    }
-    tc_iphi = tc_iphi - (nSectors_ * ntc_per_wafer_ - hSc_tc_layer0_min_);
-  }
-
+  unsigned tc_iphi_tmp = ( (tc_iphi-1) % hSc_tcs_per_sector_) + 1; // TC index starts at 1
+  tc_iphi = tc_iphi_tmp;
   return sector;
 }
 
 void HGCalTriggerGeometryV9Imp3::getScintillatoriEtaiPhi(
     int& ieta, int& iphi, int tc_eta, int tc_phi, unsigned layer) const {
-  iphi = (tc_phi - 1) / hSc_tcs_per_module_phi_;  //Phi index 1-12
+  iphi = (tc_phi - 1) / hSc_tcs_per_module_phi_ + 1;  //Phi index 1-12
 
   int split = hSc_front_layers_split_;
   if (layer > hSc_layer_for_split_) {
@@ -1019,7 +1010,8 @@ bool HGCalTriggerGeometryV9Imp3::validTriggerCell(const unsigned trigger_cell_id
 bool HGCalTriggerGeometryV9Imp3::disconnectedModule(const unsigned module_id) const {
   bool disconnected = false;
   HGCalTriggerModuleDetId id(module_id);
-  if (module_to_stage1_.find(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV())) ==
+  if (!keepModulesNotInMapping_ &&
+      module_to_stage1_.find(packLayerSubdetWaferId(id.layer(), id.triggerSubdetId(), id.moduleU(), id.moduleV())) ==
       module_to_stage1_.end()) {
     disconnected = true;
   }
@@ -1093,6 +1085,9 @@ bool HGCalTriggerGeometryV9Imp3::validCellId(unsigned subdet, unsigned cell_id) 
       break;
     case DetId::HGCalHSc:
       is_valid = hscTopology().valid(cell_id);
+      // Hack to remove cells flagged as valid but with clearly invalid positions
+      if(is_valid) is_valid = validCellIdFromPosition(subdet, cell_id);
+      if(is_valid) is_valid = (HGCScintillatorDetId(cell_id).ietaAbs()<40);
       break;
     case DetId::Forward:
       is_valid = noseTopology().valid(cell_id);
@@ -1101,6 +1096,29 @@ bool HGCalTriggerGeometryV9Imp3::validCellId(unsigned subdet, unsigned cell_id) 
       is_valid = false;
       break;
   }
+  return is_valid;
+}
+
+bool HGCalTriggerGeometryV9Imp3::validCellIdFromPosition(unsigned subdet, unsigned cell_id) const {
+  float threshold = 0.1;
+  float cell_z = 0.;
+  switch (subdet) {
+    case DetId::HGCalEE:
+      cell_z = GlobalPoint(eeGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    case DetId::HGCalHSi:
+      cell_z = GlobalPoint(hsiGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    case DetId::HGCalHSc:
+      cell_z = GlobalPoint(hscGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    case DetId::Forward:
+      cell_z = GlobalPoint(noseGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    default:
+      break;
+  }
+  bool is_valid = (std::abs(cell_z)>threshold);
   return is_valid;
 }
 

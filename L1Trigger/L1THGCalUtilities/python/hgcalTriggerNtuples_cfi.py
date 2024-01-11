@@ -72,6 +72,7 @@ ntuple_triggercells = cms.PSet(
 ntuple_triggersums = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerSums'),
     TriggerSums = cms.InputTag('l1tHGCalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+    ScintillatorModulesPerSector = cms.uint32(12),
 )
 
 ntuple_econdata = cms.PSet(
