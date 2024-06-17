@@ -191,6 +191,8 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
   }
 }
 
+void HGCalTriggerGeoTesterCells::check(const HGCalTriggerGeoTesterEventSetup& es) {
+}
 
 void HGCalTriggerGeoTesterCells::clear() {
 
@@ -220,5 +222,3 @@ void HGCalTriggerGeoTesterCells::clear() {
 }
 
 
-void HGCalTriggerGeoTesterCells::check(const HGCalTriggerGeoTesterEventSetup& es) {
-}
