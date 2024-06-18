@@ -76,6 +76,7 @@ void HGCalTriggerGeoTesterCells::initialize(TTree* tree,
 }
 
 void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es) {
+  clear();
   // Loop over cells
   edm::LogPrint("TreeFilling") << "Filling cells tree";
   // EE
@@ -114,6 +115,7 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
       corners_z_.emplace_back(corner.z());
     }
     tree_->Fill();
+    clear();
   }
   std::cout << "Filling HSi geometry\n";
   for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
@@ -151,11 +153,12 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
       corners_z_.emplace_back(corner.z());
     }
     tree_->Fill();
+    clear();
   }
   std::cout << "Filling HSc geometry\n";
   for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
     HGCScintillatorDetId detid(id);
-    valid_ = es.geometry->hsiTopology().valid(id);
+    valid_ = es.geometry->hscTopology().valid(id);
     id_ = detid.rawId();
     zside_ = detid.zside();
     subdet_ = detid.subdet();
@@ -188,6 +191,7 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
       corners_z_.emplace_back(corner.z());
     }
     tree_->Fill();
+    clear();
   }
 }
 

@@ -38,6 +38,7 @@ private:
   float z_ = 0.;
   float eta_ = 0.;
   float phi_ = 0.;
+  int cells_n_ = 0;
   std::vector<uint32_t> cells_;
 
 };
@@ -73,11 +74,13 @@ void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree,
   tree_->Branch("z", &z_, "z/F");
   tree_->Branch("eta", &eta_, "eta/F");
   tree_->Branch("phi", &phi_, "phi/F");
+  tree_->Branch("cells_n", &cells_n_, "cells_n/I");
   tree_->Branch("cells", &cells_);
 }
 
 
 void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSetup& es) {
+  clear();
   edm::LogPrint("TreeFilling") << "Filling trigger cells tree";
   // Create list of TCs from valid cells
   std::unordered_set<uint32_t> triggercells;
@@ -123,6 +126,7 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
           << "Found unexpected trigger cell detid to be filled in HGCal Trigger Cell ntuple.";
     }
     auto cells = es.geometry->getCellsFromTriggerCell(id_);
+    cells_n_ = cells.size();
     cells_.resize(cells.size());
     std::copy(cells.begin(), cells.end(), cells_.begin());
     //
@@ -134,6 +138,7 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
     phi_ = center.phi();
 
     tree_->Fill();
+    clear();
   }
 }
 
@@ -161,5 +166,6 @@ void HGCalTriggerGeoTesterTriggerCells::clear() {
   z_ = 0.;
   eta_ = 0.;
   phi_ = 0.;
+  cells_n_ = 0;
   cells_.clear();
 }
