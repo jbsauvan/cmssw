@@ -31,7 +31,6 @@ private:
   int waferU_ = 0;
   int waferV_ = 0;
   int type_ = 0;
-  unsigned tcid_ = 0;
   unsigned modid_ = 0;
   float x_ = 0.;
   float y_ = 0.;
@@ -67,7 +66,6 @@ void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree,
   tree_->Branch("waferU", &waferU_, "waferU/I");
   tree_->Branch("waferV", &waferV_, "waferV/I");
   tree_->Branch("type", &type_, "type/i");
-  tree_->Branch("tcid", &tcid_, "tcid/i");
   tree_->Branch("modid", &modid_, "modid/I");
   tree_->Branch("x", &x_, "x/F");
   tree_->Branch("y", &y_, "y/F");
