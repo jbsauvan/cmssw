@@ -50,8 +50,14 @@ HGCalTriggerGeoTesterManager::HGCalTriggerGeoTesterManager(const edm::ParameterS
 void HGCalTriggerGeoTesterManager::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   tester_es_.geometry = es.getHandle(triggerGeomToken_);
   for (auto& [tester,tree] : testers_) {
+    edm::LogPrint("HGCalTriggerGeoTester") << "Running '" << tester->name() <<"' tester";
     tester->check(tester_es_);
     tester->fill(tester_es_);
+    for(const auto& [error, detids] : tester->errors().errors()) {
+      edm::LogError("HGCalTriggerGeoTester")
+        << HGcalTriggerGeoTesterErrors::messages.at(error) << " for " << detids.size() << " items"
+        << "\n Please check the produced ntuples for more details";
+    }
   }
 
 }

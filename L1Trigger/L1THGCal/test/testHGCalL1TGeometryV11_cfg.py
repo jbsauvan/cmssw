@@ -41,63 +41,20 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-# Output definition
-
-process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    fileName = cms.untracked.string('file:junk.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('generation_step')
-    )
-)
-
 # Additional output definition
 process.TFileService = cms.Service(
     "TFileService",
     fileName = cms.string("test_triggergeom.root")
     )
 
-
+MessageLogger = cms.Service("MessageLogger")
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
 
-#  process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-    #  PGunParameters = cms.PSet(
-        #  MaxPt = cms.double(10.01),
-        #  MinPt = cms.double(9.99),
-        #  PartID = cms.vint32(13),
-        #  MaxEta = cms.double(2.5),
-        #  MaxPhi = cms.double(3.14159265359),
-        #  MinEta = cms.double(-2.5),
-        #  MinPhi = cms.double(-3.14159265359)
-    #  ),
-    #  Verbosity = cms.untracked.int32(0),
-    #  psethack = cms.string('single electron pt 10'),
-    #  AddAntiParticle = cms.bool(True),
-    #  firstRun = cms.untracked.uint32(1)
-#  )
-#
-#  process.mix.digitizers = cms.PSet(process.theDigitizersValid)
-
-
-# Path and EndPath definitions
-#  process.generation_step = cms.Path(process.pgen)
-#  process.simulation_step = cms.Path(process.psim)
-#  process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-#  process.digitisation_step = cms.Path(process.pdigi_valid)
-#  process.L1simulation_step = cms.Path(process.SimL1Emulator)
-#  process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-#  process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters

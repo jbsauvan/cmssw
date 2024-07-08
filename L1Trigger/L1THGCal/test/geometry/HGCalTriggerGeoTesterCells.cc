@@ -12,8 +12,11 @@ public:
 
 private:
   void clear() final;
+  bool validCellIdFromPosition(unsigned cell_id, const HGCalTriggerGeoTesterEventSetup& es) const;
+
 
   unsigned id_ = 0;
+  unsigned errorbits_ = 0;
   int valid_ = 0;
   int zside_ = 0;
   int subdet_ = 0;
@@ -52,6 +55,7 @@ void HGCalTriggerGeoTesterCells::initialize(TTree* tree,
 
   tree_->Branch("valid", &valid_, "valid/I");
   tree_->Branch("id", &id_, "id/i");
+  tree_->Branch("errorbits", &errorbits_, "errorbits/i");
   tree_->Branch("zside", &zside_, "zside/I");
   tree_->Branch("subdet", &subdet_, "subdet/I");
   tree_->Branch("layer", &layer_, "layer/I");
@@ -78,12 +82,18 @@ void HGCalTriggerGeoTesterCells::initialize(TTree* tree,
 void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es) {
   clear();
   // Loop over cells
-  edm::LogPrint("TreeFilling") << "Filling cells tree";
+  edm::LogPrint("GeoTester") << "Filling cells tree";
   // EE
   for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
-    HGCSiliconDetId detid(id);
     valid_ = es.geometry->eeTopology().valid(id);
-    id_ = detid.rawId();
+    id_ = id.rawId();
+    const auto error_itr = errors_.detids().find(id);
+    if(error_itr!=errors_.detids().end()) {
+      for(const auto& error : error_itr->second) {
+        errorbits_ |= (0x1 << error);
+      }
+    }
+    HGCSiliconDetId detid(id);
     zside_ = detid.zside();
     subdet_ = detid.subdet();
     layer_ = detid.layer();
@@ -94,7 +104,7 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
     waferU_ = detid.waferU();
     waferV_ = detid.waferV();
     type_ = detid.type();
-    tcid_ = es.geometry->getTriggerCellFromCell(id_);
+    tcid_ = es.geometry->getTriggerCellFromCell(id);
     modid_ = es.geometry->getModuleFromTriggerCell(tcid_);
     //
     GlobalPoint center = es.geometry->eeGeometry()->getPosition(id);
@@ -117,11 +127,16 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
     tree_->Fill();
     clear();
   }
-  std::cout << "Filling HSi geometry\n";
   for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
-    HGCSiliconDetId detid(id);
     valid_ = es.geometry->hsiTopology().valid(id);
-    id_ = detid.rawId();
+    id_ = id.rawId();
+    const auto error_itr = errors_.detids().find(id);
+    if(error_itr!=errors_.detids().end()) {
+      for(const auto& error : error_itr->second) {
+        errorbits_ |= (0x1 << error);
+      }
+    }
+    HGCSiliconDetId detid(id);
     zside_ = detid.zside();
     subdet_ = detid.subdet();
     layer_ = detid.layer();
@@ -155,11 +170,16 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
     tree_->Fill();
     clear();
   }
-  std::cout << "Filling HSc geometry\n";
   for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
-    HGCScintillatorDetId detid(id);
     valid_ = es.geometry->hscTopology().valid(id);
-    id_ = detid.rawId();
+    id_ = id.rawId();
+    const auto error_itr = errors_.detids().find(id);
+    if(error_itr!=errors_.detids().end()) {
+      for(const auto& error : error_itr->second) {
+        errorbits_ |= (0x1 << error);
+      }
+    }
+    HGCScintillatorDetId detid(id);
     zside_ = detid.zside();
     subdet_ = detid.subdet();
     layer_ = detid.layer();
@@ -196,12 +216,76 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
 }
 
 void HGCalTriggerGeoTesterCells::check(const HGCalTriggerGeoTesterEventSetup& es) {
+  edm::LogPrint("GeoTester") << "Checking cells";
+  for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
+    if (!es.geometry->eeTopology().valid(id)) {
+      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+    }
+    if(!validCellIdFromPosition(id, es)) {
+      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+    }
+  }
+
+  for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
+    if (!es.geometry->eeTopology().valid(id)) {
+      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+    }
+    if(!validCellIdFromPosition(id, es)) {
+      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+    }
+  }
+
+  for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
+    if (!es.geometry->hscTopology().valid(id)) {
+      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+    }
+    if(!validCellIdFromPosition(id, es)) {
+      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+    }
+  }
+
+  if (es.geometry->isWithNoseGeometry()) {
+    for (const auto& id : es.geometry->noseGeometry()->getValidDetIds()) {
+      if (!es.geometry->eeTopology().valid(id)) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      }
+      if(!validCellIdFromPosition(id, es)) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      }
+    }
+  }
 }
+
+bool HGCalTriggerGeoTesterCells::validCellIdFromPosition(unsigned cell_id, const HGCalTriggerGeoTesterEventSetup& es) const {
+  float threshold = 0.1;
+  float cell_z = 0.;
+  unsigned subdet = DetId(cell_id).det();
+  switch (subdet) {
+    case DetId::HGCalEE:
+      cell_z = GlobalPoint(es.geometry->eeGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    case DetId::HGCalHSi:
+      cell_z = GlobalPoint(es.geometry->hsiGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    case DetId::HGCalHSc:
+      cell_z = GlobalPoint(es.geometry->hscGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    case DetId::Forward:
+      cell_z = GlobalPoint(es.geometry->noseGeometry()->getPosition(cell_id).basicVector()).z();
+      break;
+    default:
+      break;
+  }
+  bool is_valid = (std::abs(cell_z)>threshold);
+  return is_valid;
+}
+
 
 void HGCalTriggerGeoTesterCells::clear() {
 
   id_ = 0;
   valid_ = 0;
+  errorbits_ = 0;
   zside_ = 0;
   subdet_ = 0;
   layer_ = 0;
