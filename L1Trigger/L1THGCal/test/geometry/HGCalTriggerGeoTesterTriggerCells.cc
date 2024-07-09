@@ -20,6 +20,7 @@ private:
 
   unsigned id_ = 0;
   int valid_ = 0;
+  unsigned errorbits_ = 0;
   int disconnected_ = 0;
   int zside_ = 0;
   int subdet_ = 0;
@@ -56,6 +57,7 @@ void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree,
   tree_->Branch("valid", &valid_, "valid/I");
   tree_->Branch("disconnected", &disconnected_, "disconnected/I");
   tree_->Branch("id", &id_, "id/i");
+  tree_->Branch("errorbits", &errorbits_, "errorbits/i");
   tree_->Branch("zside", &zside_, "zside/I");
   tree_->Branch("subdet", &subdet_, "subdet/I");
   tree_->Branch("layer", &layer_, "layer/I");
@@ -97,6 +99,12 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
     valid_ = es.geometry->validTriggerCell(id);
     disconnected_ = es.geometry->disconnectedModule(modid_);
     id_ = id;
+    const auto error_itr = errors_.detids().find(id);
+    if(error_itr!=errors_.detids().end()) {
+      for(const auto& error : error_itr->second) {
+        errorbits_ |= (0x1 << error);
+      }
+    }
     zside_ = triggerTools_.zside(id);
     layer_ = triggerTools_.layerWithOffset(id);
     if (detid.det() == DetId::HGCalTrigger) {
@@ -141,12 +149,51 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
 }
 
 void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSetup& es) {
+  edm::LogPrint("GeoTesterTriggerCells") << "Checking trigger cells";
+  // Create list of TCs from valid cells
+  std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
+  for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
+    if (!es.geometry->eeTopology().valid(id))
+      continue;
+    unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+    auto itr_insert = triggercells_to_cells.emplace(tcid, std::unordered_set<uint32_t>());
+    itr_insert.first->second.emplace(id);
+  }
+  for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
+    if (!es.geometry->hsiTopology().valid(id))
+      continue;
+    unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+    auto itr_insert = triggercells_to_cells.emplace(tcid, std::unordered_set<uint32_t>());
+    itr_insert.first->second.emplace(id);
+  }
+  for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
+    if (!es.geometry->hscTopology().valid(id))
+      continue;
+    unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+    auto itr_insert = triggercells_to_cells.emplace(tcid, std::unordered_set<uint32_t>());
+    itr_insert.first->second.emplace(id);
+  }
+  // Check consistency of cells included in trigger cell
+  for (const auto& [tcid,cells] : triggercells_to_cells) {
+    HGCalTriggerGeometryBase::geom_set cells_from_tc = es.geometry->getCellsFromTriggerCell(tcid);
+    for (auto cell : cells) {
+      if (cells_from_tc.find(cell) == cells_from_tc.end()) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::TriggerCellMapping, tcid);
+      }
+    }
+    for (auto cell : cells_from_tc) {
+      if (cells.find(cell) == cells.end()) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::TriggerCellMapping, tcid);
+      }
+    }
+  }
 }
 
 
 void HGCalTriggerGeoTesterTriggerCells::clear() {
   id_ = 0;
   valid_ = 0;
+  errorbits_ = 0;
   disconnected_ = 0;
   zside_ = 0;
   subdet_ = 0;

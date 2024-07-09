@@ -227,7 +227,7 @@ void HGCalTriggerGeoTesterCells::check(const HGCalTriggerGeoTesterEventSetup& es
   }
 
   for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
-    if (!es.geometry->eeTopology().valid(id)) {
+    if (!es.geometry->hsiTopology().valid(id)) {
       errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
     }
     if(!validCellIdFromPosition(id, es)) {
@@ -246,7 +246,7 @@ void HGCalTriggerGeoTesterCells::check(const HGCalTriggerGeoTesterEventSetup& es
 
   if (es.geometry->isWithNoseGeometry()) {
     for (const auto& id : es.geometry->noseGeometry()->getValidDetIds()) {
-      if (!es.geometry->eeTopology().valid(id)) {
+      if (!es.geometry->noseTopology().valid(id)) {
         errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
       }
       if(!validCellIdFromPosition(id, es)) {
