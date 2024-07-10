@@ -2,7 +2,8 @@
 
 const std::unordered_map<HGcalTriggerGeoTesterErrors::ErrorCode, std::string> HGcalTriggerGeoTesterErrors::messages = 
 { {HGcalTriggerGeoTesterErrors::CellValidity, "Found invalid cell(s)"},
-  {HGcalTriggerGeoTesterErrors::TriggerCellMapping, "Found inconsistencies in trigger cell mapping"},
+  {HGcalTriggerGeoTesterErrors::MissingCellInTC, "Found missing cell(s) in trigger cell"},
+  {HGcalTriggerGeoTesterErrors::InvalidCellInTC, "Found invalid cell(s) in trigger cell"},
   {HGcalTriggerGeoTesterErrors::ModuleMapping, "Found inconsistencies in trigger module mapping"}
 };
 

@@ -25,7 +25,8 @@ class HGcalTriggerGeoTesterErrors {
   public: 
     enum ErrorCode {
       CellValidity = 0,
-      TriggerCellMapping,
+      MissingCellInTC,
+      InvalidCellInTC,
       ModuleMapping
     };
     static const std::unordered_map<ErrorCode, std::string> messages;
