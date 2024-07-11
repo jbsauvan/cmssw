@@ -19,6 +19,7 @@ private:
   HGCalTriggerTools triggerTools_;
 
   unsigned id_ = 0;
+  unsigned errorbits_ = 0;
   int disconnected_ = 0;
   int zside_ = 0;
   int subdet_ = 0;
@@ -52,8 +53,9 @@ void HGCalTriggerGeoTesterModules::initialize(TTree* tree,
 
   tree_ = tree;
 
-  tree_->Branch("disconnected", &disconnected_, "disconnected/I");
   tree_->Branch("id", &id_, "id/i");
+  tree_->Branch("errorbits", &errorbits_, "errorbits/i");
+  tree_->Branch("disconnected", &disconnected_, "disconnected/I");
   tree_->Branch("zside", &zside_, "zside/I");
   tree_->Branch("subdet", &subdet_, "subdet/I");
   tree_->Branch("sector", &sector_, "sector/I");
@@ -91,10 +93,16 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
   }
   for (const auto& id : modules) {
     HGCalTriggerModuleDetId detid(id);
+    const auto error_itr = errors_.detids().find(id);
+    if(error_itr!=errors_.detids().end()) {
+      for(const auto& error : error_itr->second) {
+        errorbits_ |= (0x1 << error);
+      }
+    }
     disconnected_ = es.geometry->disconnectedModule(id);
     id_ = id;
     zside_ = detid.zside();
-    subdet_ = detid.subdetId();
+    subdet_ = detid.triggerSubdetId();
     type_ = detid.type();
     layer_ = triggerTools_.layerWithOffset(id);
     if (triggerTools_.isSilicon(id)) {
@@ -133,11 +141,53 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
 }
 
 void HGCalTriggerGeoTesterModules::check(const HGCalTriggerGeoTesterEventSetup& es) {
+  edm::LogPrint("GeoTesterModules") << "Checking trigger modules";
+  // Create list of modules from valid cells
+  std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_triggercells;
+  for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
+    if (!es.geometry->eeTopology().valid(id))
+      continue;
+    unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+    unsigned moduleid = es.geometry->getModuleFromTriggerCell(tcid);
+    auto itr_insert = modules_to_triggercells.emplace(moduleid, std::unordered_set<uint32_t>());
+    itr_insert.first->second.emplace(tcid);
+  }
+  for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
+    if (!es.geometry->hsiTopology().valid(id))
+      continue;
+    unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+    unsigned moduleid = es.geometry->getModuleFromTriggerCell(tcid);
+    auto itr_insert = modules_to_triggercells.emplace(moduleid, std::unordered_set<uint32_t>());
+    itr_insert.first->second.emplace(tcid);
+  }
+  for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
+    if (!es.geometry->hscTopology().valid(id))
+      continue;
+    unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+    unsigned moduleid = es.geometry->getModuleFromTriggerCell(tcid);
+    auto itr_insert = modules_to_triggercells.emplace(moduleid, std::unordered_set<uint32_t>());
+    itr_insert.first->second.emplace(tcid);
+  }
+  // Check consistency of trigger cells included in modules 
+  for (const auto& [moduleid,tcs] : modules_to_triggercells) {
+    HGCalTriggerGeometryBase::geom_set tcs_from_module = es.geometry->getTriggerCellsFromModule(moduleid);
+    for (auto tc : tcs) {
+      if (tcs_from_module.find(tc) == tcs_from_module.end()) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::MissingTCInModule, moduleid);
+      }
+    }
+    for (auto tc : tcs_from_module) {
+      if (tcs.find(tc) == tcs.end()) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::InvalidTCInModule, moduleid);
+      }
+    }
+  }
 }
 
 
 void HGCalTriggerGeoTesterModules::clear() {
   id_ = 0;
+  errorbits_ = 0;
   disconnected_ = 0;
   zside_ = 0;
   subdet_ = 0;
