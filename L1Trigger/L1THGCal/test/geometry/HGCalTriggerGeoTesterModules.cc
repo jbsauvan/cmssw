@@ -104,6 +104,7 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
     zside_ = detid.zside();
     subdet_ = detid.triggerSubdetId();
     type_ = detid.type();
+    sector_ = detid.sector();
     layer_ = triggerTools_.layerWithOffset(id);
     if (triggerTools_.isSilicon(id)) {
       u_ = detid.moduleU();
@@ -181,6 +182,17 @@ void HGCalTriggerGeoTesterModules::check(const HGCalTriggerGeoTesterEventSetup& 
         errors_.fill(HGcalTriggerGeoTesterErrors::InvalidTCInModule, moduleid);
       }
     }
+    auto lpgbts = es.geometry->getLpgbtsFromModule(moduleid);
+    if (lpgbts.size() == 0)
+      continue;  //Module is not connected to an lpGBT and therefore not to a Stage 1 FPGA
+    uint32_t stage1 = 0;
+    for (const auto& lpgbt : lpgbts) {
+      uint32_t stage1_tmp = es.geometry->getStage1FpgaFromLpgbt(lpgbt);
+      if (stage1 != 0 && stage1_tmp != stage1) {
+        errors_.fill(HGcalTriggerGeoTesterErrors::ModuleSplitInStage1, moduleid);
+      }
+      stage1 = stage1_tmp;
+    }
   }
 }
 
@@ -192,6 +204,7 @@ void HGCalTriggerGeoTesterModules::clear() {
   zside_ = 0;
   subdet_ = 0;
   layer_ = 0;
+  sector_ = 0;
   u_ = 0;
   v_ = 0;
   ieta_ = 0;
