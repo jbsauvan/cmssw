@@ -40,18 +40,14 @@ private:
   int triggercells_n_ = 0;
   std::vector<uint32_t> cells_;
   std::vector<uint32_t> triggercells_;
-
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory, HGCalTriggerGeoTesterModules, "HGCalTriggerGeoTesterModules");
 
 HGCalTriggerGeoTesterModules::HGCalTriggerGeoTesterModules(const edm::ParameterSet& conf)
-    : HGCalTriggerGeoTesterBase(conf) {
-}
+    : HGCalTriggerGeoTesterBase(conf) {}
 
-void HGCalTriggerGeoTesterModules::initialize(TTree* tree,
-                                            const edm::ParameterSet& conf) {
-
+void HGCalTriggerGeoTesterModules::initialize(TTree* tree, const edm::ParameterSet& conf) {
   tree_ = tree;
 
   tree_->Branch("id", &id_, "id/i");
@@ -78,7 +74,6 @@ void HGCalTriggerGeoTesterModules::initialize(TTree* tree,
   tree_->Branch("triggercells", &triggercells_);
 }
 
-
 void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& es) {
   clear();
   edm::LogPrint("TreeFilling") << "Filling modules tree";
@@ -96,8 +91,8 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
   for (const auto& id : modules) {
     HGCalTriggerModuleDetId detid(id);
     const auto error_itr = errors_.detids().find(id);
-    if(error_itr!=errors_.detids().end()) {
-      for(const auto& error : error_itr->second) {
+    if (error_itr != errors_.detids().end()) {
+      for (const auto& error : error_itr->second) {
         errorbits_ |= (0x1 << error);
       }
     }
@@ -108,7 +103,7 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
     type_ = detid.type();
     sector_ = detid.sector();
     layer_ = triggerTools_.layerWithOffset(id);
-    if(!es.geometry->disconnectedModule(id))
+    if (!es.geometry->disconnectedModule(id))
       stage1_ = es.geometry->getStage1FpgaFromModule(id);
     if (triggerTools_.isSilicon(id)) {
       u_ = detid.moduleU();
@@ -173,8 +168,8 @@ void HGCalTriggerGeoTesterModules::check(const HGCalTriggerGeoTesterEventSetup& 
     auto itr_insert = modules_to_triggercells.emplace(moduleid, std::unordered_set<uint32_t>());
     itr_insert.first->second.emplace(tcid);
   }
-  // Check consistency of trigger cells included in modules 
-  for (const auto& [moduleid,tcs] : modules_to_triggercells) {
+  // Check consistency of trigger cells included in modules
+  for (const auto& [moduleid, tcs] : modules_to_triggercells) {
     HGCalTriggerGeometryBase::geom_set tcs_from_module = es.geometry->getTriggerCellsFromModule(moduleid);
     for (auto tc : tcs) {
       if (tcs_from_module.find(tc) == tcs_from_module.end()) {
@@ -199,7 +194,6 @@ void HGCalTriggerGeoTesterModules::check(const HGCalTriggerGeoTesterEventSetup& 
     }
   }
 }
-
 
 void HGCalTriggerGeoTesterModules::clear() {
   id_ = 0;

@@ -27,18 +27,16 @@ private:
   int type_ = 0;
   int stage1_n_ = 0;
   std::vector<uint32_t> stage1s_;
-
 };
 
-DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory, HGCalTriggerGeoTesterBackendStage2, "HGCalTriggerGeoTesterBackendStage2");
+DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory,
+                  HGCalTriggerGeoTesterBackendStage2,
+                  "HGCalTriggerGeoTesterBackendStage2");
 
 HGCalTriggerGeoTesterBackendStage2::HGCalTriggerGeoTesterBackendStage2(const edm::ParameterSet& conf)
-    : HGCalTriggerGeoTesterBase(conf) {
-}
+    : HGCalTriggerGeoTesterBase(conf) {}
 
-void HGCalTriggerGeoTesterBackendStage2::initialize(TTree* tree,
-                                            const edm::ParameterSet& conf) {
-
+void HGCalTriggerGeoTesterBackendStage2::initialize(TTree* tree, const edm::ParameterSet& conf) {
   tree_ = tree;
 
   tree_->Branch("id", &id_, "id/i");
@@ -50,7 +48,6 @@ void HGCalTriggerGeoTesterBackendStage2::initialize(TTree* tree,
   tree_->Branch("stage1_n", &stage1_n_, "stage1_n/I");
   tree_->Branch("stage1s", &stage1s_);
 }
-
 
 void HGCalTriggerGeoTesterBackendStage2::fill(const HGCalTriggerGeoTesterEventSetup& es) {
   clear();
@@ -68,19 +65,19 @@ void HGCalTriggerGeoTesterBackendStage2::fill(const HGCalTriggerGeoTesterEventSe
   }
   std::unordered_set<uint32_t> stage2s;
   for (const auto& module : modules) {
-    if(es.geometry->disconnectedModule(module))
+    if (es.geometry->disconnectedModule(module))
       continue;
     auto s1 = es.geometry->getStage1FpgaFromModule(module);
     auto s2s = es.geometry->getStage2FpgasFromStage1Fpga(s1);
-    for(auto s2 : s2s) {
+    for (auto s2 : s2s) {
       stage2s.insert(s2);
     }
   }
   for (const auto& id : stage2s) {
     HGCalTriggerBackendDetId detid(id);
     const auto error_itr = errors_.detids().find(id);
-    if(error_itr!=errors_.detids().end()) {
-      for(const auto& error : error_itr->second) {
+    if (error_itr != errors_.detids().end()) {
+      for (const auto& error : error_itr->second) {
         errorbits_ |= (0x1 << error);
       }
     }
@@ -114,19 +111,18 @@ void HGCalTriggerGeoTesterBackendStage2::check(const HGCalTriggerGeoTesterEventS
   }
   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> stage2_to_stage1;
   for (const auto& id : modules) {
-    if(es.geometry->disconnectedModule(id))
+    if (es.geometry->disconnectedModule(id))
       continue;
     auto s1 = es.geometry->getStage1FpgaFromModule(id);
     auto s2s = es.geometry->getStage2FpgasFromStage1Fpga(s1);
-    for(auto s2 : s2s) {
+    for (auto s2 : s2s) {
       auto itr_insert = stage2_to_stage1.emplace(s2, std::unordered_set<uint32_t>());
       itr_insert.first->second.emplace(s1);
     }
   }
 
-
   // Check consistency of Stage 1 <-> Stage 2 mapping
-  for (const auto& [stage2id,stage1s] : stage2_to_stage1) {
+  for (const auto& [stage2id, stage1s] : stage2_to_stage1) {
     HGCalTriggerGeometryBase::geom_set stage1_from_stage2 = es.geometry->getStage1FpgasFromStage2Fpga(stage2id);
     for (auto stage1 : stage1s) {
       if (stage1_from_stage2.find(stage1) == stage1_from_stage2.end()) {
@@ -140,7 +136,6 @@ void HGCalTriggerGeoTesterBackendStage2::check(const HGCalTriggerGeoTesterEventS
     }
   }
 }
-
 
 void HGCalTriggerGeoTesterBackendStage2::clear() {
   id_ = 0;

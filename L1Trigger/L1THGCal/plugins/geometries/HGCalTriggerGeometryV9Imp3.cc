@@ -674,7 +674,7 @@ std::vector<unsigned> HGCalTriggerGeometryV9Imp3::getLpgbtsFromStage1Fpga(const 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getModulesFromStage1Fpga(const unsigned stage1_id) const {
   auto lpgbts = getLpgbtsFromStage1Fpga(stage1_id);
   geom_set modules;
-  for(auto lpgbt : lpgbts) {
+  for (auto lpgbt : lpgbts) {
     modules.merge(getModulesFromLpgbt(lpgbt));
   }
   return modules;

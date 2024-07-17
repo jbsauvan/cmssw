@@ -40,18 +40,14 @@ private:
   float phi_ = 0.;
   int cells_n_ = 0;
   std::vector<uint32_t> cells_;
-
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory, HGCalTriggerGeoTesterTriggerCells, "HGCalTriggerGeoTesterTriggerCells");
 
 HGCalTriggerGeoTesterTriggerCells::HGCalTriggerGeoTesterTriggerCells(const edm::ParameterSet& conf)
-    : HGCalTriggerGeoTesterBase(conf) {
-}
+    : HGCalTriggerGeoTesterBase(conf) {}
 
-void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree,
-                                            const edm::ParameterSet& conf) {
-
+void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree, const edm::ParameterSet& conf) {
   tree_ = tree;
 
   tree_->Branch("valid", &valid_, "valid/I");
@@ -78,7 +74,6 @@ void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree,
   tree_->Branch("cells", &cells_);
 }
 
-
 void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSetup& es) {
   clear();
   edm::LogPrint("TreeFilling") << "Filling trigger cells tree";
@@ -100,8 +95,8 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
     disconnected_ = es.geometry->disconnectedModule(modid_);
     id_ = id;
     const auto error_itr = errors_.detids().find(id);
-    if(error_itr!=errors_.detids().end()) {
-      for(const auto& error : error_itr->second) {
+    if (error_itr != errors_.detids().end()) {
+      for (const auto& error : error_itr->second) {
         errorbits_ |= (0x1 << error);
       }
     }
@@ -174,7 +169,7 @@ void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSe
     itr_insert.first->second.emplace(id);
   }
   // Check consistency of cells included in trigger cell
-  for (const auto& [tcid,cells] : triggercells_to_cells) {
+  for (const auto& [tcid, cells] : triggercells_to_cells) {
     HGCalTriggerGeometryBase::geom_set cells_from_tc = es.geometry->getCellsFromTriggerCell(tcid);
     for (auto cell : cells) {
       if (cells_from_tc.find(cell) == cells_from_tc.end()) {
@@ -188,7 +183,6 @@ void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSe
     }
   }
 }
-
 
 void HGCalTriggerGeoTesterTriggerCells::clear() {
   id_ = 0;

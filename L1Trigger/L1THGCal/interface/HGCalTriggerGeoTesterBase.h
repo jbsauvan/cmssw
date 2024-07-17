@@ -22,41 +22,34 @@ struct HGCalTriggerGeoTesterEventSetup {
 };
 
 class HGcalTriggerGeoTesterErrors {
-  public: 
-    enum ErrorCode {
-      CellValidity = 0,
-      MissingCellInTC,
-      InvalidCellInTC,
-      MissingTCInModule,
-      InvalidTCInModule,
-      ModuleSplitInStage1,
-      MissingModuleInStage1FPGA,
-      InvalidModuleInStage1FPGA,
-      MissingStage1InStage2FPGA,
-      InvalidStage1InStage2FPGA
-    };
-    static const std::unordered_map<ErrorCode, std::string> messages;
+public:
+  enum ErrorCode {
+    CellValidity = 0,
+    MissingCellInTC,
+    InvalidCellInTC,
+    MissingTCInModule,
+    InvalidTCInModule,
+    ModuleSplitInStage1,
+    MissingModuleInStage1FPGA,
+    InvalidModuleInStage1FPGA,
+    MissingStage1InStage2FPGA,
+    InvalidStage1InStage2FPGA
+  };
+  static const std::unordered_map<ErrorCode, std::string> messages;
 
-    void fill(ErrorCode error, unsigned detid) {
-      auto itr_err = error_detids_.insert({error, {}}).first;
-      itr_err->second.insert(detid);
-      auto itr_id = detid_errors_.insert({detid, {}}).first;
-      itr_id->second.insert(error);
-    }
-    const std::unordered_map<ErrorCode, std::set<unsigned>>& errors() const {
-      return error_detids_;
-    }
-    const std::unordered_map<unsigned, std::set<ErrorCode>>& detids() const {
-      return detid_errors_;
-    }
+  void fill(ErrorCode error, unsigned detid) {
+    auto itr_err = error_detids_.insert({error, {}}).first;
+    itr_err->second.insert(detid);
+    auto itr_id = detid_errors_.insert({detid, {}}).first;
+    itr_id->second.insert(error);
+  }
+  const std::unordered_map<ErrorCode, std::set<unsigned>>& errors() const { return error_detids_; }
+  const std::unordered_map<unsigned, std::set<ErrorCode>>& detids() const { return detid_errors_; }
 
-
-  private:
-    std::unordered_map<ErrorCode, std::set<unsigned>> error_detids_; 
-    std::unordered_map<unsigned, std::set<ErrorCode>> detid_errors_;
-
+private:
+  std::unordered_map<ErrorCode, std::set<unsigned>> error_detids_;
+  std::unordered_map<unsigned, std::set<ErrorCode>> detid_errors_;
 };
-
 
 class HGCalTriggerGeoTesterBase {
 public:
@@ -66,7 +59,7 @@ public:
   virtual void initialize(TTree*, const edm::ParameterSet&) = 0;
   virtual void check(const HGCalTriggerGeoTesterEventSetup&) = 0;
   virtual void fill(const HGCalTriggerGeoTesterEventSetup&) = 0;
-  const HGcalTriggerGeoTesterErrors& errors() {return errors_;}
+  const HGcalTriggerGeoTesterErrors& errors() { return errors_; }
 
 protected:
   virtual void clear() = 0;
