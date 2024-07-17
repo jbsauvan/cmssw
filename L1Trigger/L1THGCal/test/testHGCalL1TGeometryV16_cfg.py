@@ -77,6 +77,10 @@ tester_stage1 = cms.PSet(
     TesterName = cms.string('HGCalTriggerGeoTesterBackendStage1')
 )
 
+tester_stage2 = cms.PSet(
+    TesterName = cms.string('HGCalTriggerGeoTesterBackendStage2')
+)
+
 process.L1THGCaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeoTesterManager", 
     Testers = cms.VPSet(
@@ -84,6 +88,7 @@ process.L1THGCaltriggergeomtester = cms.EDAnalyzer(
         tester_triggercells,
         tester_modules,
         tester_stage1,
+        tester_stage2,
     )
 )
 process.test_step = cms.Path(process.L1THGCaltriggergeomtester)

@@ -31,7 +31,9 @@ class HGcalTriggerGeoTesterErrors {
       InvalidTCInModule,
       ModuleSplitInStage1,
       MissingModuleInStage1FPGA,
-      InvalidModuleInStage1FPGA
+      InvalidModuleInStage1FPGA,
+      MissingStage1InStage2FPGA,
+      InvalidStage1InStage2FPGA
     };
     static const std::unordered_map<ErrorCode, std::string> messages;
 

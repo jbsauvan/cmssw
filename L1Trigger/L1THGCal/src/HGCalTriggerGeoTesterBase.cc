@@ -8,7 +8,9 @@ const std::unordered_map<HGcalTriggerGeoTesterErrors::ErrorCode, std::string> HG
   {HGcalTriggerGeoTesterErrors::InvalidTCInModule, "Found invalid trigger cell(s) in module"},
   {HGcalTriggerGeoTesterErrors::ModuleSplitInStage1, "Found module with lpGBTs connected to several Stage 1 FPGAs"},
   {HGcalTriggerGeoTesterErrors::MissingModuleInStage1FPGA, "Found missing module(s) in Stage 1 FPGA"},
-  {HGcalTriggerGeoTesterErrors::InvalidModuleInStage1FPGA, "Found invalid module(s) in Stage 1 FPGA"}
+  {HGcalTriggerGeoTesterErrors::InvalidModuleInStage1FPGA, "Found invalid module(s) in Stage 1 FPGA"},
+  {HGcalTriggerGeoTesterErrors::MissingStage1InStage2FPGA, "Found missing stage1(s) in Stage 2 FPGA"},
+  {HGcalTriggerGeoTesterErrors::InvalidStage1InStage2FPGA, "Found invalid stage1(s) in Stage 2 FPGA"}
 };
 
 EDM_REGISTER_PLUGINFACTORY(HGCalTriggerGeoTesterFactory, "HGCalTriggerGeoTesterFactory");
