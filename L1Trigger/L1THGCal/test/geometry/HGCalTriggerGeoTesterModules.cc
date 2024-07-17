@@ -25,6 +25,7 @@ private:
   int subdet_ = 0;
   int sector_ = 0;
   int layer_ = 0;
+  unsigned stage1_ = 0;
   int u_ = 0;
   int v_ = 0;
   int ieta_ = 0;
@@ -60,6 +61,7 @@ void HGCalTriggerGeoTesterModules::initialize(TTree* tree,
   tree_->Branch("subdet", &subdet_, "subdet/I");
   tree_->Branch("sector", &sector_, "sector/I");
   tree_->Branch("layer", &layer_, "layer/I");
+  tree_->Branch("stage1", &stage1_, "stage1/i");
   tree_->Branch("u", &u_, "u/I");
   tree_->Branch("v", &v_, "v/I");
   tree_->Branch("ieta", &ieta_, "ieta/I");
@@ -106,6 +108,8 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
     type_ = detid.type();
     sector_ = detid.sector();
     layer_ = triggerTools_.layerWithOffset(id);
+    if(!es.geometry->disconnectedModule(id))
+      stage1_ = es.geometry->getStage1FpgaFromModule(id);
     if (triggerTools_.isSilicon(id)) {
       u_ = detid.moduleU();
       v_ = detid.moduleV();
@@ -204,6 +208,7 @@ void HGCalTriggerGeoTesterModules::clear() {
   zside_ = 0;
   subdet_ = 0;
   layer_ = 0;
+  stage1_ = 0;
   sector_ = 0;
   u_ = 0;
   v_ = 0;
