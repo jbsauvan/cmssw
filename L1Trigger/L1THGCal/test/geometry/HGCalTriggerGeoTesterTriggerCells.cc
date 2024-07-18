@@ -173,12 +173,12 @@ void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSe
     HGCalTriggerGeometryBase::geom_set cells_from_tc = es.geometry->getCellsFromTriggerCell(tcid);
     for (auto cell : cells) {
       if (cells_from_tc.find(cell) == cells_from_tc.end()) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::MissingCellInTC, tcid);
+        errors_.fill(HGCalTriggerGeoTesterErrors::MissingCellInTC, tcid);
       }
     }
     for (auto cell : cells_from_tc) {
       if (cells.find(cell) == cells.end()) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::InvalidCellInTC, tcid);
+        errors_.fill(HGCalTriggerGeoTesterErrors::InvalidCellInTC, tcid);
       }
     }
   }

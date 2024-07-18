@@ -21,7 +21,7 @@ struct HGCalTriggerGeoTesterEventSetup {
   edm::ESHandle<HGCalTriggerGeometryBase> geometry;
 };
 
-class HGcalTriggerGeoTesterErrors {
+class HGCalTriggerGeoTesterErrors {
 public:
   enum ErrorCode {
     CellValidity = 0,
@@ -29,6 +29,7 @@ public:
     InvalidCellInTC,
     MissingTCInModule,
     InvalidTCInModule,
+    ConnectedModuleWithoutLpgbt,
     ModuleSplitInStage1,
     MissingModuleInStage1FPGA,
     InvalidModuleInStage1FPGA,
@@ -59,12 +60,12 @@ public:
   virtual void initialize(TTree*, const edm::ParameterSet&) = 0;
   virtual void check(const HGCalTriggerGeoTesterEventSetup&) = 0;
   virtual void fill(const HGCalTriggerGeoTesterEventSetup&) = 0;
-  const HGcalTriggerGeoTesterErrors& errors() { return errors_; }
+  const HGCalTriggerGeoTesterErrors& errors() { return errors_; }
 
 protected:
   virtual void clear() = 0;
   const std::string name_;
-  HGcalTriggerGeoTesterErrors errors_;
+  HGCalTriggerGeoTesterErrors errors_;
   TTree* tree_;
 };
 

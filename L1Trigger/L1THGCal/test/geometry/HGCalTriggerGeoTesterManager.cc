@@ -55,7 +55,7 @@ void HGCalTriggerGeoTesterManager::beginRun(const edm::Run& run, const edm::Even
     tester->fill(tester_es_);
     for (const auto& [error, detids] : tester->errors().errors()) {
       edm::LogError("HGCalTriggerGeoTester")
-          << HGcalTriggerGeoTesterErrors::messages.at(error) << " for " << detids.size() << " items"
+          << HGCalTriggerGeoTesterErrors::messages.at(error) << " for " << detids.size() << " items"
           << "\n Please check the produced ntuples for more details";
     }
   }

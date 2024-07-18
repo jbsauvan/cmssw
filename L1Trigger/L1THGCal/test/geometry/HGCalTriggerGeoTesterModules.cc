@@ -26,6 +26,7 @@ private:
   int sector_ = 0;
   int layer_ = 0;
   unsigned stage1_ = 0;
+  unsigned elinks_n_ = 0;
   int u_ = 0;
   int v_ = 0;
   int ieta_ = 0;
@@ -38,8 +39,10 @@ private:
   float phi_ = 0.;
   int cells_n_ = 0;
   int triggercells_n_ = 0;
+  int lpgbts_n_ = 0;
   std::vector<uint32_t> cells_;
   std::vector<uint32_t> triggercells_;
+  std::vector<uint32_t> lpgbts_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory, HGCalTriggerGeoTesterModules, "HGCalTriggerGeoTesterModules");
@@ -58,6 +61,7 @@ void HGCalTriggerGeoTesterModules::initialize(TTree* tree, const edm::ParameterS
   tree_->Branch("sector", &sector_, "sector/I");
   tree_->Branch("layer", &layer_, "layer/I");
   tree_->Branch("stage1", &stage1_, "stage1/i");
+  tree_->Branch("elinks_n", &elinks_n_, "elinks_n/I");
   tree_->Branch("u", &u_, "u/I");
   tree_->Branch("v", &v_, "v/I");
   tree_->Branch("ieta", &ieta_, "ieta/I");
@@ -70,8 +74,10 @@ void HGCalTriggerGeoTesterModules::initialize(TTree* tree, const edm::ParameterS
   tree_->Branch("phi", &phi_, "phi/F");
   tree_->Branch("cells_n", &cells_n_, "cells_n/I");
   tree_->Branch("triggercells_n", &triggercells_n_, "triggercells_n/I");
+  tree_->Branch("lpgbts_n", &lpgbts_n_, "lpgbts_n/I");
   tree_->Branch("cells", &cells_);
   tree_->Branch("triggercells", &triggercells_);
+  tree_->Branch("lpgbts", &lpgbts_);
 }
 
 void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& es) {
@@ -103,8 +109,10 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
     type_ = detid.type();
     sector_ = detid.sector();
     layer_ = triggerTools_.layerWithOffset(id);
-    if (!es.geometry->disconnectedModule(id))
+    if (!es.geometry->disconnectedModule(id)) {
       stage1_ = es.geometry->getStage1FpgaFromModule(id);
+      elinks_n_ = es.geometry->getLinksInModule(id);
+    }
     if (triggerTools_.isSilicon(id)) {
       u_ = detid.moduleU();
       v_ = detid.moduleV();
@@ -127,6 +135,10 @@ void HGCalTriggerGeoTesterModules::fill(const HGCalTriggerGeoTesterEventSetup& e
     triggercells_n_ = tcs.size();
     triggercells_.resize(tcs.size());
     std::copy(tcs.begin(), tcs.end(), triggercells_.begin());
+    auto lpgbts = es.geometry->getLpgbtsFromModule(id);
+    lpgbts_n_ = lpgbts.size();
+    lpgbts_.resize(lpgbts.size());
+    std::copy(lpgbts.begin(), lpgbts.end(), lpgbts_.begin());
     //
     GlobalPoint center = es.geometry->getModulePosition(id);
     x_ = center.x();
@@ -173,22 +185,25 @@ void HGCalTriggerGeoTesterModules::check(const HGCalTriggerGeoTesterEventSetup& 
     HGCalTriggerGeometryBase::geom_set tcs_from_module = es.geometry->getTriggerCellsFromModule(moduleid);
     for (auto tc : tcs) {
       if (tcs_from_module.find(tc) == tcs_from_module.end()) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::MissingTCInModule, moduleid);
+        errors_.fill(HGCalTriggerGeoTesterErrors::MissingTCInModule, moduleid);
       }
     }
     for (auto tc : tcs_from_module) {
       if (tcs.find(tc) == tcs.end()) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::InvalidTCInModule, moduleid);
+        errors_.fill(HGCalTriggerGeoTesterErrors::InvalidTCInModule, moduleid);
       }
     }
+    if (es.geometry->disconnectedModule(moduleid))
+      continue;
     auto lpgbts = es.geometry->getLpgbtsFromModule(moduleid);
-    if (lpgbts.size() == 0)
-      continue;  //Module is not connected to an lpGBT and therefore not to a Stage 1 FPGA
+    if (lpgbts.size() == 0) {
+      errors_.fill(HGCalTriggerGeoTesterErrors::ConnectedModuleWithoutLpgbt, moduleid);
+    }
     uint32_t stage1 = 0;
     for (const auto& lpgbt : lpgbts) {
       uint32_t stage1_tmp = es.geometry->getStage1FpgaFromLpgbt(lpgbt);
       if (stage1 != 0 && stage1_tmp != stage1) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::ModuleSplitInStage1, moduleid);
+        errors_.fill(HGCalTriggerGeoTesterErrors::ModuleSplitInStage1, moduleid);
       }
       stage1 = stage1_tmp;
     }
@@ -203,6 +218,7 @@ void HGCalTriggerGeoTesterModules::clear() {
   subdet_ = 0;
   layer_ = 0;
   stage1_ = 0;
+  elinks_n_ = 0;
   sector_ = 0;
   u_ = 0;
   v_ = 0;

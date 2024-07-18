@@ -126,12 +126,12 @@ void HGCalTriggerGeoTesterBackendStage2::check(const HGCalTriggerGeoTesterEventS
     HGCalTriggerGeometryBase::geom_set stage1_from_stage2 = es.geometry->getStage1FpgasFromStage2Fpga(stage2id);
     for (auto stage1 : stage1s) {
       if (stage1_from_stage2.find(stage1) == stage1_from_stage2.end()) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::MissingStage1InStage2FPGA, stage2id);
+        errors_.fill(HGCalTriggerGeoTesterErrors::MissingStage1InStage2FPGA, stage2id);
       }
     }
     for (auto stage1 : stage1_from_stage2) {
       if (stage1s.find(stage1) == stage1s.end()) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::InvalidStage1InStage2FPGA, stage2id);
+        errors_.fill(HGCalTriggerGeoTesterErrors::InvalidStage1InStage2FPGA, stage2id);
       }
     }
   }

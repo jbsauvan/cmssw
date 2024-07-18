@@ -213,38 +213,38 @@ void HGCalTriggerGeoTesterCells::check(const HGCalTriggerGeoTesterEventSetup& es
   edm::LogPrint("GeoTester") << "Checking cells";
   for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
     if (!es.geometry->eeTopology().valid(id)) {
-      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
     }
     if (!validCellIdFromPosition(id, es)) {
-      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
     }
   }
 
   for (const auto& id : es.geometry->hsiGeometry()->getValidDetIds()) {
     if (!es.geometry->hsiTopology().valid(id)) {
-      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
     }
     if (!validCellIdFromPosition(id, es)) {
-      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
     }
   }
 
   for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
     if (!es.geometry->hscTopology().valid(id)) {
-      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
     }
     if (!validCellIdFromPosition(id, es)) {
-      errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+      errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
     }
   }
 
   if (es.geometry->isWithNoseGeometry()) {
     for (const auto& id : es.geometry->noseGeometry()->getValidDetIds()) {
       if (!es.geometry->noseTopology().valid(id)) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+        errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
       }
       if (!validCellIdFromPosition(id, es)) {
-        errors_.fill(HGcalTriggerGeoTesterErrors::CellValidity, id);
+        errors_.fill(HGCalTriggerGeoTesterErrors::CellValidity, id);
       }
     }
   }
