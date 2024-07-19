@@ -88,6 +88,11 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
   for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
     triggercells.insert(es.geometry->getTriggerCellFromCell(id));
   }
+  if (es.geometry->isWithNoseGeometry()) {
+    for (const auto& id : es.geometry->noseGeometry()->getValidDetIds()) {
+      triggercells.insert(es.geometry->getTriggerCellFromCell(id));
+    }
+  }
   for (const auto& id : triggercells) {
     DetId detid(id);
     modid_ = es.geometry->getModuleFromTriggerCell(id);
@@ -168,6 +173,16 @@ void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSe
     auto itr_insert = triggercells_to_cells.emplace(tcid, std::unordered_set<uint32_t>());
     itr_insert.first->second.emplace(id);
   }
+  if (es.geometry->isWithNoseGeometry()) {
+    for (const auto& id : es.geometry->noseGeometry()->getValidDetIds()) {
+      if (!es.geometry->noseTopology().valid(id))
+        continue;
+      unsigned tcid = es.geometry->getTriggerCellFromCell(id);
+      auto itr_insert = triggercells_to_cells.emplace(tcid, std::unordered_set<uint32_t>());
+      itr_insert.first->second.emplace(id);
+    }
+  }
+
   // Check consistency of cells included in trigger cell
   for (const auto& [tcid, cells] : triggercells_to_cells) {
     HGCalTriggerGeometryBase::geom_set cells_from_tc = es.geometry->getCellsFromTriggerCell(tcid);

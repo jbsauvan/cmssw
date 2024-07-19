@@ -164,6 +164,52 @@ void HGCalTriggerGeoTesterCells::fill(const HGCalTriggerGeoTesterEventSetup& es)
     tree_->Fill();
     clear();
   }
+
+  if (es.geometry->isWithNoseGeometry()) {
+    for (const auto& id : es.geometry->noseGeometry()->getValidDetIds()) {
+      valid_ = es.geometry->noseTopology().valid(id);
+      id_ = id.rawId();
+      const auto error_itr = errors_.detids().find(id);
+      if (error_itr != errors_.detids().end()) {
+        for (const auto& error : error_itr->second) {
+          errorbits_ |= (0x1 << error);
+        }
+      }
+      HFNoseDetId detid(id);
+      zside_ = detid.zside();
+      subdet_ = detid.subdet();
+      layer_ = detid.layer();
+      u_ = detid.cellU();
+      v_ = detid.cellV();
+      ieta_ = -999;
+      iphi_ = -999;
+      waferU_ = detid.waferU();
+      waferV_ = detid.waferV();
+      type_ = detid.type();
+      tcid_ = es.geometry->getTriggerCellFromCell(id_);
+      modid_ = es.geometry->getModuleFromTriggerCell(tcid_);
+      //
+      GlobalPoint center = es.geometry->noseGeometry()->getPosition(id);
+      x_ = center.x();
+      y_ = center.y();
+      z_ = center.z();
+      eta_ = center.eta();
+      phi_ = center.phi();
+      //
+      std::vector<GlobalPoint> corners = es.geometry->noseGeometry()->getCorners(id);
+      corners_n_ = corners.size();
+      corners_x_.reserve(corners_n_);
+      corners_y_.reserve(corners_n_);
+      corners_z_.reserve(corners_n_);
+      for (const auto& corner : corners) {
+        corners_x_.emplace_back(corner.x());
+        corners_y_.emplace_back(corner.y());
+        corners_z_.emplace_back(corner.z());
+      }
+      tree_->Fill();
+      clear();
+    }
+  }
   for (const auto& id : es.geometry->hscGeometry()->getValidDetIds()) {
     valid_ = es.geometry->hscTopology().valid(id);
     id_ = id.rawId();
