@@ -49,6 +49,7 @@ private:
   std::vector<int> hgcdigi_waferv_;
   std::vector<int> hgcdigi_cellu_;
   std::vector<int> hgcdigi_cellv_;
+  std::vector<uint32_t> hgcdigi_tc_id_;
 
   int bhdigi_n_;
   std::vector<int> bhdigi_id_;
@@ -63,6 +64,7 @@ private:
   std::vector<std::vector<uint32_t>> bhdigi_data_;
   std::vector<std::vector<int>> bhdigi_isadc_;
   std::vector<float> bhdigi_simenergy_;
+  std::vector<uint32_t> bhdigi_tc_id_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCDigis, "HGCalTriggerNtupleHGCDigis");
@@ -112,6 +114,7 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
   tree.Branch("hgcdigi_eta", &hgcdigi_eta_);
   tree.Branch("hgcdigi_phi", &hgcdigi_phi_);
   tree.Branch("hgcdigi_z", &hgcdigi_z_);
+  tree.Branch("hgcdigi_tc_id", &hgcdigi_tc_id_);
   std::string bname;
   auto withBX([&bname](char const* vname, unsigned int bx) -> char const* {
     bname = std::string(vname) + "_BX" + to_string(bx);
@@ -139,6 +142,7 @@ void HGCalTriggerNtupleHGCDigis::initialize(TTree& tree,
   tree.Branch("bhdigi_eta", &bhdigi_eta_);
   tree.Branch("bhdigi_phi", &bhdigi_phi_);
   tree.Branch("bhdigi_z", &bhdigi_z_);
+  tree.Branch("bhdigi_tc_id", &bhdigi_tc_id_);
   for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
     unsigned int bxi = digiBXselect_[i];
     tree.Branch(withBX("bhdigi_data", bxi), &bhdigi_data_[i]);
@@ -178,6 +182,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtu
   hgcdigi_eta_.reserve(hgcdigi_n_);
   hgcdigi_phi_.reserve(hgcdigi_n_);
   hgcdigi_z_.reserve(hgcdigi_n_);
+  hgcdigi_tc_id_.reserve(hgcdigi_n_);
   for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
     hgcdigi_data_[i].reserve(hgcdigi_n_);
     hgcdigi_isadc_[i].reserve(hgcdigi_n_);
@@ -199,6 +204,7 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtu
   bhdigi_eta_.reserve(bhdigi_n_);
   bhdigi_phi_.reserve(bhdigi_n_);
   bhdigi_z_.reserve(bhdigi_n_);
+  bhdigi_tc_id_.reserve(hgcdigi_n_);
   for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
     bhdigi_data_[i].reserve(bhdigi_n_);
     bhdigi_isadc_[i].reserve(bhdigi_n_);
@@ -220,6 +226,8 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtu
       hgcdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
       hgcdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
     }
+    uint32_t tc_id = triggerTools_.getTriggerGeometry()->getTriggerCellFromCell(id.rawId());
+    hgcdigi_tc_id_.emplace_back(tc_id);
     const HGCSiliconDetId idsi(digi.id());
     hgcdigi_waferu_.emplace_back(idsi.waferU());
     hgcdigi_waferv_.emplace_back(idsi.waferV());
@@ -249,6 +257,8 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtu
       hgcdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
       hgcdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
     }
+    uint32_t tc_id = triggerTools_.getTriggerGeometry()->getTriggerCellFromCell(id.rawId());
+    hgcdigi_tc_id_.emplace_back(tc_id);
     const HGCSiliconDetId idsi(digi.id());
     hgcdigi_waferu_.emplace_back(idsi.waferU());
     hgcdigi_waferv_.emplace_back(idsi.waferV());
@@ -278,6 +288,8 @@ void HGCalTriggerNtupleHGCDigis::fill(const edm::Event& e, const HGCalTriggerNtu
       bhdigi_data_[i].emplace_back(digi[digiBXselect_[i]].data());
       bhdigi_isadc_[i].emplace_back(!digi[digiBXselect_[i]].mode());
     }
+    uint32_t tc_id = triggerTools_.getTriggerGeometry()->getTriggerCellFromCell(id.rawId());
+    bhdigi_tc_id_.emplace_back(tc_id);
     const HGCScintillatorDetId idsci(digi.id());
     bhdigi_ieta_.emplace_back(idsci.ietaAbs());
     bhdigi_iphi_.emplace_back(idsci.iphi());
@@ -345,6 +357,7 @@ void HGCalTriggerNtupleHGCDigis::clear() {
   hgcdigi_eta_.clear();
   hgcdigi_phi_.clear();
   hgcdigi_z_.clear();
+  hgcdigi_tc_id_.clear();
   for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
     hgcdigi_data_[i].clear();
     hgcdigi_isadc_[i].clear();
@@ -362,6 +375,7 @@ void HGCalTriggerNtupleHGCDigis::clear() {
   bhdigi_eta_.clear();
   bhdigi_phi_.clear();
   bhdigi_z_.clear();
+  bhdigi_tc_id_.clear();
   for (unsigned int i = 0; i < digiBXselect_.size(); i++) {
     bhdigi_data_[i].clear();
     bhdigi_isadc_[i].clear();
