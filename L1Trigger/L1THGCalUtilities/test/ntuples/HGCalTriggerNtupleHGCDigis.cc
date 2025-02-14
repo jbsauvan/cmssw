@@ -34,7 +34,7 @@ private:
   HGCalTriggerTools triggerTools_;
 
   int hgcdigi_n_;
-  std::vector<int> hgcdigi_id_;
+  std::vector<uint32_t> hgcdigi_id_;
   std::vector<int> hgcdigi_subdet_;
   std::vector<int> hgcdigi_side_;
   std::vector<int> hgcdigi_layer_;
@@ -52,7 +52,7 @@ private:
   std::vector<uint32_t> hgcdigi_tc_id_;
 
   int bhdigi_n_;
-  std::vector<int> bhdigi_id_;
+  std::vector<uint32_t> bhdigi_id_;
   std::vector<int> bhdigi_subdet_;
   std::vector<int> bhdigi_side_;
   std::vector<int> bhdigi_layer_;
