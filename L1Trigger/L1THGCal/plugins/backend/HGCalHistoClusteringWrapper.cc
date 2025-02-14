@@ -205,9 +205,9 @@ void HGCalHistoClusteringWrapper::convertAlgorithmOutputs(
                                           emHEarlyIntfraction * multicluster.energy());
 
     // Set cluster shower shape properties
-    multicluster.showerLength(cluster->showerLen());
-    multicluster.coreShowerLength(cluster->coreShowerLen());
-    multicluster.firstLayer(cluster->firstLayer());
+    multicluster.setShowerLength(cluster->showerLen());
+    multicluster.setCoreShowerLength(cluster->coreShowerLen());
+    multicluster.setFirstLayer(cluster->firstLayer());
     multicluster.hw_sigma_e_quotient(cluster->sigma_e_quotient());
     multicluster.hw_sigma_e_fraction(cluster->sigma_e_fraction());
     multicluster.hw_mean_z_quotient(cluster->mean_z_quotient());
