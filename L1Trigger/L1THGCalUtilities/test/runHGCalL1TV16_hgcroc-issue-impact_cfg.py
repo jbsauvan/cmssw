@@ -29,7 +29,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/Phase2Spring23DIGIRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9_ext1-v2/80002/fdcf004f-f74b-4b95-a1e9-bef2479dff92.root'),
+       #  fileNames = cms.untracked.vstring('/store/mc/Phase2Spring23DIGIRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9_ext1-v2/80002/fdcf004f-f74b-4b95-a1e9-bef2479dff92.root'),
+                            fileNames = cms.untracked.vstring('file:/data_cms_upgrade/sauvan/HGCAL/2502_hgcroc-issue-impact/test-files-from-pedro/250305/Events_0.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            )
