@@ -65,6 +65,7 @@ private:
   std::vector<float> tc_x_;
   std::vector<float> tc_y_;
   std::vector<float> tc_z_;
+  std::vector<uint32_t> tc_ts_id_;
   std::vector<uint32_t> tc_cluster_id_;
   std::vector<uint32_t> tc_multicluster_id_;
   std::vector<float> tc_multicluster_pt_;
@@ -136,6 +137,7 @@ void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
   tree.Branch(withPrefix("x"), &tc_x_);
   tree.Branch(withPrefix("y"), &tc_y_);
   tree.Branch(withPrefix("z"), &tc_z_);
+  tree.Branch(withPrefix("ts_id"), &tc_ts_id_);
   tree.Branch(withPrefix("cluster_id"), &tc_cluster_id_);
   tree.Branch(withPrefix("multicluster_id"), &tc_multicluster_id_);
   tree.Branch(withPrefix("multicluster_pt"), &tc_multicluster_pt_);
@@ -236,6 +238,8 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const HGCalTri
       tc_x_.emplace_back(tc_itr->position().x());
       tc_y_.emplace_back(tc_itr->position().y());
       tc_z_.emplace_back(tc_itr->position().z());
+      uint32_t ts_id = triggerTools_.getTriggerGeometry()->getModuleFromTriggerCell(id.rawId());
+      tc_ts_id_.emplace_back(ts_id);
       // Links between TC and clusters
       tc_cluster_id_.emplace_back(cl_id);
       tc_multicluster_id_.emplace_back(mcl_id);
@@ -346,6 +350,7 @@ void HGCalTriggerNtupleHGCTriggerCells::clear() {
   tc_x_.clear();
   tc_y_.clear();
   tc_z_.clear();
+  tc_ts_id_.clear();
   tc_cluster_id_.clear();
   tc_multicluster_id_.clear();
   tc_multicluster_pt_.clear();
