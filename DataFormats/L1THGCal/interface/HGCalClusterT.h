@@ -92,6 +92,7 @@ namespace l1t {
     uint32_t detId() const { return detId_.rawId(); }
     void setDetId(uint32_t id) { detId_ = id; }
     void setPt(double pt) { setP4(math::PtEtaPhiMLorentzVector(pt, eta(), phi(), mass())); }
+    void setMipPt(double mipPt) {mipPt_ = mipPt;}
     double sumPt() const { return sumPt_; }
     /* distance in 'cm' */
     double distance(const l1t::HGCalTriggerCell& tc) const { return (tc.position() - centre_).mag(); }

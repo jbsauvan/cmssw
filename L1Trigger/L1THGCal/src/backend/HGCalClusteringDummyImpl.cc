@@ -1,6 +1,7 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringDummyImpl.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <cmath>
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 
@@ -8,7 +9,10 @@
 HGCalClusteringDummyImpl::HGCalClusteringDummyImpl(const edm::ParameterSet& conf)
     : calibSF_(conf.getParameter<double>("calibSF_cluster")),
       layerWeights_(conf.getParameter<std::vector<double>>("layerWeights")),
-      applyLayerWeights_(conf.getParameter<bool>("applyLayerCalibration")) {
+      applyLayerWeights_(conf.getParameter<bool>("applyLayerCalibration")),
+      capping_layers_(conf.getParameter<std::vector<uint32_t>>("cappingLayers")),
+      capping_threshold_(conf.getParameter<double>("cappingThreshold")),
+      capping_value_(conf.getParameter<double>("cappingValue")) {
   edm::LogInfo("HGCalClusterParameters") << "C2d global calibration factor: " << calibSF_;
 }
 
@@ -41,6 +45,10 @@ void HGCalClusteringDummyImpl::calibratePt(l1t::HGCalCluster& cluster) {
           << "The configuration should be changed. "
           << "Discarded layers should be defined in hgcalTriggerGeometryESProducer.TriggerGeometry.DisconnectedLayers "
              "and not with calibration coefficients = 0\n";
+    }
+    if(std::find(capping_layers_.begin(), capping_layers_.end(), layerN)!=capping_layers_.end()) {
+      double mip = cluster.mipPt()*std::cosh(cluster.eta());
+      if(mip>capping_threshold_) cluster.setMipPt(capping_value_ / std::cosh(cluster.eta()));
     }
 
     calibPt = layerWeights_.at(layerN) * cluster.mipPt();

@@ -51,7 +51,7 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("ntuple-stucktot-zerotot-{}.root".format(tag))
+    fileName = cms.string("ntuple-stucktot-cappedtc-{}.root".format(tag))
     )
 
 # Other statements
@@ -62,8 +62,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 from L1Trigger.L1THGCal.customTriggerCellSelect import custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized
 from L1Trigger.L1THGCal.customVFE import custom_hgcroc3c_tot_zeroing
+from L1Trigger.L1THGCal.customLayer1 import custom_layer1_hgcroc3c_capping
 process = custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized(process)
-process = custom_hgcroc3c_tot_zeroing(process)
+#  process = custom_hgcroc3c_tot_zeroing(process)
+process = custom_layer1_hgcroc3c_capping(process)
 
 process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
 

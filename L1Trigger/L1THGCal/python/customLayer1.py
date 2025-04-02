@@ -1,5 +1,17 @@
 import FWCore.ParameterSet.Config as cms
-from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import layer1truncation_proc, layer1phiorderfw_proc, layer1truncationfw_proc, truncation_params, truncationfw_params
+from L1Trigger.L1THGCal.l1tHGCalBackEndLayer1Producer_cfi import layer1truncation_proc, layer1phiorderfw_proc, layer1truncationfw_proc, truncation_params, truncationfw_params, clustering2d_proc
+
+hgcroc3c_layers = [23, 24, 25, 26] + [l for l in range(38, 48)]
+def custom_layer1_hgcroc3c_capping(process, layers=hgcroc3c_layers, threshold=100., value=100.):
+    parameters = clustering2d_proc.clone(
+        C2d_parameters=clustering2d_proc.C2d_parameters.clone(
+            cappingLayers=layers,
+            cappingThreshold=threshold,
+            cappingValue=value
+        )
+                                         )
+    process.l1tHGCalBackEndLayer1Producer.ProcessorParameters = parameters
+    return process
 
 def custom_layer1_truncation(process):
     parameters = layer1truncation_proc.clone()

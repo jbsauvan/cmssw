@@ -23,6 +23,9 @@ private:
   double calibSF_;
   std::vector<double> layerWeights_;
   bool applyLayerWeights_;
+  std::vector<uint32_t> capping_layers_;
+  double capping_threshold_;
+  double capping_value_;
   HGCalTriggerTools triggerTools_;
 
   void calibratePt(l1t::HGCalCluster& cluster);
