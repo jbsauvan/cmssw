@@ -27,6 +27,8 @@ HGCalVFEProcessorSums::HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HG
 
 void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
                                 l1t::HGCalTriggerCellBxCollection& triggerCellColl) {
+  vfeLinearizationSiImpl_->setGeometry(geometry());
+  vfeLinearizationScImpl_->setGeometry(geometry());
   vfeSummationImpl_->setGeometry(geometry());
   calibrationEE_->setGeometry(geometry());
   calibrationHEsi_->setGeometry(geometry());

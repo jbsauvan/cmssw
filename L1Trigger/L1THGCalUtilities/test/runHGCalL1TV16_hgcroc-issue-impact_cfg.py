@@ -24,13 +24,15 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 # Input source
+tag = 'vanilla-v4'
 process.source = cms.Source("PoolSource",
        #  fileNames = cms.untracked.vstring('/store/mc/Phase2Spring23DIGIRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9_ext1-v2/80002/fdcf004f-f74b-4b95-a1e9-bef2479dff92.root'),
-                            fileNames = cms.untracked.vstring('file:/data_cms_upgrade/sauvan/HGCAL/2502_hgcroc-issue-impact/test-files-from-pedro/250305/Events_0.root'),
+                            fileNames = cms.untracked.vstring('file:/data_cms_upgrade/sauvan/HGCAL/2502_hgcroc-issue-impact/test-files-from-pedro/SinglePhotonGun_eta1p8_CMSSW_14_1_0_pre1_D99_stucktot_{}/Events_0.root'.format(tag)),
+                            #  fileNames = cms.untracked.vstring('file:/data_cms_upgrade/sauvan/HGCAL/2502_hgcroc-issue-impact/test-files-from-pedro/SinglePhotonGun_eta1p8_CMSSW_14_1_0_pre1_D99_stucktot_vanilla-v4/Events_0.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            )
@@ -49,7 +51,7 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("ntuple.root")
+    fileName = cms.string("ntuple-stucktot-zerotot-{}.root".format(tag))
     )
 
 # Other statements
@@ -59,7 +61,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 from L1Trigger.L1THGCal.customTriggerCellSelect import custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized
+from L1Trigger.L1THGCal.customVFE import custom_hgcroc3c_tot_zeroing
 process = custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized(process)
+process = custom_hgcroc3c_tot_zeroing(process)
 
 process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
 

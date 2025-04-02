@@ -23,6 +23,7 @@ linearization_params_si = cms.PSet(
         adcnBits = feCfg_si.adcNbits,
         tdcsaturation = feCfg_si.tdcSaturation_fC,
         linnBits = cms.uint32(17),
+        zero_tot_layers = cms.vuint32(), 
          oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
         )
 
@@ -35,6 +36,7 @@ linearization_params_sc = cms.PSet(
         adcnBits = feCfg_sc.adcNbits,
         tdcsaturation = feCfg_sc.tdcSaturation_fC,
         linnBits = cms.uint32(17),
+        zero_tot_layers = cms.vuint32(), 
          oot_coefficients = cms.vdouble(0., 0.), # OOT PU subtraction coeffs for samples (bx-2, bx-1). (0,0) = no OOT PU subtraction
         )
 

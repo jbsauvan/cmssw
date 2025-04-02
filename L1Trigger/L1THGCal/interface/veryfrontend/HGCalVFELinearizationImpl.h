@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 #include <vector>
 #include <utility>
@@ -11,6 +12,7 @@ class HGCalVFELinearizationImpl {
 public:
   HGCalVFELinearizationImpl(const edm::ParameterSet& conf);
 
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
   void linearize(const std::vector<HGCalDataFrame>&, std::vector<std::pair<DetId, uint32_t>>&);
 
 private:
@@ -25,7 +27,10 @@ private:
   //
   uint32_t linMax_;
   uint32_t linnBits_;
+  std::vector<uint32_t> zero_tot_layers_;
   std::vector<double> oot_coefficients_;
+
+  HGCalTriggerTools triggerTools_;
 };
 
 #endif

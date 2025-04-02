@@ -34,3 +34,12 @@ def custom_hgcroc_compression(process,
             )
     process.l1tHGCalVFEProducer.ProcessorParameters = parameters
     return process
+
+hgcroc3c_layers = [23, 24, 25, 26] + [l for l in range(38, 48)]
+def custom_hgcroc3c_tot_zeroing(process, layers=hgcroc3c_layers):
+    parameters = vfe_proc.clone(
+            linearizationCfg_si = vfe_proc.linearizationCfg_si.clone(zero_tot_layers=layers),
+            linearizationCfg_sc = vfe_proc.linearizationCfg_sc.clone(zero_tot_layers=layers),
+            )
+    process.l1tHGCalVFEProducer.ProcessorParameters = parameters
+    return process

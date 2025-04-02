@@ -10,6 +10,7 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
       adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
       tdcsaturation_(conf.getParameter<double>("tdcsaturation")),
       linnBits_(conf.getParameter<uint32_t>("linnBits")),
+      zero_tot_layers_(conf.getParameter<std::vector<uint32_t>>("zero_tot_layers")),
       oot_coefficients_(conf.getParameter<std::vector<double>>("oot_coefficients")) {
   constexpr int kOot_order = 2;
   if (oot_coefficients_.size() != kOot_order) {
@@ -29,7 +30,10 @@ void HGCalVFELinearizationImpl::linearize(const std::vector<HGCalDataFrame>& dat
   for (const auto& frame : dataframes) {  //loop on DIGI
     double amplitude = 0.;
     if (frame[kIntimeSample].mode()) {  //TOT mode
-      amplitude = (std::floor(tdcOnset_ / adcLSB_) + 1.0) * adcLSB_ + double(frame[kIntimeSample].data()) * tdcLSB_;
+      unsigned layer = triggerTools_.layerWithOffset(frame.id());
+      if(std::find(zero_tot_layers_.begin(), zero_tot_layers_.end(), layer)==zero_tot_layers_.end()) { // layer not found in ToT zeroing
+        amplitude = (std::floor(tdcOnset_ / adcLSB_) + 1.0) * adcLSB_ + double(frame[kIntimeSample].data()) * tdcLSB_;
+      }
     } else {  //ADC mode
       double data = frame[kIntimeSample].data();
       // applies OOT PU subtraction only in the ADC mode
