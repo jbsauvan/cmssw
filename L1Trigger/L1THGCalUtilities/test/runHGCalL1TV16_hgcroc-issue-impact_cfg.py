@@ -30,9 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 tag = 'vanilla-v4'
 process.source = cms.Source("PoolSource",
-       #  fileNames = cms.untracked.vstring('/store/mc/Phase2Spring23DIGIRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_L1TFix_Trk1GeV_131X_mcRun4_realistic_v9_ext1-v2/80002/fdcf004f-f74b-4b95-a1e9-bef2479dff92.root'),
                             fileNames = cms.untracked.vstring('file:/data_cms_upgrade/sauvan/HGCAL/2502_hgcroc-issue-impact/test-files-from-pedro/SinglePhotonGun_eta1p8_CMSSW_14_1_0_pre1_D99_stucktot_{}/Events_0.root'.format(tag)),
-                            #  fileNames = cms.untracked.vstring('file:/data_cms_upgrade/sauvan/HGCAL/2502_hgcroc-issue-impact/test-files-from-pedro/SinglePhotonGun_eta1p8_CMSSW_14_1_0_pre1_D99_stucktot_vanilla-v4/Events_0.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            )
@@ -60,22 +58,58 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-from L1Trigger.L1THGCal.customTriggerCellSelect import custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized
-from L1Trigger.L1THGCal.customVFE import custom_hgcroc3c_tot_zeroing
-from L1Trigger.L1THGCal.customLayer1 import custom_layer1_hgcroc3c_capping
-process = custom_triggercellselect_mixedBestChoiceSuperTriggerCell_decentralized(process)
-#  process = custom_hgcroc3c_tot_zeroing(process)
-process = custom_layer1_hgcroc3c_capping(process)
+process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
+
+from L1Trigger.L1THGCalUtilities.hgcalTriggerChains import HGCalTriggerChains
+import L1Trigger.L1THGCalUtilities.vfe as vfe
+import L1Trigger.L1THGCalUtilities.concentrator as concentrator
+import L1Trigger.L1THGCalUtilities.clustering2d as clustering2d
+import L1Trigger.L1THGCalUtilities.layer1 as layer1
+import L1Trigger.L1THGCalUtilities.clustering3d as clustering3d
+import L1Trigger.L1THGCalUtilities.selectors as selectors
+import L1Trigger.L1THGCalUtilities.customNtuples as ntuple
+
+
+chains = HGCalTriggerChains()
+# Register algorithms
+## VFE
+chains.register_vfe("Default", vfe.CreateVfe())
+chains.register_vfe("Totzeroing", vfe.CreateVfeToTZeoring())
+
+## ECON
+chains.register_concentrator("Bcstc", concentrator.CreateMixedFeOptions())
+chains.register_concentrator("Bcstccapping", concentrator.CreateMixedFeOptionsTcCapping())
+## BE1
+chains.register_backend1("Dummy", clustering2d.CreateDummy())
+## BE2
+chains.register_backend2("Histomax", clustering3d.CreateHistoMax())
+# Register selector
+#  chains.register_selector("Genmatch", selectors.CreateGenMatch())
+
+
+# Register ntuples
+ntuple_list = ['event', 'digis', 'triggercells', 'gen', 'multiclusters']
+chains.register_ntuple("Digintuple", ntuple.CreateNtuple(ntuple_list))
+
+# Register trigger chains
+chains.register_chain('Default', 'Bcstc', 'Dummy', 'Histomax', '', 'Digintuple')
+chains.register_chain('Totzeroing', 'Bcstc', 'Dummy', 'Histomax', '', 'Digintuple')
+chains.register_chain('Default', 'Bcstccapping', 'Dummy', 'Histomax', '', 'Digintuple')
+
+process = chains.create_sequences(process)
+
+# Remove towers from sequence
+process.L1THGCalTriggerPrimitives.remove(process.L1THGCalTowerMap)
+process.L1THGCalTriggerPrimitives.remove(process.L1THGCalTower)
 
 process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
-
-
-# load ntuplizer
-process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
+process.selector_step = cms.Path(process.L1THGCalTriggerSelector)
 process.ntuple_step = cms.Path(process.L1THGCalTriggerNtuples)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
+
+
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

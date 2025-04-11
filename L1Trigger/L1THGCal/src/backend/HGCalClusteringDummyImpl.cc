@@ -9,10 +9,7 @@
 HGCalClusteringDummyImpl::HGCalClusteringDummyImpl(const edm::ParameterSet& conf)
     : calibSF_(conf.getParameter<double>("calibSF_cluster")),
       layerWeights_(conf.getParameter<std::vector<double>>("layerWeights")),
-      applyLayerWeights_(conf.getParameter<bool>("applyLayerCalibration")),
-      capping_layers_(conf.getParameter<std::vector<uint32_t>>("cappingLayers")),
-      capping_threshold_(conf.getParameter<double>("cappingThreshold")),
-      capping_value_(conf.getParameter<double>("cappingValue")) {
+      applyLayerWeights_(conf.getParameter<bool>("applyLayerCalibration")) {
   edm::LogInfo("HGCalClusterParameters") << "C2d global calibration factor: " << calibSF_;
 }
 
@@ -37,18 +34,14 @@ void HGCalClusteringDummyImpl::calibratePt(l1t::HGCalCluster& cluster) {
   double calibPt = 0.;
 
   if (applyLayerWeights_ && !triggerTools_.isNose(cluster.detId())) {
-    unsigned layerN = triggerTools_.layerWithOffset(cluster.detId());
 
+    unsigned layerN = triggerTools_.layerWithOffset(cluster.detId());
     if (layerWeights_.at(layerN) == 0.) {
       throw cms::Exception("BadConfiguration")
           << "2D cluster energy forced to 0 by calibration coefficients.\n"
           << "The configuration should be changed. "
           << "Discarded layers should be defined in hgcalTriggerGeometryESProducer.TriggerGeometry.DisconnectedLayers "
              "and not with calibration coefficients = 0\n";
-    }
-    if(std::find(capping_layers_.begin(), capping_layers_.end(), layerN)!=capping_layers_.end()) {
-      double mip = cluster.mipPt()*std::cosh(cluster.eta());
-      if(mip>capping_threshold_) cluster.setMipPt(capping_value_ / std::cosh(cluster.eta()));
     }
 
     calibPt = layerWeights_.at(layerN) * cluster.mipPt();

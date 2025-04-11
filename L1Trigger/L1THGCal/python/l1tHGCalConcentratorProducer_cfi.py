@@ -21,6 +21,9 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                fixedDataSizePerHGCROC = cms.bool(False),
                                allTrigCellsInTrigSums = cms.bool(True),
                                ctcSize = CTC_2_SIZES,
+                                cappingLayers = cms.vuint32(), 
+                                cappingThreshold = cms.double(0),
+                                cappingValue = cms.double(0)
                                )
 
 # Column is Nlinks, Row is NWafers
@@ -78,6 +81,9 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                           superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                           ctcSize = CTC_2_SIZES,
+                            cappingLayers = cms.vuint32(), 
+                            cappingThreshold = cms.double(0),
+                            cappingValue = cms.double(0)
                           )
 
 supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
@@ -94,6 +100,9 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
                              superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
+                            cappingLayers = cms.vuint32(), 
+                            cappingThreshold = cms.double(0),
+                            cappingValue = cms.double(0)
                              )
 
 custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
@@ -113,6 +122,9 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
                           superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
                           superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                           superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
+                            cappingLayers = cms.vuint32(), 
+                            cappingThreshold = cms.double(0),
+                            cappingValue = cms.double(0)
                           )
 
 
@@ -133,6 +145,9 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
                              superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
+                            cappingLayers = cms.vuint32(), 
+                            cappingThreshold = cms.double(0),
+                            cappingValue = cms.double(0)
                              )
 
 
@@ -150,6 +165,9 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
                              superTCCalibration_hesi = vfe_proc.calibrationCfg_hesi.clone(),
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
+                            cappingLayers = cms.vuint32(), 
+                            cappingThreshold = cms.double(0),
+                            cappingValue = cms.double(0)
 )
 
 
@@ -212,6 +230,9 @@ autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorP
                                  superTCCompression = superTCCompression_proc.clone(),
                                  coarseTCCompression = coarseTCCompression_proc.clone(),
                                  superTCCalibration = vfe_proc.clone(),
+                            cappingLayers = cms.vuint32(), 
+                            cappingThreshold = cms.double(0),
+                            cappingValue = cms.double(0)
 )
 
 

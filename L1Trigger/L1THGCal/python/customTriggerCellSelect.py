@@ -2,6 +2,17 @@ import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 from L1Trigger.L1THGCal.l1tHGCalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc, bestchoice_ndata_decentralized, custom_conc_proc, autoEncoder_conc_proc
 
+
+hgcroc3c_layers = [23, 24, 25, 26] + [l for l in range(38, 48)]
+def custom_hgcroc3c_capping(process, layers=hgcroc3c_layers, threshold=100., value=100.):
+    parameters = process.l1tHGCalConcentratorProducer.ProcessorParameters.clone(
+            cappingLayers=layers,
+            cappingThreshold=threshold,
+            cappingValue=value
+        )
+    process.l1tHGCalConcentratorProducer.ProcessorParameters = parameters
+    return process
+
 def custom_triggercellselect_supertriggercell(process,
                                               stcSize=supertc_conc_proc.stcSize,
                                               type_energy_division=supertc_conc_proc.type_energy_division,

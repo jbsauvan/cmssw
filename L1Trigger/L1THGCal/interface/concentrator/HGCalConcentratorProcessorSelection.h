@@ -38,6 +38,10 @@ private:
 
   std::vector<SelectionType> selectionType_;
 
+  std::vector<uint32_t> capping_layers_;
+  double capping_threshold_;
+  double capping_value_;
+
   std::unique_ptr<HGCalConcentratorThresholdImpl> thresholdImpl_;
   std::unique_ptr<HGCalConcentratorBestChoiceImpl> bestChoiceImpl_;
   std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> superTriggerCellImpl_;

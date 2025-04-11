@@ -37,9 +37,6 @@ phase2_hgcalV10.toModify(c2d_calib_pset,
 
 dummy_C2d_params = cms.PSet(c2d_calib_pset,
                             clusterType=cms.string('dummyC2d'),
-                            cappingLayers = cms.vuint32(), 
-                            cappingThreshold = cms.double(0),
-                            cappingValue = cms.double(0)
                             )
 
 

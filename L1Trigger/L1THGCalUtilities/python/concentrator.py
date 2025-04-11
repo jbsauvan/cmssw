@@ -128,6 +128,35 @@ class CreateOneBitFraction(object):
                 )
         return producer
 
+hgcroc3c_layers = [23, 24, 25, 26] + [l for l in range(38, 48)]
+class CreateMixedFeOptionsTcCapping(object):
+    def __init__(self,
+            stcSize=custom_conc_proc.stcSize,
+            type_energy_division=custom_conc_proc.type_energy_division,
+            fixedDataSizePerHGCROC=custom_conc_proc.fixedDataSizePerHGCROC,
+            triggercells=custom_conc_proc.NData,
+            layers=hgcroc3c_layers,
+            threshold=100.,
+            value=100.
+            ):
+        self.processor = custom_conc_proc.clone(
+                stcSize = stcSize,
+                type_energy_division = type_energy_division,
+                fixedDataSizePerHGCROC = fixedDataSizePerHGCROC,
+                NData = triggercells,
+                Method = cms.vstring('bestChoiceSelect','superTriggerCellSelect','superTriggerCellSelect'),
+                cappingLayers=layers,
+                cappingThreshold=threshold,
+                cappingValue=value
+                )
+
+    def __call__(self, process, inputs):
+        producer = process.l1tHGCalConcentratorProducer.clone(
+                InputTriggerCells = cms.InputTag(inputs),
+                InputTriggerSums = cms.InputTag(inputs),
+                ProcessorParameters = self.processor
+                )
+        return producer
 
 class CreateMixedFeOptions(object):
     def __init__(self,

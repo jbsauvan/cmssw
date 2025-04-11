@@ -10,7 +10,10 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
       fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
       allTrigCellsInTrigSums_(conf.getParameter<bool>("allTrigCellsInTrigSums")),
       coarsenTriggerCells_(conf.getParameter<std::vector<unsigned>>("coarsenTriggerCells")),
-      selectionType_(kNSubDetectors_) {
+      selectionType_(kNSubDetectors_),
+      capping_layers_(conf.getParameter<std::vector<uint32_t>>("cappingLayers")),
+      capping_threshold_(conf.getParameter<double>("cappingThreshold")),
+      capping_value_(conf.getParameter<double>("cappingValue")) {
   std::vector<std::string> selectionType(conf.getParameter<std::vector<std::string>>("Method"));
   if (selectionType.size() != kNSubDetectors_ || coarsenTriggerCells_.size() != kNSubDetectors_) {
     throw cms::Exception("HGCTriggerParameterError")
@@ -168,6 +171,21 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
         trigSumImpl_->doSum(module_trigcell.first, module_trigcell.second, trigSumsVecOutput);
       } else {  // using only unselected TCs
         trigSumImpl_->doSum(module_trigcell.first, trigCellVecNotSelected, trigSumsVecOutput);
+      }
+    }
+
+    // Apply TC capping
+    for (auto& trigCell : trigCellVecOutput) {
+      unsigned layer = triggerTools_.layerWithOffset(trigCell.detId());
+      if(std::find(capping_layers_.begin(), capping_layers_.end(), layer)!=capping_layers_.end()) {
+        double mip = trigCell.mipPt()*std::cosh(trigCell.eta());
+        if(mip>capping_threshold_) {
+          double mip2Gev = trigCell.pt()/trigCell.mipPt();
+          double capped_mipt = capping_value_ / std::cosh(trigCell.eta());
+          trigCell.setMipPt(capped_mipt);
+          math::PtEtaPhiMLorentzVector p4(capped_mipt*mip2Gev, trigCell.eta(), trigCell.phi(), 0.);
+          trigCell.setP4(p4);
+        }
       }
     }
 
