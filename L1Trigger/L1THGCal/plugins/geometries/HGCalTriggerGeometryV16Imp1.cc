@@ -73,6 +73,7 @@ private:
   static constexpr unsigned hSc_front_layers_split_ = 12;
   static constexpr unsigned hSc_back_layers_split_ = 8;
   static constexpr unsigned hSc_layer_for_split_ = 40;
+  static constexpr unsigned hSc_tcs_per_sector_ = hSc_num_panels_per_sector_*hSc_tcs_per_module_phi_;
   static constexpr int hSc_tc_layer0_min_ = 24;
   static constexpr int ntc_per_wafer_ = 48;
   static constexpr int nSectors_ = 3;
@@ -410,11 +411,13 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV16Imp1::getTriggerCellsF
     } else {
       ieta0 = ieta0 + 1;
     }
-    iphi0 = (iphi0 * hSc_tcs_per_module_phi_) + hSc_tc_layer0_min_ + 1;
-    int total_tcs = hSc_num_panels_per_sector_ * hSc_tcs_per_module_phi_ * nSectors_;
-    if (iphi0 > total_tcs) {
-      iphi0 = iphi0 - total_tcs;
-    }
+    // iphi0 = (iphi0 * hSc_tcs_per_module_phi_) + hSc_tc_layer0_min_ + 1;
+    // int total_tcs = hSc_num_panels_per_sector_ * hSc_tcs_per_module_phi_ * nSectors_;
+    // if (iphi0 > total_tcs) {
+      // iphi0 = iphi0 - total_tcs;
+    // }
+    int total_tcs = hSc_tcs_per_sector_ * nSectors_;
+    iphi0 = ((iphi0-1) * hSc_tcs_per_module_phi_ + 1) % total_tcs;
 
     int hSc_tcs_per_module_eta = (layer > hSc_layer_for_split_) ? hSc_back_layers_split_ : hSc_front_layers_split_;
 
@@ -955,14 +958,15 @@ void HGCalTriggerGeometryV16Imp1::unpackLayerSubdetWaferId(
 }
 
 void HGCalTriggerGeometryV16Imp1::etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const {
-  if (sector == 0) {
-    return;
-  }
-  if (sector == 2) {
-    iphi = iphi + hSc_num_panels_per_sector_;
-  } else if (sector == 1) {
-    iphi = iphi + (2 * hSc_num_panels_per_sector_);
-  }
+  // if (sector == 0) {
+    // return;
+  // }
+  // if (sector == 2) {
+    // iphi = iphi + hSc_num_panels_per_sector_;
+  // } else if (sector == 1) {
+    // iphi = iphi + (2 * hSc_num_panels_per_sector_);
+  // }
+  iphi += hSc_num_panels_per_sector_*sector;
 }
 
 HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV16Imp1::getWaferCentring(unsigned layer, int subdet) const {
@@ -987,33 +991,39 @@ HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV16Imp1::getWaferCentring(u
 }
 
 unsigned HGCalTriggerGeometryV16Imp1::tcEtaphiMappingToSector0(int& tc_ieta, int& tc_iphi) const {
-  unsigned sector = 0;
+  // unsigned sector = 0;
 
-  if (tc_iphi > hSc_tc_layer0_min_ && tc_iphi <= hSc_tc_layer0_min_ + ntc_per_wafer_) {
-    sector = 0;
-  } else if (tc_iphi > hSc_tc_layer0_min_ + ntc_per_wafer_ && tc_iphi <= hSc_tc_layer0_min_ + 2 * ntc_per_wafer_) {
-    sector = 2;
-  } else {
-    sector = 1;
+  // if (tc_iphi > hSc_tc_layer0_min_ && tc_iphi <= hSc_tc_layer0_min_ + ntc_per_wafer_) {
+    // sector = 0;
+  // } else if (tc_iphi > hSc_tc_layer0_min_ + ntc_per_wafer_ && tc_iphi <= hSc_tc_layer0_min_ + 2 * ntc_per_wafer_) {
+    // sector = 2;
+  // } else {
+    // sector = 1;
+  // }
+//
+  // if (sector == 0) {
+    // tc_iphi = tc_iphi - hSc_tc_layer0_min_;
+  // } else if (sector == 2) {
+    // tc_iphi = tc_iphi - (hSc_tc_layer0_min_ + ntc_per_wafer_);
+  // } else if (sector == 1) {
+    // if (tc_iphi <= hSc_tc_layer0_min_) {
+      // tc_iphi = tc_iphi + nSectors_ * ntc_per_wafer_;
+    // }
+    // tc_iphi = tc_iphi - (nSectors_ * ntc_per_wafer_ - hSc_tc_layer0_min_);
+  // }
+  unsigned sector = (tc_iphi-1) / hSc_tcs_per_sector_;
+  if(sector>nSectors_) {
+    throw cms::Exception("HGCalTriggerGeometryV16Imp1::OutOfRange") << "Got sector index ("<<sector<<") larger than expected ("<<nSectors_<<")";
   }
-
-  if (sector == 0) {
-    tc_iphi = tc_iphi - hSc_tc_layer0_min_;
-  } else if (sector == 2) {
-    tc_iphi = tc_iphi - (hSc_tc_layer0_min_ + ntc_per_wafer_);
-  } else if (sector == 1) {
-    if (tc_iphi <= hSc_tc_layer0_min_) {
-      tc_iphi = tc_iphi + nSectors_ * ntc_per_wafer_;
-    }
-    tc_iphi = tc_iphi - (nSectors_ * ntc_per_wafer_ - hSc_tc_layer0_min_);
-  }
+  unsigned tc_iphi_tmp = ( (tc_iphi-1) % hSc_tcs_per_sector_) + 1; // TC index starts at 1
+  tc_iphi = tc_iphi_tmp;
 
   return sector;
 }
 
 void HGCalTriggerGeometryV16Imp1::getScintillatoriEtaiPhi(
     int& ieta, int& iphi, int tc_eta, int tc_phi, unsigned layer) const {
-  iphi = (tc_phi - 1) / hSc_tcs_per_module_phi_;  //Phi index 1-12
+  iphi = (tc_phi - 1) / hSc_tcs_per_module_phi_ + 1;  //Phi index 1-12
 
   int split = hSc_front_layers_split_;
   if (layer > hSc_layer_for_split_) {
