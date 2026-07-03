@@ -941,14 +941,6 @@ void HGCalTriggerGeometryV16Imp1::unpackLayerSubdetWaferId(
 }
 
 void HGCalTriggerGeometryV16Imp1::etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const {
-  // if (sector == 0) {
-  // return;
-  // }
-  // if (sector == 2) {
-  // iphi = iphi + hSc_num_panels_per_sector_;
-  // } else if (sector == 1) {
-  // iphi = iphi + (2 * hSc_num_panels_per_sector_);
-  // }
   iphi += hSc_num_panels_per_sector_ * sector;
 }
 
@@ -974,26 +966,6 @@ HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV16Imp1::getWaferCentring(u
 }
 
 unsigned HGCalTriggerGeometryV16Imp1::tcEtaphiMappingToSector0(int& tc_ieta, int& tc_iphi) const {
-  // unsigned sector = 0;
-
-  // if (tc_iphi > hSc_tc_layer0_min_ && tc_iphi <= hSc_tc_layer0_min_ + ntc_per_wafer_) {
-  // sector = 0;
-  // } else if (tc_iphi > hSc_tc_layer0_min_ + ntc_per_wafer_ && tc_iphi <= hSc_tc_layer0_min_ + 2 * ntc_per_wafer_) {
-  // sector = 2;
-  // } else {
-  // sector = 1;
-  // }
-  //
-  // if (sector == 0) {
-  // tc_iphi = tc_iphi - hSc_tc_layer0_min_;
-  // } else if (sector == 2) {
-  // tc_iphi = tc_iphi - (hSc_tc_layer0_min_ + ntc_per_wafer_);
-  // } else if (sector == 1) {
-  // if (tc_iphi <= hSc_tc_layer0_min_) {
-  // tc_iphi = tc_iphi + nSectors_ * ntc_per_wafer_;
-  // }
-  // tc_iphi = tc_iphi - (nSectors_ * ntc_per_wafer_ - hSc_tc_layer0_min_);
-  // }
   unsigned sector = (tc_iphi - 1) / hSc_tcs_per_sector_;
   if (sector > nSectors_) {
     throw cms::Exception("HGCalTriggerGeometryV16Imp1::OutOfRange")
