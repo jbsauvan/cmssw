@@ -32,6 +32,7 @@ private:
   std::vector<int> ts_subdet_;
   std::vector<int> ts_side_;
   std::vector<int> ts_layer_;
+  std::vector<int> ts_sector_;
   std::vector<int> ts_waferu_;
   std::vector<int> ts_waferv_;
   std::vector<int> ts_wafertype_;
@@ -73,6 +74,7 @@ void HGCalTriggerNtupleHGCTriggerSums::initialize(TTree& tree,
   tree.Branch(withPrefix("subdet"), &ts_subdet_);
   tree.Branch(withPrefix("zside"), &ts_side_);
   tree.Branch(withPrefix("layer"), &ts_layer_);
+  tree.Branch(withPrefix("sector"), &ts_sector_);
   tree.Branch(withPrefix("waferu"), &ts_waferu_);
   tree.Branch(withPrefix("waferv"), &ts_waferv_);
   tree.Branch(withPrefix("wafertype"), &ts_wafertype_);
@@ -121,9 +123,11 @@ void HGCalTriggerNtupleHGCTriggerSums::fill(const edm::Event& e, const HGCalTrig
           ts_waferv_.emplace_back(modV);
         }
         ts_subdet_.emplace_back(subdet);
+        ts_sector_.emplace_back(id.sector());
         ts_wafertype_.emplace_back(id.type());
       } else {
         ts_subdet_.emplace_back(-999);
+        ts_sector_.emplace_back(-999);
         ts_waferu_.emplace_back(-999);
         ts_waferv_.emplace_back(-999);
         ts_wafertype_.emplace_back(-999);
@@ -148,6 +152,7 @@ void HGCalTriggerNtupleHGCTriggerSums::clear() {
   ts_subdet_.clear();
   ts_side_.clear();
   ts_layer_.clear();
+  ts_sector_.clear();
   ts_waferu_.clear();
   ts_waferv_.clear();
   ts_wafertype_.clear();
