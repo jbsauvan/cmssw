@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30000/000c5e5f-78f7-44ee-95fe-7b2f2c2e2312.root'),
+       fileNames = cms.untracked.vstring('/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            )
@@ -64,6 +64,7 @@ from L1Trigger.L1THGCalUtilities.hgcalTriggerChains import HGCalTriggerChains
 import L1Trigger.L1THGCalUtilities.vfe as vfe
 import L1Trigger.L1THGCalUtilities.concentrator as concentrator
 import L1Trigger.L1THGCalUtilities.clustering2d as clustering2d
+import L1Trigger.L1THGCalUtilities.layer1 as layer1
 import L1Trigger.L1THGCalUtilities.clustering3d as clustering3d
 import L1Trigger.L1THGCalUtilities.selectors as selectors
 import L1Trigger.L1THGCalUtilities.customNtuples as ntuple
@@ -74,12 +75,11 @@ chains = HGCalTriggerChains()
 ## VFE
 chains.register_vfe("Floatingpoint", vfe.CreateVfe())
 ## ECON
-chains.register_concentrator("Supertriggercell", concentrator.CreateSuperTriggerCell())
 chains.register_concentrator("Threshold", concentrator.CreateThreshold())
-chains.register_concentrator("Bestchoice", concentrator.CreateBestChoice())
-chains.register_concentrator("AutoEncoder", concentrator.CreateAutoencoder())
+chains.register_concentrator("Bcstc", concentrator.CreateMixedFeOptions())
 ## BE1
 chains.register_backend1("Dummy", clustering2d.CreateDummy())
+chains.register_backend1("Truncationfw", layer1.RozBinTruncationFw())
 ## BE2
 chains.register_backend2("Histomax", clustering3d.CreateHistoMax())
 # Register selector
@@ -91,12 +91,12 @@ ntuple_list = ['event', 'gen', 'multiclusters']
 chains.register_ntuple("Genclustersntuple", ntuple.CreateNtuple(ntuple_list))
 
 # Register trigger chains
-concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice', 'AutoEncoder']
-backend_algos = ['Histomax']
+concentrator_algos = ['Threshold', 'Bcstc']
+layer1_algos = ['Dummy', 'Truncationfw']
 ## Make cross product fo ECON and BE algos
 import itertools
-for cc,be in itertools.product(concentrator_algos,backend_algos):
-    chains.register_chain('Floatingpoint', cc, 'Dummy', be, 'Genmatch', 'Genclustersntuple')
+for cc,s1 in itertools.product(concentrator_algos,layer1_algos):
+    chains.register_chain('Floatingpoint', cc, s1, 'Histomax', 'Genmatch', 'Genclustersntuple')
 
 process = chains.create_sequences(process)
 

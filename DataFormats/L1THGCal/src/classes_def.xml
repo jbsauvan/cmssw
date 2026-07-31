@@ -30,8 +30,9 @@
 
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerSums>" />
-  <class name="l1t::HGCalCluster" ClassVersion="19">
-   <version ClassVersion="19" checksum="1681737349"/>
+  <class name="l1t::HGCalCluster" ClassVersion="20">
+   <version ClassVersion="20" checksum="3312252455"/>
+   <version ClassVersion="19" checksum="214410871"/>
    <version ClassVersion="18" checksum="3346067797"/>
    <version ClassVersion="17" checksum="2841504063"/>
    <version ClassVersion="16" checksum="1572558185"/>
@@ -49,7 +50,7 @@
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
 
   <class name="l1t::HGCalMulticluster" ClassVersion="20">
-   <version ClassVersion="20" checksum="266999929"/>
+   <version ClassVersion="20" checksum="3715245983"/>
    <version ClassVersion="19" checksum="2270821353"/>
    <version ClassVersion="18" checksum="3914904215"/>
    <version ClassVersion="17" checksum="460658789"/>
@@ -67,7 +68,8 @@
   <class name="l1t::HGCalMulticlusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalMulticlusterBxCollection>"/>
 
-  <class name="l1t::HGCalTriggerCell" ClassVersion="12">
+  <class name="l1t::HGCalTriggerCell" ClassVersion="13">
+   <version ClassVersion="13" checksum="990350208"/>
    <version ClassVersion="12" checksum="3538848072"/>
    <version ClassVersion="11" checksum="646735227"/>
     <version ClassVersion="10" checksum="1275348814"/>

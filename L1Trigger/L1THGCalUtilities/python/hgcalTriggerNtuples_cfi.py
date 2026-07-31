@@ -23,7 +23,7 @@ ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
     GenParticles = cms.InputTag('genParticles'),
     GenPU = cms.InputTag('addPileupInfo'),
-    MCEvent = cms.InputTag('generatorSmeared'),
+    MCEvent = cms.InputTag("generatorSmeared","","SIM"),
     SimTracks = cms.InputTag('g4SimHits'),
     SimVertices = cms.InputTag('g4SimHits'),
     particleFilter = PartFilterConfig
@@ -71,6 +71,7 @@ ntuple_triggercells = cms.PSet(
 ntuple_triggersums = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerSums'),
     TriggerSums = cms.InputTag('l1tHGCalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+    ScintillatorModulesPerSector = cms.uint32(12),
 )
 
 ntuple_econdata = cms.PSet(
@@ -91,7 +92,8 @@ ntuple_multiclusters = cms.PSet(
     Multiclusters = cms.InputTag('l1tHGCalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
     EGIdentification = egamma_identification_histomax.clone(),
     FillLayerInfo = cms.bool(False),
-    FillInterpretationInfo = cms.bool(True)
+    FillInterpretationInfo = cms.bool(True),
+    FillHWClusterProperties = cms.bool(False)
 )
 
 ntuple_towers = cms.PSet(
@@ -109,6 +111,7 @@ l1tHGCalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_digis,
         ntuple_triggercells,
         ntuple_triggersums,
+        ntuple_clusters,
         ntuple_multiclusters,
         ntuple_towers
     )

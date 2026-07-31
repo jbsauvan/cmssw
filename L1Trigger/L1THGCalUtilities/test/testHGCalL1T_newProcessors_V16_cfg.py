@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30000/000c5e5f-78f7-44ee-95fe-7b2f2c2e2312.root'),
+       fileNames = cms.untracked.vstring('/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            )
@@ -67,8 +67,8 @@ process = custom_tower_standalone(process)
 process.hgcl1tpg_step = cms.Path(process.L1THGCalTriggerPrimitives)
 
 # Change to custom geometry
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V11_Imp3
-process = custom_geometry_V11_Imp3(process)
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V16_Imp1
+process = custom_geometry_V16_Imp1(process)
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
