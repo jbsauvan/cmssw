@@ -97,6 +97,49 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
   }
 }
 
+uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellSplit(uint32_t detid) const {
+  unsigned int layer = triggerTools_.layerWithOffset(detid);
+  int thickness = triggerTools_.thicknessIndex(detid);
+
+  int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
+
+  DetId tc_Id(detid);
+  int tcSplit = -1;
+  if (tc_Id.det() == DetId::HGCalTrigger || tc_Id.det() == DetId::HGCalHSc) {
+    if (triggerTools_.isScintillator(detid)) {
+      HGCScintillatorDetId tc_Id(detid);
+
+      tcSplit = (((tc_Id.ietaAbs() - 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (tc_Id.iphi() - 1)) &
+                    kSplit_Scin_.at(ctcSize);
+
+
+    } else {
+      HGCalTriggerDetId tc_Id(detid);
+
+      int uPrime = 0;
+      int vPrime = 0;
+      int rocnum = detIdToROC_.getROCNumber(tc_Id.triggerCellU(), tc_Id.triggerCellV(), 1);
+
+      if (rocnum == kRoc0deg_) {
+        uPrime = tc_Id.triggerCellU();
+        vPrime = tc_Id.triggerCellV() - tc_Id.triggerCellU();
+
+      } else if (rocnum == kRoc120deg_) {
+        uPrime = tc_Id.triggerCellU() - tc_Id.triggerCellV() - 1;
+        vPrime = tc_Id.triggerCellV();
+
+      } else if (rocnum == kRoc240deg_) {
+        uPrime = tc_Id.triggerCellV() - kRotate4_;
+        vPrime = kRotate7_ - tc_Id.triggerCellU();
+      }
+
+      tcSplit = (rocnum << kRocShift_) | ((uPrime << kUShift_ | vPrime) & kSplit_.at(ctcSize));
+    }
+
+  }
+  return tcSplit;
+}
+
 std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(uint32_t ctcId) const {
   int thickness = triggerTools_.thicknessIndex(ctcId);
   unsigned int layer = triggerTools_.layerWithOffset(ctcId);

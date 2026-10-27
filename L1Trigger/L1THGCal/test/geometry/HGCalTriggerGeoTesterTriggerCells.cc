@@ -4,6 +4,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeoTesterBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/interface/HGCalCoarseTriggerCellMapping.h"
 
 class HGCalTriggerGeoTesterTriggerCells : public HGCalTriggerGeoTesterBase {
 public:
@@ -17,6 +18,7 @@ private:
   void clear() final;
 
   HGCalTriggerTools triggerTools_;
+  HGCalCoarseTriggerCellMapping superTCmapping_;
 
   unsigned id_ = 0;
   int valid_ = 0;
@@ -33,6 +35,7 @@ private:
   int waferV_ = 0;
   int type_ = 0;
   unsigned modid_ = 0;
+  unsigned stcid_ = 0;
   float x_ = 0.;
   float y_ = 0.;
   float z_ = 0.;
@@ -45,7 +48,8 @@ private:
 DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory, HGCalTriggerGeoTesterTriggerCells, "HGCalTriggerGeoTesterTriggerCells");
 
 HGCalTriggerGeoTesterTriggerCells::HGCalTriggerGeoTesterTriggerCells(const edm::ParameterSet& conf)
-    : HGCalTriggerGeoTesterBase(conf) {}
+    : HGCalTriggerGeoTesterBase(conf),
+      superTCmapping_(conf.getParameter<std::vector<unsigned>>("stcSize")) {}
 
 void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree, const edm::ParameterSet& conf) {
   tree_ = tree;
@@ -65,6 +69,7 @@ void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree, const edm::Param
   tree_->Branch("waferV", &waferV_, "waferV/I");
   tree_->Branch("type", &type_, "type/i");
   tree_->Branch("modid", &modid_, "modid/I");
+  tree_->Branch("stcid", &stcid_, "stcid/I");
   tree_->Branch("x", &x_, "x/F");
   tree_->Branch("y", &y_, "y/F");
   tree_->Branch("z", &z_, "z/F");
@@ -96,6 +101,7 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
   for (const auto& id : triggercells) {
     DetId detid(id);
     modid_ = es.geometry->getModuleFromTriggerCell(id);
+    stcid_ = superTCmapping_.getCoarseTriggerCellSplit(id);
     valid_ = es.geometry->validTriggerCell(id);
     disconnected_ = es.geometry->disconnectedModule(modid_);
     id_ = id;
@@ -150,6 +156,8 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
 
 void HGCalTriggerGeoTesterTriggerCells::check(const HGCalTriggerGeoTesterEventSetup& es) {
   edm::LogPrint("GeoTesterTriggerCells") << "Checking trigger cells";
+
+  superTCmapping_.setGeometry(es.geometry.product());
   // Create list of TCs from valid cells
   std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
   for (const auto& id : es.geometry->eeGeometry()->getValidDetIds()) {
@@ -215,6 +223,7 @@ void HGCalTriggerGeoTesterTriggerCells::clear() {
   waferV_ = 0;
   type_ = 0;
   modid_ = 0;
+  stcid_ = 0;
   x_ = 0.;
   y_ = 0.;
   z_ = 0.;
