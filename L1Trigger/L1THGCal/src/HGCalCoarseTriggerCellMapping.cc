@@ -50,65 +50,37 @@ uint32_t HGCalCoarseTriggerCellMapping::getRepresentativeDetId(uint32_t tcid) co
 }
 
 uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) const {
-  unsigned int layer = triggerTools_.layerWithOffset(detid);
-  int thickness = triggerTools_.thicknessIndex(detid);
-
-  int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
-
-  DetId tc_Id(detid);
-  if (tc_Id.det() == DetId::HGCalTrigger || tc_Id.det() == DetId::HGCalHSc) {
+  uint32_t stcid = 0;
+  uint32_t detector = DetId(detid).det();
+  if (detector == DetId::HGCalTrigger || detector == DetId::HGCalHSc) {
+    unsigned tcSplit = getCoarseTriggerCellSplit(detid);
     if (triggerTools_.isScintillator(detid)) {
-      HGCScintillatorDetId tc_Id(detid);
-
-      int tcSplit = (((tc_Id.ietaAbs() - 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (tc_Id.iphi() - 1)) &
-                    kSplit_Scin_.at(ctcSize);
-
-      detid = (detid & kHGCalScinCellMaskInv_) | tcSplit;
-
-      return detid;
-
+      stcid = (detid & kHGCalScinCellMaskInv_) | tcSplit;
     } else {
-      HGCalTriggerDetId tc_Id(detid);
-
-      int uPrime = 0;
-      int vPrime = 0;
-      int rocnum = detIdToROC_.getROCNumber(tc_Id.triggerCellU(), tc_Id.triggerCellV(), 1);
-
-      if (rocnum == kRoc0deg_) {
-        uPrime = tc_Id.triggerCellU();
-        vPrime = tc_Id.triggerCellV() - tc_Id.triggerCellU();
-
-      } else if (rocnum == kRoc120deg_) {
-        uPrime = tc_Id.triggerCellU() - tc_Id.triggerCellV() - 1;
-        vPrime = tc_Id.triggerCellV();
-
-      } else if (rocnum == kRoc240deg_) {
-        uPrime = tc_Id.triggerCellV() - kRotate4_;
-        vPrime = kRotate7_ - tc_Id.triggerCellU();
-      }
-
-      int tcSplit = (rocnum << kRocShift_) | ((uPrime << kUShift_ | vPrime) & kSplit_.at(ctcSize));
-      detid = (detid & kHGCalCellMaskInv_) | tcSplit;
-      return detid;
+      stcid = (detid & kHGCalCellMaskInv_) | tcSplit;
     }
-
-  } else {
-    return 0;
   }
+  return stcid;
 }
 
 uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellSplit(uint32_t detid) const {
+  uint32_t tcSplit = 0;
+
   unsigned int layer = triggerTools_.layerWithOffset(detid);
   int thickness = triggerTools_.thicknessIndex(detid);
-
   int ctcSize = ctcSize_.at(thickness * kNHGCalLayersMax_ + layer);
+  uint32_t detector = DetId(detid).det();
 
-  DetId tc_Id(detid);
-  int tcSplit = -1;
-  if (tc_Id.det() == DetId::HGCalTrigger || tc_Id.det() == DetId::HGCalHSc) {
+  if (detector == DetId::HGCalTrigger || detector == DetId::HGCalHSc) {
     if (triggerTools_.isScintillator(detid)) {
       HGCScintillatorDetId tc_Id(detid);
 
+      //  |EEEEEEEE|PPPPPPPPP|
+      // &|11111111|111111111| (individual cells)
+      // &|11111111|111111110| (CTC2)
+      // &|11111110|111111110| (CTC4)
+      // &|11111110|111111100| (CTC8)
+      // &|11111100|111111100| (CTC16)
       tcSplit = (((tc_Id.ietaAbs() - 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (tc_Id.iphi() - 1)) &
                 kSplit_Scin_.at(ctcSize);
 
@@ -117,7 +89,8 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellSplit(uint32_t detid
 
       int uPrime = 0;
       int vPrime = 0;
-      int rocnum = detIdToROC_.getROCNumber(tc_Id.triggerCellU(), tc_Id.triggerCellV(), 1);
+      int type = 1;
+      int rocnum = detIdToROC_.getROCNumber(tc_Id.triggerCellU(), tc_Id.triggerCellV(), type);
 
       if (rocnum == kRoc0deg_) {
         uPrime = tc_Id.triggerCellU();
@@ -132,6 +105,12 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellSplit(uint32_t detid
         vPrime = kRotate7_ - tc_Id.triggerCellU();
       }
 
+      //  |RR|UU|VV|
+      // &   |11|11| (individual cells)
+      // &   |10|11| (CTC2)
+      // &   |01|01| (CTC4)
+      // &   |00|10| (CTC8)
+      // &   |00|00| (CTC16)
       tcSplit = (rocnum << kRocShift_) | ((uPrime << kUShift_ | vPrime) & kSplit_.at(ctcSize));
     }
   }
