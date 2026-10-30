@@ -36,6 +36,7 @@ private:
   int type_ = 0;
   unsigned modid_ = 0;
   unsigned stcid_ = 0;
+  int stcsplit_ = -1;
   float x_ = 0.;
   float y_ = 0.;
   float z_ = 0.;
@@ -48,8 +49,7 @@ private:
 DEFINE_EDM_PLUGIN(HGCalTriggerGeoTesterFactory, HGCalTriggerGeoTesterTriggerCells, "HGCalTriggerGeoTesterTriggerCells");
 
 HGCalTriggerGeoTesterTriggerCells::HGCalTriggerGeoTesterTriggerCells(const edm::ParameterSet& conf)
-    : HGCalTriggerGeoTesterBase(conf),
-      superTCmapping_(conf.getParameter<std::vector<unsigned>>("stcSize")) {}
+    : HGCalTriggerGeoTesterBase(conf), superTCmapping_(conf.getParameter<std::vector<unsigned>>("stcSize")) {}
 
 void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree, const edm::ParameterSet& conf) {
   tree_ = tree;
@@ -68,8 +68,9 @@ void HGCalTriggerGeoTesterTriggerCells::initialize(TTree* tree, const edm::Param
   tree_->Branch("waferU", &waferU_, "waferU/I");
   tree_->Branch("waferV", &waferV_, "waferV/I");
   tree_->Branch("type", &type_, "type/i");
-  tree_->Branch("modid", &modid_, "modid/I");
-  tree_->Branch("stcid", &stcid_, "stcid/I");
+  tree_->Branch("modid", &modid_, "modid/i");
+  tree_->Branch("stcid", &stcid_, "stcid/i");
+  tree_->Branch("stcsplit", &stcsplit_, "stcsplit/i");
   tree_->Branch("x", &x_, "x/F");
   tree_->Branch("y", &y_, "y/F");
   tree_->Branch("z", &z_, "z/F");
@@ -101,7 +102,8 @@ void HGCalTriggerGeoTesterTriggerCells::fill(const HGCalTriggerGeoTesterEventSet
   for (const auto& id : triggercells) {
     DetId detid(id);
     modid_ = es.geometry->getModuleFromTriggerCell(id);
-    stcid_ = superTCmapping_.getCoarseTriggerCellSplit(id);
+    stcid_ = superTCmapping_.getCoarseTriggerCellId(id);
+    stcsplit_ = superTCmapping_.getCoarseTriggerCellSplit(id);
     valid_ = es.geometry->validTriggerCell(id);
     disconnected_ = es.geometry->disconnectedModule(modid_);
     id_ = id;
@@ -224,6 +226,7 @@ void HGCalTriggerGeoTesterTriggerCells::clear() {
   type_ = 0;
   modid_ = 0;
   stcid_ = 0;
+  stcsplit_ = -1;
   x_ = 0.;
   y_ = 0.;
   z_ = 0.;

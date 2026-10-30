@@ -110,8 +110,7 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellSplit(uint32_t detid
       HGCScintillatorDetId tc_Id(detid);
 
       tcSplit = (((tc_Id.ietaAbs() - 1) << HGCScintillatorDetId::kHGCalRadiusOffset) | (tc_Id.iphi() - 1)) &
-                    kSplit_Scin_.at(ctcSize);
-
+                kSplit_Scin_.at(ctcSize);
 
     } else {
       HGCalTriggerDetId tc_Id(detid);
@@ -135,7 +134,6 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellSplit(uint32_t detid
 
       tcSplit = (rocnum << kRocShift_) | ((uPrime << kUShift_ | vPrime) & kSplit_.at(ctcSize));
     }
-
   }
   return tcSplit;
 }

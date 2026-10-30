@@ -66,7 +66,8 @@ process = custom_geometry_V16_Imp1(process)
 from L1Trigger.L1THGCal.l1tHGCalConcentratorProducer_cfi import supertc_conc_proc
 
 tester_cells = cms.PSet(
-    TesterName = cms.string('HGCalTriggerGeoTesterCells')
+    TesterName = cms.string('HGCalTriggerGeoTesterCells'),
+    stcSize = supertc_conc_proc.stcSize,
 )
 tester_triggercells = cms.PSet(
     TesterName = cms.string('HGCalTriggerGeoTesterTriggerCells'),
